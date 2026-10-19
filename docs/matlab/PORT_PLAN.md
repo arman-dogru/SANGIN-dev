@@ -152,7 +152,43 @@ not bit-identical.
 
 ## 8. Checklist: done and next
 
-Updated at the end of each milestone.
+Updated at the end of each milestone. Per-module status and test counts are
+in [README_MATLAB.md](../../README_MATLAB.md).
 
-- [x] M0 plan
-- [ ] M1 (see `README_MATLAB.md` status table)
+**Done (M0 + M1, verified on Octave 9.4.0, 29/29 tests):**
+- [x] Port plan (this file)
+- [x] Full `+panama_uav` scaffold: every Python module has a MATLAB
+      counterpart. 59 stubs name their Python source and raise
+      `panama_uav:notImplemented` (`ScaffoldTest`)
+- [x] TOML subset decoder, `load_config`, `profile`, transport validation
+- [x] MovingAI maps and scenarios; A* with Python's heap tie-breaking
+- [x] Air-to-ground model, UAV controller, radio snapshot
+- [x] `ExperimentEnvironment`: reset (injectable draws), collisions, rewards, observations
+- [x] Information caches, guidance consumption, mission routes (UAV and cloud), staleness
+- [x] `EventCalendar` (SimPy replacement); `Transport` for the `perfect` and `controlled` profiles
+- [x] Fixture generator `matlab/tools/make_fixtures.py`; Octave test shim and runner
+- [x] On-demand figure script `matlab/scripts/plot_rollout.m` (output gitignored)
+
+**Next, in order:**
+1. [ ] Run `run_tests` on licensed MATLAB R2021b+ and fix any MATLAB/Octave differences
+2. [ ] M1b: `physical` profile (`_start`, `_finish_transmission`, link round-robin,
+       handover pauses), `encode_size` (pickle-5 byte counts; add a fixture of
+       `len(encode(payload))` for report, mission and information payloads),
+       `occupancy`, `DelayTrace` (`.npz` reader), `import_trace`
+3. [ ] `MissionCommunication.prepare_decision` (decision deadline)
+4. [ ] M2: `+nn` and `DQN` with forward/backward/AdamW parity. Add
+       `export_torch_weights.py` and fixtures with `torch.manual_seed`.
+       Consider Deep Learning Toolbox (`dlnetwork`, `dlgradient`, `adamupdate`)
+       as the fast path, keeping the hand-written one as reference
+5. [ ] M3: PER, `learn`, `TrainingSession`, records
+6. [ ] M4: evaluation and bootstrap (`bootci` with Statistics Toolbox, if licensed)
+7. [ ] M5: LEO. Satellite Communications / Aerospace Toolbox (`satelliteScenario`,
+       SGP4 propagator, `p618PropagationLosses`) can replace the hand ports;
+       keep parity fixtures against `sgp4` 2.27 and ITU-Rpy 0.4.0 either way
+8. [ ] M6/M7: reporting, HTML replay, CLI, CI workflow, side-by-side figures
+
+**Known gaps and ambiguities:**
+- MATLAB-native RNG draws are only statistically equivalent to NumPy's.
+- `Transport.log` entries carry no byte counts until `encode_size` lands.
+- The repository README still links to `output/results/...`, which was
+  removed on this branch (see the M1 PR); main will be updated separately.
