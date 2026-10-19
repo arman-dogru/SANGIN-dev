@@ -7,12 +7,12 @@ classdef ScaffoldTest < matlab.unittest.TestCase
             env.reset();
             tc.verifyError(@() env.prepare_decision(0.1), 'panama_uav:notImplemented');
             tc.verifyError(@() env.communication.prepare_decision(env.agents, 0, 0.1), 'panama_uav:notImplemented');
-            tc.verifyError(@() env.communication.transport.occupancy(), 'panama_uav:notImplemented');
             [spatial, vector_length] = env.observation_shape();
             tc.verifyEqual(spatial, [15 15 3]);
             tc.verifyEqual(vector_length, 12);
             t = c.communication;
-            t.uplink_trace = 'traces/uplink.npz';
+            t.profile = 'physical';
+            t.leo_timeline = 'leo/timeline.npz';
             tc.verifyError(@() panama_uav.transport.Transport(t), 'panama_uav:notImplemented');
             tc.verifyError(@() env.reset('start', [0 0]), 'panama_uav:options');
         end
@@ -30,7 +30,7 @@ classdef ScaffoldTest < matlab.unittest.TestCase
                 tc.verifyError(@() feval(name), 'panama_uav:notImplemented', name);
             end
             % Pinned: a stub that is ported must update this count and README_MATLAB.
-            tc.verifyEqual(stubs, 59, sprintf('%d stub files found', stubs));
+            tc.verifyEqual(stubs, 57, sprintf('%d stub files found', stubs));
         end
     end
 end

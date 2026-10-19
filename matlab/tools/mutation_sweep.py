@@ -17,7 +17,10 @@ one verify/assert caught the mutant (the summary shows both counts).
 
 Groups: config (the 20 load_config / validate_transport / overlay rules,
 run against ConfigTest), toml (toml_decode's rejection and location rules,
-TomlTest) and env (start/goal pop order, RngTest). The summary is printed
+TomlTest), env (start/goal pop order, RngTest), encode (pickle size rules,
+EncodeTest), trace (.npz reader and DelayTrace, TraceTest) and transport
+(physical link service, handovers, trace replay, byte counters and
+occupancy, TransportTest). The summary is printed
 and written to matlab/output/mutation_sweep.txt, which is gitignored.
 Exit status is 0 only when the unmutated baseline passes and every mutant
 is killed by an assertion (ERRORED, TIMEOUT and SURVIVED all fail it). Needs octave-cli (override with $OCTAVE).
@@ -45,6 +48,10 @@ TOML = "matlab/+panama_uav/+util/toml_decode.m"
 POP = "matlab/+panama_uav/+environment/pop_starts_and_goals.m"
 UTF8 = "matlab/+panama_uav/+util/decode_utf8.m"
 READ = "matlab/+panama_uav/+util/read_text.m"
+ENCODE = "matlab/+panama_uav/+transport/encode_size.m"
+TRANSPORT_M = "matlab/+panama_uav/+transport/Transport.m"
+TRACE = "matlab/+panama_uav/+transport/DelayTrace.m"
+NPY = "matlab/+panama_uav/+util/read_npy.m"
 
 
 def drop(marker):
@@ -136,6 +143,118 @@ MUTANTS = [
           "            if false\n                fail(bytes, i, i + j - 1, 'invalid continuation byte');")),
     ("toml", "read_text validates UTF-8", READ,
      swap("    text = panama_uav.util.decode_utf8(bytes);", "    text = char(bytes);")),
+    # encode: pickle protocol-5 size rules (EncodeTest)
+    ("encode", "BININT1 up to 255", ENCODE, swap("if x >= 0 && x <= 255", "if x >= 0 && x <= 256")),
+    ("encode", "BININT2 up to 65535", ENCODE, swap("elseif x >= 0 && x <= 65535", "elseif x >= 0 && x <= 65536")),
+    ("encode", "BININT for signed 32-bit", ENCODE,
+     swap("small = w >= int64(-2147483648) && w <= int64(2147483647);",
+          "small = w >= int64(-2147483647) && w <= int64(2147483647);")),
+    ("encode", "LONG1 byte count", ENCODE, swap("nbytes = floor(nbits / 8) + 1;", "nbytes = ceil(nbits / 8);")),
+    ("encode", "LONG1 drops sign byte of -(2**(8j-1))", ENCODE,
+     swap("if negative && power_of_two && mod(nbits, 8) == 0", "if false")),
+    ("encode", "SHORT_BINUNICODE up to 255 bytes", ENCODE,
+     swap("        if m <= 255\n", "        if m < 255\n")),
+    ("encode", "str length in UTF-8 bytes", ENCODE,
+     swap("m = numel(c);                            % Octave char holds UTF-8 bytes",
+          "m = panama_uav.util.text_length(v);")),
+    ("encode", "SHORT_BINBYTES up to 255 bytes", ENCODE, swap("if v.n <= 255", "if v.n < 255")),
+    ("encode", "TUPLE1/2/3 for short tuples", ENCODE, swap("elseif k <= 3", "elseif k <= 4")),
+    ("encode", "list of one: APPEND", ENCODE,
+     swap("        if k == 1\n            s = save(s, v{1});", "        if false\n            s = save(s, v{1});")),
+    ("encode", "list batches of 1000", ENCODE,
+     swap("s = save(s, v{total});\n                    batch = batch + 1;\n                    if batch == 1000",
+          "s = save(s, v{total});\n                    batch = batch + 1;\n                    if batch == 2000")),
+    ("encode", "dict of one: SETITEM", ENCODE,
+     swap("        if k == 1\n            s = save(s, keys{1});", "        if false\n            s = save(s, keys{1});")),
+    ("encode", "dict extra empty batch after a full one", ENCODE,
+     swap("            while batch == 1000\n", "            while pos < k\n")),
+    ("encode", "FRAME header is 9 bytes", ENCODE,
+     swap("s.len = s.len + 9;                       % FRAME header, reserved",
+          "s.len = s.len + 8;                       % FRAME header, reserved")),
+    ("encode", "frames under 4 bytes lose their header", ENCODE,
+     swap("if s.len - s.fs - 9 < 4", "if s.len - s.fs - 9 < 5")),
+    ("encode", "frame commit at 64 KiB opcode boundaries", ENCODE,
+     swap("if s.framing && s.fs >= 0 && s.len - s.fs - 9 >= 65536", "if false")),
+    ("encode", "64 KiB payloads bypass the frame", ENCODE,
+     swap("    if k >= 65536\n        s = commit(s);", "    if k > 65536\n        s = commit(s);")),
+    ("encode", "no frame around a bypassed payload", ENCODE,
+     swap("        s.framing = false;\n        s = write(s, header);", "        s = write(s, header);")),
+    # trace: .npz reader and DelayTrace.delay (TraceTest)
+    ("trace", "delay outside the segment", TRACE, drop("Simulation exceeds imported trace segment")),
+    ("trace", "searchsorted side='right'", TRACE,
+     swap("index = max(1, sum(ts <= time));", "index = max(1, sum(ts < time));")),
+    ("trace", "NaN time takes the last delay", TRACE,
+     swap("            if isnan(time)\n", "            if false\n")),
+    ("trace", "npy strips trailing NULs", NPY, swap("last = find(cp ~= 0, 1, 'last');", "last = numel(cp);")),
+    ("trace", "npy C order", NPY,
+     swap("value = permute(reshape(values, fliplr(dims)), numel(dims):-1:1);", "value = reshape(values, dims);")),
+    ("trace", "npy refuses object arrays", NPY, drop("Object arrays cannot be loaded")),
+    # transport: physical profile (TransportTest)
+    ("transport", "round robin after last agent", TRANSPORT_M,
+     swap("later = eligible(eligible > L.last_agent);", "later = eligible(eligible >= L.last_agent);")),
+    ("transport", "partly served message resumes at the front", TRANSPORT_M,
+     swap("obj.push_front(k, value{2}.message.agent, {value{2}, value{3}});",
+          "obj.push_back(k, value{2}.message.agent, {value{2}, value{3}});")),
+    ("transport", "chunks of packet_payload_bytes", TRANSPORT_M,
+     swap("served = min(q.remaining_bytes, c.packet_payload_bytes);", "served = q.remaining_bytes;")),
+    ("transport", "overhead per started 1500-byte packet", TRANSPORT_M,
+     swap("wire = served + ceil(served / 1500) * c.packet_overhead_bytes;",
+          "wire = served + floor(served / 1500) * c.packet_overhead_bytes;")),
+    ("transport", "no overhead without fragmentation", TRANSPORT_M,
+     swap("                wire = served;\n", "                wire = served + ceil(served / 1500) * c.packet_overhead_bytes;\n")),
+    ("transport", "propagation on satellite links only", TRANSPORT_M,
+     swap("            else\n                propagation = 0.0;", "            else\n                propagation = c.one_way_propagation_seconds;")),
+    ("transport", "transmit logged at first start", TRANSPORT_M,
+     swap("                    time = q.first_start;", "                    time = obj.now;")),
+    ("transport", "log_service_chunks", TRANSPORT_M,
+     swap("if c.log_service_chunks || done", "if done")),
+    ("transport", "queue time accumulates over chunks", TRANSPORT_M,
+     swap("q.queue_seconds = q.queue_seconds + (obj.now - q.ready_at);", "q.queue_seconds = obj.now - q.ready_at;")),
+    ("transport", "handover time logged", TRANSPORT_M,
+     swap("interrupted = finish - obj.now - duration;", "interrupted = 0;")),
+    ("transport", "no pause before the first window", TRANSPORT_M,
+     swap("if index > 0 && time < window + pause", "if time < window + pause")),
+    ("transport", "transmission fits the window exactly", TRANSPORT_M,
+     swap("if remaining <= available", "if remaining < available")),
+    ("transport", "residue of 1e-14 s counts as done", TRANSPORT_M,
+     swap("while remaining > 1e-14", "while remaining > 0")),
+    ("transport", "pause after each crossed window", TRANSPORT_M,
+     # Half the pause, not none: with no pause at all the cursor can sit on a
+     # window boundary forever (the zero-interruption hang described in
+     # Transport.finish_transmission), which would be a TIMEOUT, not a test.
+     swap("                time = next_window + pause;\n", "                time = next_window + pause / 2;\n")),
+    ("transport", "handover_end after the interruption", TRANSPORT_M,
+     swap("obj.event(at + c.handover_interruption_seconds, 'handover_end'", "obj.event(at, 'handover_end'")),
+    ("transport", "traced links unaffected by handovers", TRANSPORT_M,
+     swap("affects = names(~cellfun(@(n) isfield(obj.traces, n), names));", "affects = names;")),
+    ("transport", "trace replay uses the backhaul offset", TRANSPORT_M,
+     swap("d = obj.traces.(name).delay(at + c.backhaul_time_offset_seconds);", "d = obj.traces.(name).delay(at);")),
+    ("transport", "traced hop replaces link service", TRANSPORT_M,
+     swap("elseif isfield(obj.traces, name)", "elseif false")),
+    ("transport", "traces replayed only in physical", TRANSPORT_M,
+     swap("                elseif ~physical\n", "                elseif false\n")),
+    ("transport", "no model snapshots over traces", TRANSPORT_M, drop("UDP packet-delay traces do not calibrate")),
+    ("transport", "trace direction", TRANSPORT_M, drop("Trace direction mismatch")),
+    ("transport", "envelope timestamp is a float", TRANSPORT_M,
+     swap("'timestamp', double(generated)", "'timestamp', int64(generated)")),
+    ("transport", "delivered bytes include the envelope", TRANSPORT_M,
+     swap("obj.counters.bytes_delivered = obj.counters.bytes_delivered + packet.size_bytes + header;",
+          "obj.counters.bytes_delivered = obj.counters.bytes_delivered + packet.size_bytes;")),
+    ("transport", "hop bytes include packet overhead", TRANSPORT_M,
+     swap("obj.counters.hop_bytes_transmitted = obj.counters.hop_bytes_transmitted + wire;",
+          "obj.counters.hop_bytes_transmitted = obj.counters.hop_bytes_transmitted + served;")),
+    ("transport", "occupancy: reservation buffer is future hop 0", TRANSPORT_M,
+     swap("if value{2} == 0 && at > obj.now", "if value{2} == 0")),
+    ("transport", "occupancy: queued remaining bytes", TRANSPORT_M,
+     swap("                            total = total + q.remaining_bytes;",
+          "                            total = total + q.message.size_bytes + queues{j}{e}{2};")),
+    ("transport", "occupancy: transmitting remainder", TRANSPORT_M,
+     swap("transmitting = transmitting + value{2}.remaining_bytes;", "transmitting = transmitting + 0;")),
+    ("transport", "handover windows overlap the start", TRANSPORT_M,
+     swap("if i * interval + pause >= start", "if true")),
+    ("transport", "handover windows from k = 1", TRANSPORT_M,
+     swap("for i = max(1, floor(start / interval)):floor(finish / interval)",
+          "for i = max(0, floor(start / interval)):floor(finish / interval)")),
     ("env", "odd agent start/goal order", POP,
      swap("        starts(end + 1, :) = cells(end, :);\n        goals(end + 1, :) = cells(end - 1, :);",
           "        starts(end + 1, :) = cells(end - 1, :);\n        goals(end + 1, :) = cells(end, :);")),
@@ -146,8 +265,17 @@ MUTANTS = [
 # Equivalent mutants are left out: a separate "dotted key through a value"
 # prefix check was removed from toml_decode because the final lookup in
 # check_assign already rejects it (the sweep showed it could not be killed).
+# In Transport.m, two Python conditions cannot change any result without an
+# orbital timeline (M5) and have no mutant: the link eligibility test
+# ready_at <= now + 1e-12 (a queued message is always ready when it is
+# queued) and max(latest_arrival, finish + propagation) (propagation is
+# constant, so the last chunk is always the latest). The no-progress guard
+# in finish_transmission has no mutant either: without it the test does
+# what Python does, loop forever, which the sweep could only report as
+# TIMEOUT; TransportTest checks the guard's error on the two cases.
 
-TESTS = {"config": "Config", "toml": "Toml", "env": "Rng"}
+TESTS = {"config": "Config", "toml": "Toml", "env": "Rng", "encode": "Encode", "trace": "Trace",
+         "transport": "Transport"}
 
 
 def apply(text, mutation):

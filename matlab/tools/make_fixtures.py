@@ -554,7 +554,481 @@ def group_popping():
     return {"cases": cases}
 
 
-COMPRESSED = {"env"}
+# ------------------------------------------------- M1b: wire sizes, physical links, traces
+
+
+def py_spec(value):
+    """Typed description of a Python value for the MATLAB side (tests/py_value.m).
+
+    Strings are UTF-8 hex (Octave's jsondecode cannot hold every code point),
+    ints are decimal strings (JSON numbers lose precision past 2**53) and
+    floats are IEEE hex bits."""
+    if value is None:
+        return {"t": "none"}
+    if isinstance(value, bool):
+        return {"t": "bool", "v": value}
+    if isinstance(value, int):
+        # 8 little-endian bytes: int64, or uint64 above 2**63 - 1.
+        unsigned = value > 2**63 - 1
+        raw = value.to_bytes(8, "little", signed=not unsigned)
+        return {"t": "int", "v": str(value), "le": raw.hex(), "unsigned": unsigned}
+    if isinstance(value, float):
+        return {"t": "float", "hex": hexfloat(value)}
+    if isinstance(value, str):
+        if len(value) > 32 and len(set(value)) == 1:
+            return Repeat("str", value[0], len(value)).spec()
+        return {"t": "str", "hex": value.encode("utf-8").hex()}
+    if isinstance(value, bytes):
+        return {"t": "bytes", "n": len(value)}
+    if isinstance(value, tuple):
+        return {"t": "tuple", "items": [py_spec(v) for v in value]}
+    if isinstance(value, list):
+        return {"t": "list", "items": [py_spec(v) for v in value]}
+    if isinstance(value, dict):
+        return {"t": "dict", "keys": [py_spec(k) for k in value],
+                "values": [py_spec(v) for v in value.values()]}
+    raise TypeError(type(value))
+
+
+class Repeat:
+    """A long list, str or dict written compactly in the fixture (one item, a count)."""
+
+    def __init__(self, kind, item, n):
+        self.kind, self.item, self.n = kind, item, n
+
+    def value(self):
+        if self.kind == "list":
+            return [self.item] * self.n
+        if self.kind == "str":
+            return self.item * self.n
+        return {f"k{i}": self.item for i in range(self.n)}
+
+    def spec(self):
+        item = self.item if self.kind == "str" else py_spec(self.item)
+        if self.kind == "str":
+            item = self.item.encode("utf-8").hex()
+        return {"t": "repeat_" + self.kind, "item": item, "n": self.n}
+
+
+def _random_value(rng, depth=0):
+    kinds = ["none", "bool", "int", "float", "str", "bytes"]
+    if depth < 3:
+        kinds += ["list", "tuple", "dict"] * 2
+    kind = kinds[int(rng.integers(len(kinds)))]
+    if kind == "none":
+        return None
+    if kind == "bool":
+        return bool(rng.integers(2))
+    if kind == "int":
+        bits = int(rng.integers(0, 64))
+        v = int(rng.integers(0, 2**bits)) if bits else 0
+        return -v - int(rng.integers(2)) if rng.integers(2) else v
+    if kind == "float":
+        return float(rng.normal() * 10 ** int(rng.integers(-5, 6)))
+    if kind == "str":
+        alphabet = ["a", "Z", "_", " ", "\u00e9", "\u20ac", "\U0001f600", "\t"]
+        n = int(rng.choice([0, 1, 2, 5, 9, 40, 255, 256], p=[.1, .2, .2, .2, .1, .1, .05, .05]))
+        return "".join(alphabet[int(i)] for i in rng.integers(0, len(alphabet), n))
+    if kind == "bytes":
+        return bytes(int(rng.choice([0, 1, 255, 256, 1000, 65535, 65536, 70000])))
+    n = int(rng.integers(0, 7))
+    items = [_random_value(rng, depth + 1) for _ in range(n)]
+    if kind == "list":
+        return items
+    if kind == "tuple":
+        return tuple(items)
+    return {f"k{i}_{int(rng.integers(100))}": v for i, v in enumerate(items)}
+
+
+def group_encode():
+    """len(transport.encode(value)) for plain value types (encode_size.m)."""
+    from panama_uav.transport import encode
+    edge = [None, True, False, 0, 1, 255, 256, 65535, 65536, -1, -255, 2**31 - 1, 2**31,
+            -2**31, -2**31 - 1, 2**32, 2**39, -2**39, -2**39 - 1, -2**40, 2**47, -2**47,
+            2**55, -2**55, 2**63 - 1, -2**63, 2**64 - 1, 0.0, -0.0, 1.5, math.inf, -math.inf,
+            math.nan, "", "a", "\u00e9", "\U0001f600", "x" * 255, "x" * 256, "\u00e9" * 128,
+            bytes(0), bytes(255), bytes(256), bytes(65535), bytes(65536), bytes(100000),
+            (), (1,), (1, 2), (1, 2, 3), (1, 2, 3, 4), [], [1], [1, 2], {}, {"a": 1},
+            {"a": 1, "b": 2}, {"agent": 0, "kind": "report", "timestamp": 0.0, "version": 0},
+            {"agent": -1, "kind": "model_relay", "timestamp": 12.5, "version": 70000},
+            ("x" * 65535,), ("x" * 65536,), [bytes(65000), bytes(600)],
+            [bytes(65530), 1, 2], [bytes(65531), 1], [bytes(65532)],
+            {"w": bytes(70000), "s": 3, "v": [1.0, 2.0]}]
+    repeats = [Repeat("list", 1, 999), Repeat("list", 1, 1000), Repeat("list", 1, 1001),
+               Repeat("list", 1, 2000), Repeat("list", 1, 2001), Repeat("list", "y" * 100, 700),
+               Repeat("list", "y" * 300, 300), Repeat("list", (1, 2.0), 7000),
+               Repeat("str", "\u20ac", 21845), Repeat("str", "\u20ac", 21846),
+               Repeat("dict", 0, 999), Repeat("dict", 0, 1000), Repeat("dict", 0, 1001),
+               Repeat("dict", 0, 2000), Repeat("dict", "z" * 80, 900)]
+    rng = np.random.default_rng(2026)
+    cases = [{"spec": py_spec(v), "size": len(encode(v))} for v in edge]
+    cases += [{"spec": r.spec(), "size": len(encode(r.value()))} for r in repeats]
+    cases += [{"spec": py_spec(v), "size": len(encode(v))}
+              for v in (_random_value(rng) for _ in range(250))]
+    return {"cases": cases}
+
+
+def tagged(value):
+    """Log/occupancy values with their Python type: floats become 'f:<hex bits>',
+    strings 's:<text>', ints stay ints, lists and dicts recurse."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, float):
+        return "f:" + hexfloat(value)
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        return "s:" + value
+    if isinstance(value, (list, tuple)):
+        return [tagged(v) for v in value]
+    if isinstance(value, dict):
+        return {str(k): tagged(v) for k, v in value.items()}
+    if value is None:
+        return None
+    raise TypeError(type(value))
+
+
+TRACE_DIR = "matlab/tests/fixtures"
+
+
+def _write_trace(name, direction, rows, unit, scale, start=None, end=None, origin=None):
+    """Run Python's import_trace on a generated OWD text file, then store the
+    .npz in the fixtures with metadata["source"] made repo-relative, so the
+    file does not depend on where the repository is cloned."""
+    import tempfile
+    from panama_uav.transport import import_trace
+    with tempfile.TemporaryDirectory() as tmp:
+        source = Path(tmp) / f"{name}.txt"
+        source.write_text("".join(f"{s} {t} {d}\n" for s, t, d in rows))
+        out = Path(tmp) / f"{name}.npz"
+        metadata = import_trace(source, out, direction, unit, start=start, end=end,
+                                origin_seconds=origin)
+        with np.load(out, allow_pickle=False) as data:
+            arrays = {k: data[k] for k in data.files}
+    metadata["source"] = f"{TRACE_DIR}/{name}.txt"
+    arrays["metadata"] = json.dumps(metadata)
+    # np.savez_compressed writes fixed ZIP timestamps (1980-01-01), so the
+    # file is byte-identical on every run.
+    np.savez_compressed(ROOT / TRACE_DIR / f"{name}.npz", **arrays)
+    return arrays
+
+
+def group_trace():
+    """Delay traces: .npz files from import_trace and DelayTrace.delay queries."""
+    from panama_uav.transport import DelayTrace
+    rng = np.random.default_rng(77)
+    # 80 ms samples (ns integers), sequence gaps included, one-way delays 20-60 ms.
+    up_rows, seq = [], 0
+    for k in range(600):
+        seq += 1 + int(rng.random() < 0.05)
+        up_rows.append((seq, 1_700_000_000_000_000_000 + 80_000_000 * k,
+                        int(rng.integers(20_000_000, 60_000_000))))
+    down_rows = [(k, 5_000 + 125_000 * k, int(rng.integers(15_000, 45_000))) for k in range(400)]
+    _write_trace("trace_uplink", "uplink", up_rows, "ns", 1e-9,
+                 start=1_700_000_000.5, end=1_700_000_046.0)
+    _write_trace("trace_downlink", "downlink", down_rows, "us", 1e-6, origin=0.0)
+    out = {}
+    for name in ("trace_uplink", "trace_downlink"):
+        trace = DelayTrace.load(ROOT / TRACE_DIR / f"{name}.npz")
+        ts = trace.timestamps
+        queries = [float(ts[0]), float(ts[-1]), float(ts[0]) - 1e-9, float(ts[-1]) + 1e-9,
+                   math.nan, -math.inf, math.inf, float(ts[1]), float(ts[1]) - 1e-12,
+                   float(ts[5]) + 1e-12]
+        queries += [float(v) for v in rng.uniform(ts[0], ts[-1], 60)]
+        results = []
+        for q in queries:
+            try:
+                results.append({"time": hexfloat(q), "delay": hexfloat(trace.delay(q))})
+            except ValueError as exc:
+                results.append({"time": hexfloat(q), "error": str(exc)})
+        with np.load(ROOT / TRACE_DIR / f"{name}.npz", allow_pickle=False) as data:
+            # '<U' arrays are as wide as their longest string; shorter ones
+            # are NUL-padded on disk and stripped by NumPy.
+            sequence = [str(v) for v in data["sequence"]]
+        out[name] = {"sequence": sequence, "timestamps": [hexfloat(v) for v in ts],
+                     "delays": [hexfloat(v) for v in trace.delays],
+                     "metadata": tagged(trace.metadata), "queries": results}
+    return out
+
+
+def _physical_config(**changes):
+    from panama_uav.config import TransportConfig
+    for key in ("uplink_trace", "downlink_trace"):
+        if changes.get(key):
+            changes[key] = str(ROOT / TRACE_DIR / changes[key])
+    return TransportConfig(**changes)
+
+
+def _run_transport(changes, ops):
+    """Replay OPS on a Python Transport and record every observable result."""
+    record = {"config": {k: (list(v) if isinstance(v, tuple) else v) for k, v in changes.items()},
+              "ops": [], "results": []}
+    try:
+        t = Transport(_physical_config(**changes))
+    except ValueError as exc:
+        record["constructor_error"] = str(exc)
+        return record
+    for op in ops:
+        record["ops"].append(op)
+        try:
+            if op["op"] == "send":
+                payload = op["payload"]
+                kwargs = {"route": tuple(op["route"]), "version": op.get("version", 0),
+                          "delayed": op.get("delayed", True)}
+                if "generated_at" in op:
+                    kwargs["generated_at"] = op["generated_at"]
+                if "wire_n" in op:
+                    kwargs["wire"] = bytes(op["wire_n"])
+                result = t.send(op["agent"], op["kind"], payload, **kwargs)
+            elif op["op"] == "advance":
+                result = [m.id for m in t.advance(op["until"])]
+            elif op["op"] == "windows":
+                t.windows = {int(a): [tuple(w) for w in ws] for a, ws in op["windows"].items()}
+                result = None
+            elif op["op"] == "occupancy":
+                result = tagged(t.occupancy())
+            elif op["op"] == "handover_windows":
+                result = tagged(t.handover_windows(op["start"], op["end"]))
+            else:
+                raise KeyError(op["op"])
+            record["results"].append({"value": result})
+        except ValueError as exc:
+            record["results"].append({"error": str(exc)})
+            break
+    record["log"] = [tagged(e) for e in t.log]
+    record["counters"] = dict(t.counters)
+    record["now"] = hexfloat(t.now)
+    return record
+
+
+def _send(agent, kind, payload, route, **kw):
+    return {"op": "send", "agent": agent, "kind": kind, "payload": payload, "route": list(route), **kw}
+
+
+def _adv(until):
+    return {"op": "advance", "until": until}
+
+
+PHYSICAL_SCENARIOS = {
+    # transport tests: shared capacity, round robin, FIFO and byte conservation
+    "round_robin": ({"profile": "physical", "access_uplink_mbps": 0.008, "contention_enabled": False,
+                     "handover_enabled": False, "one_way_propagation_seconds": 0},
+                    [_send(a, "data", bytes(1000), ["access_up"]) for a in (0, 0, 0, 1, 1, 2)]
+                    + [{"op": "occupancy"}, _adv(1.5), {"op": "occupancy"}, _adv(100),
+                       {"op": "occupancy"}]),
+    # handovers pause only satellite links; long messages span several windows
+    "handover": ({"profile": "physical", "contention_enabled": False},
+                 [_adv(15), _send(0, "edge", {}, ["access_up", "access_down"]),
+                  _send(1, "cloud", {}, ["satellite_up", "satellite_down"]), _adv(15.01), _adv(15.2),
+                  _adv(29.6), _send(2, "big", bytes(1_000_000), ["satellite_up"]),
+                  _send(3, "huge", bytes(30_000_000), ["satellite_down", "access_down"]),
+                  {"op": "occupancy"}, _adv(30.02), {"op": "occupancy"}, _adv(80),
+                  {"op": "handover_windows", "start": 0.0, "end": 100.0},
+                  {"op": "handover_windows", "start": 15.03, "end": 44.9},
+                  {"op": "handover_windows", "start": 15.06, "end": 30.0},
+                  {"op": "handover_windows", "start": 7.0, "end": 14.0}]),
+    "handover_off": ({"profile": "physical", "contention_enabled": False, "handover_enabled": False},
+                     [_adv(14.9), _send(0, "x", bytes(500_000), ["satellite_up", "access_down"]),
+                      _adv(40), {"op": "handover_windows", "start": 0.0, "end": 100.0}]),
+    "fragmented_chunks": ({"profile": "physical", "contention_enabled": False,
+                           "packet_payload_bytes": 4000, "log_service_chunks": True,
+                           "handover_interval_seconds": 2.0, "handover_interruption_seconds": 0.3,
+                           "satellite_uplink_mbps": 0.5, "satellite_downlink_mbps": 1.0,
+                           "access_uplink_mbps": 2.0, "access_downlink_mbps": 2.0},
+                          [_send(0, "a", bytes(20000), ["access_up", "satellite_up", "process:0.25",
+                                                        "satellite_down", "access_down"]),
+                           _send(1, "b", bytes(9000), ["satellite_up"]),
+                           _send(1, "b", bytes(100), ["satellite_up"]),
+                           _send(2, "c", bytes(3999), ["access_up", "satellite_up"]),
+                           _send(-1, "model_relay", None, ["satellite_down"], wire_n=12000),
+                           _adv(0.1), {"op": "occupancy"}, _adv(0.7), {"op": "occupancy"},
+                           _send(0, "a", "late", ["satellite_up"]), _adv(1.9),
+                           {"op": "occupancy"}, _adv(30), {"op": "occupancy"}]),
+    "fragmented_quiet": ({"profile": "physical", "contention_enabled": False,
+                          "packet_payload_bytes": 1500, "packet_overhead_bytes": 60,
+                          "handover_interval_seconds": 1.0, "handover_interruption_seconds": 0.1,
+                          "satellite_uplink_mbps": 0.2},
+                         [_send(a, "q", bytes(n), ["satellite_up", "access_down"])
+                          for a, n in ((0, 7000), (1, 1500), (2, 1), (0, 3000))]
+                         + [_adv(0.05), {"op": "occupancy"}, _adv(5)]),
+    "contention": ({"profile": "physical", "delay_steps": 3.0, "seconds_per_step": 0.5,
+                    "satellite_uplink_mbps": 0.1},
+                   [{"op": "windows", "windows": {"0": [[0.5, 1.5]], "1": [[0.0, 0.4], [2.0, 3.0]]}},
+                    _send(0, "report", {"x": 1}, ["access_up"]),
+                    _send(1, "report", {"x": 2}, ["satellite_up"]), _adv(0.5),
+                    _send(0, "report", {"x": 3}, ["access_up"]),
+                    _send(0, "report", {"x": 4}, ["access_up"], delayed=False),
+                    _send(1, "report", {"x": 5}, ["satellite_up"]),
+                    {"op": "occupancy"}, _adv(2.1), _send(1, "info", (1, 2.5, "z"), ["satellite_up"]),
+                    {"op": "occupancy"}, _adv(10), {"op": "occupancy"}]),
+    "trace_uplink": ({"profile": "physical", "contention_enabled": False,
+                      "uplink_trace": "trace_uplink.npz", "one_way_propagation_seconds": 10.0,
+                      "backhaul_time_offset_seconds": 0.5, "handover_interval_seconds": 5.0},
+                     [_send(0, "data", bytes(100000), ["satellite_up"]),
+                      _send(1, "data", bytes(10), ["access_up", "satellite_up", "process:0.5",
+                                                   "satellite_down", "access_down"]),
+                      _adv(0.031), _adv(5.04), _adv(12),
+                      _send(2, "data", bytes(10), ["satellite_up"], generated_at=11.0),
+                      _adv(44.9), _send(0, "data", bytes(10), ["satellite_up"]), _adv(46.0)]),
+    # the trace ends at 45.5 s; with the 0.5 s offset a hop entering at 45.2 s is past it
+    "trace_past_end": ({"profile": "physical", "contention_enabled": False,
+                        "uplink_trace": "trace_uplink.npz", "backhaul_time_offset_seconds": 0.5},
+                       [_adv(44.9), _send(0, "data", bytes(10), ["satellite_up"]), _adv(44.95),
+                        _adv(45.2), _send(1, "data", bytes(10), ["satellite_up"]), _adv(45.3)]),
+    "trace_both": ({"profile": "physical", "contention_enabled": False,
+                    "uplink_trace": "trace_uplink.npz", "downlink_trace": "trace_downlink.npz"},
+                   [_send(-1, "model_relay", None, ["access_down"], wire_n=200000, version=3),
+                    _send(0, "data", [1, 2, 3], ["satellite_up", "satellite_down"]), _adv(16),
+                    {"op": "occupancy"}, _send(0, "model", None, ["satellite_down"], wire_n=10)]),
+    "trace_controlled": ({"profile": "controlled", "contention_enabled": False,
+                          "uplink_trace": "trace_uplink.npz"},
+                         [_send(0, "model", None, ["satellite_up"], wire_n=10), _adv(1)]),
+    "trace_direction": ({"profile": "physical", "uplink_trace": "trace_downlink.npz"}, []),
+    "trace_direction_perfect": ({"profile": "perfect", "downlink_trace": "trace_uplink.npz"}, []),
+    "reverse": ({"profile": "physical"}, [_adv(2.0), _adv(1.0)]),
+}
+
+
+def _random_scenario(rng):
+    links = ["access_up", "access_down", "satellite_up", "satellite_down"]
+    changes = {"profile": "physical",
+               "contention_enabled": bool(rng.integers(2)),
+               "access_uplink_mbps": float(rng.choice([0.05, 1.0, 50.0])),
+               "access_downlink_mbps": float(rng.choice([0.05, 1.0, 50.0])),
+               "satellite_uplink_mbps": float(rng.choice([0.02, 0.5, 10.0])),
+               "satellite_downlink_mbps": float(rng.choice([0.05, 2.0, 50.0])),
+               "handover_enabled": bool(rng.integers(2)),
+               "handover_interval_seconds": float(rng.choice([0.7, 3.0, 15.0])),
+               # A zero interruption can make Python's _finish_transmission loop
+               # forever (see _finish_cases); random scenarios avoid it.
+               "handover_interruption_seconds": float(rng.choice([0.05, 0.3])),
+               "one_way_propagation_seconds": float(rng.choice([0.0, 0.025])),
+               "packet_payload_bytes": int(rng.choice([0, 0, 1500, 3000, 64000])),
+               "packet_overhead_bytes": int(rng.choice([0, 48])),
+               "log_service_chunks": bool(rng.integers(2)),
+               "delay_steps": float(rng.choice([0.0, 2.0])), "seconds_per_step": 0.5}
+    ops, now = [], 0.0
+    if changes["contention_enabled"]:
+        ops.append({"op": "windows", "windows": {str(a): [[float(s), float(s) + 1.0]]
+                                                 for a, s in enumerate(rng.uniform(0, 4, 3))}})
+    for _ in range(int(rng.integers(15, 40))):
+        r = rng.random()
+        if r < 0.55:
+            route = [links[int(i)] for i in rng.integers(0, 4, int(rng.integers(0, 4)))]
+            if rng.random() < 0.3:
+                route.insert(int(rng.integers(len(route) + 1)), f"process:{float(rng.choice([0.0, 0.2]))}")
+            kw = {"version": int(rng.integers(0, 70000)), "delayed": bool(rng.integers(2))}
+            if rng.random() < 0.2:
+                kw["wire_n"] = int(rng.choice([0, 1, 1499, 1500, 1501, 70000]))
+                payload = None
+            else:
+                payload = _random_value(rng, depth=2)
+            if rng.random() < 0.2:
+                kw["generated_at"] = float(now - rng.uniform(0, 1))
+            ops.append(_send(int(rng.integers(-1, 4)), str(rng.choice(["report", "information",
+                                                                       "mission_request"])),
+                             payload, route, **kw))
+        elif r < 0.85:
+            now += float(rng.choice([0.0, 0.01, 0.25, 1.0, 3.7]))
+            ops.append(_adv(now))
+        elif r < 0.95:
+            ops.append({"op": "occupancy"})
+        else:
+            a = float(rng.uniform(0, 20))
+            ops.append({"op": "handover_windows", "start": a, "end": a + float(rng.uniform(0, 20))})
+    ops.append(_adv(now + 200.0))
+    ops.append({"op": "occupancy"})
+    return changes, ops
+
+
+def _finish_one(interval, pause, enabled, satellite, start, duration):
+    t = Transport(_physical_config(profile="physical", handover_enabled=enabled,
+                                   handover_interval_seconds=interval,
+                                   handover_interruption_seconds=pause))
+    return t._finish_transmission(start, duration, satellite)
+
+
+def _finish_in_child(args, queue):
+    queue.put(_finish_one(*args))
+
+
+def _finish_or_hang(args, seconds=5.0):
+    """Python's result, or None if it does not return within SECONDS.
+
+    Used only for zero interruptions: there, when floor(window / interval)
+    rounds down at a window boundary, the loop's state stops changing and
+    _finish_transmission never returns. A normal call takes microseconds."""
+    import multiprocessing
+    ctx = multiprocessing.get_context("fork")
+    queue = ctx.Queue()
+    child = ctx.Process(target=_finish_in_child, args=(args, queue))
+    child.start()
+    child.join(seconds)
+    if child.is_alive():
+        child.kill()
+        child.join()
+        return None
+    return queue.get()
+
+
+def _finish_cases(rng):
+    """Direct Transport._finish_transmission(start, duration, satellite) cases."""
+    cases = []
+    for k in range(300):
+        interval = float(rng.choice([0.5, 1.0, 2.0, 15.0]))
+        pause = float(rng.choice([0.05, 0.1, 0.4]))
+        enabled = bool(k % 5)
+        satellite = bool(k % 7)
+        w = int(rng.integers(0, 6))
+        start = float(rng.choice([w * interval, w * interval + pause, w * interval + pause / 2,
+                                  w * interval - 1e-9, float(rng.uniform(0, 6 * interval))]))
+        duration = float(rng.choice([0.0, 1e-15, 1e-3, interval - pause, interval, 2.5 * interval,
+                                     float(rng.exponential(interval))]))
+        start = max(start, 0.0)
+        finish = _finish_one(interval, pause, enabled, satellite, start, duration)
+        cases.append({"interval": interval, "pause": pause, "enabled": enabled,
+                      "satellite": satellite, "start": hexfloat(start),
+                      "duration": hexfloat(duration), "finish": hexfloat(finish)})
+    # Zero interruptions: exact windows return; 0.7-second windows at 8.4 s do not,
+    # because 12 * 0.7 == 8.399999999999999 and floor(8.399999999999999 / 0.7) == 11.
+    for interval, start, duration in ((1.0, 0.5, 2.0), (1.0, 3.0, 0.25), (0.5, 0.2, 1.7),
+                                      (0.7, 8.35072, 0.48), (0.7, 0.1, 9.0), (0.7, 8.3, 0.05)):
+        args = (interval, 0.0, True, True, start, duration)
+        finish = _finish_or_hang(args)
+        case = {"interval": interval, "pause": 0.0, "enabled": True, "satellite": True,
+                "start": hexfloat(start), "duration": hexfloat(duration)}
+        case.update({"finish": hexfloat(finish)} if finish is not None else {"hangs": True})
+        cases.append(case)
+    return cases
+
+
+def group_physical():
+    """Physical-profile transport replays (link service, handovers, traces)."""
+    scenarios = {name: _run_transport(dict(changes), ops)
+                 for name, (changes, ops) in PHYSICAL_SCENARIOS.items()}
+    rng = np.random.default_rng(1964)
+    for k in range(16):
+        changes, ops = _random_scenario(rng)
+        scenarios[f"random_{k:02d}"] = _run_transport(changes, ops)
+    for record in scenarios.values():
+        for op in record["ops"]:
+            if op["op"] == "send":
+                op["payload"] = py_spec(op["payload"])
+            for key in ("until", "start", "end", "generated_at"):
+                if key in op:
+                    op[key] = hexfloat(op[key])
+            # 'until' and 'end' are keywords in Octave/MATLAB; jsondecode would rename them.
+            for key, safe in (("until", "to"), ("end", "stop")):
+                if key in op:
+                    op[safe] = op.pop(key)
+            if op["op"] == "windows":
+                # A list, because JSON object keys "0", "1" are not MATLAB field names.
+                op["windows"] = [{"agent": int(a), "spans": [[hexfloat(x) for x in w] for w in ws]}
+                                 for a, ws in op["windows"].items()]
+    return {"scenarios": scenarios, "finish": _finish_cases(np.random.default_rng(15))}
+
+
+COMPRESSED = {"env", "encode", "physical", "trace"}
 GROUPS = {name[len("group_"):]: fn for name, fn in globals().items() if name.startswith("group_")}
 
 
