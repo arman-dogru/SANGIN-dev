@@ -23,9 +23,12 @@ Whoever continues with a licensed MATLAB should first run the suite there
 
 Configuration is `configs/*.toml` (4 files: base, fast_pilot, leo_learning,
 leo_tremblant), all in the study schema read by `config.load_config`. The
-rejection rules of `load_config` (legacy sections, unknown keys, invalid
-transport, a ladder other than 2/4/6/8) are pinned with small synthetic TOML
-texts in the `config` fixture group, since no committed config is rejected.
+rejection rules of `load_config` (legacy sections, an unknown training key,
+invalid transport, the validation schedule, a ladder other than 2/4/6/8) are
+pinned with 8 small synthetic TOML texts in the `config` fixture group, since
+no committed config is rejected. `ConfigTest` compares Python's `ValueError`
+message word for word; the unknown key is a Python `TypeError` (dataclass
+constructor), where only the rejection is compared.
 Maps are MovingAI `.map` files in `maps/` (13 files) and scenarios are `.scen`
 files in `scens/` (3 sets).
 
@@ -89,7 +92,7 @@ sub-package or class with the same responsibility.
 | M4 | `matlab-port-v2-m4` | Case bank, `run_episode`, treatments, decision deadline, paired bootstrap summary, `evaluate_suite` | |
 | M5 | `matlab-port-v2-m5` | `OrbitTimeline`, handshake model, SGP4 port and timeline builder, ITU-R port, `handover_study` | |
 | M6 | `matlab-port-v2-m6` | Reporting figures, HTML replay, `cli.m`, script equivalents | |
-| M7 | `matlab-port-v2-m7` | Full parity table, side-by-side figures, CI | |
+| M7 | `matlab-port-v2-m7` | Full parity table, side-by-side figures, CI (Octave job with `timeout-minutes`; see §8) | |
 
 ## 5. Parity strategy and tolerances
 
@@ -180,7 +183,7 @@ reproduced. There are two modes:
 ## 8. Checklist: done and next
 
 Updated at the end of each milestone. Per-module status and test counts are
-in [README_MATLAB.md](../../README_MATLAB.md).
+in [README_MATLAB.md](../README_MATLAB.md).
 
 **Done (M0 + M1, verified on Octave 9.4.0; see README_MATLAB for the test count):**
 - [x] Port plan (this file)
@@ -214,7 +217,11 @@ in [README_MATLAB.md](../../README_MATLAB.md).
 7. [ ] M5: LEO. Satellite Communications / Aerospace Toolbox (`satelliteScenario`,
        SGP4 propagator, `p618PropagationLosses`) can replace the hand ports;
        keep parity fixtures against `sgp4` 2.27 and ITU-Rpy 0.4.0 either way
-8. [ ] M6/M7: reporting, HTML replay, CLI, CI workflow, side-by-side figures
+8. [ ] M6/M7: reporting, HTML replay, CLI, CI workflow, side-by-side figures.
+       Give the CI job a `timeout-minutes` (the suite takes about 2.5 min on
+       Octave, so 15 is ample): `astar_path` has no closed set, and the
+       mutation `>=` → `>` at `astar_path.m:58` makes `MapsTest` loop forever
+       instead of failing
 
 **Known gaps and ambiguities:**
 - MATLAB-native episodes for a seed are not NumPy's episodes for that seed (identical between MATLAB and Octave).
