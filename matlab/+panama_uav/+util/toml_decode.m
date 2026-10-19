@@ -8,6 +8,10 @@ function data = toml_decode(text)
 %   floats (exponents, inf, nan), booleans, arrays (nested, multiline,
 %   trailing commas) and inline tables. Not supported: dates/times and
 %   multiline strings (no config uses them); they raise an error.
+%   Rejected like tomllib: malformed numbers (bare signs, leading zeros,
+%   stray underscores, '1.', signed 0x), duplicate keys, tables declared
+%   twice, and extending inline tables or arrays of tables (TomlTest
+%   replays 66 texts recorded from tomllib).
 %
 %   Representation: tables are structs, arrays are cell row vectors (so a
 %   one-element array stays distinguishable from a scalar), integers are
@@ -20,6 +24,10 @@ function data = toml_decode(text)
     p.i = 1;
     data = struct();
     path = {};
+    % Namespaces seen so far, as tomllib tracks them (ids from node_id):
+    % explicit [table] headers, tables created by dotted keys, frozen
+    % inline tables and arrays of tables.
+    st = struct('tables', {{}}, 'dotted', {{}}, 'inline', {{}}, 'aot', {{}});
     while true
         p = skip_ws_comments_newlines(p);
         if p.i > numel(p.s)
@@ -30,14 +38,26 @@ function data = toml_decode(text)
             if p.i < numel(p.s) && p.s(p.i + 1) == '['
                 p.i = p.i + 2;
                 [keys, p] = parse_key(p);
+                [kind, id] = lookup(data, keys, st);
+                if strcmp(kind, 'value') || strcmp(kind, 'inline')
+                    fail(p, 'cannot mutate an immutable value with [[...]]');
+                elseif strcmp(kind, 'table')
+                    fail(p, 'cannot overwrite a table with [[...]]');
+                end
                 p = expect(p, ']]');
                 data = append_table(data, keys);
+                st.aot{end + 1} = id;
                 path = [keys, {'#last'}];
             else
                 p.i = p.i + 1;
                 [keys, p] = parse_key(p);
+                [kind, id] = lookup(data, keys, st);
+                if ~any(strcmp(kind, {'none', 'table'})) || any(strcmp(id, [st.tables, st.dotted]))
+                    fail(p, 'cannot declare a table twice');
+                end
                 p = expect(p, ']');
                 data = ensure_table(data, keys);
+                st.tables{end + 1} = id;
                 path = keys;
             end
             p = end_of_line(p);
@@ -47,6 +67,7 @@ function data = toml_decode(text)
             p = expect(p, '=');
             p = skip_inline_ws(p);
             [value, p] = parse_value(p);
+            [st, p] = check_assign(data, path, keys, value, st, p);
             data = assign(data, [path, keys], value);
             p = end_of_line(p);
         end
@@ -101,8 +122,8 @@ end
 function fail(p, message)
     % Newlines strictly before p.i, so an error at a line's own newline
     % reports that line, as tomllib does.
-    if p.i > numel(p.s)            % past the sentinel newline: tomllib says "at end of document"
-        error('panama_uav:toml', 'TOML parse error at end of document: %s', message);
+    if p.i >= numel(p.s)           % past the real text (p.s ends with a sentinel newline):
+        error('panama_uav:toml', 'TOML parse error at end of document: %s', message);   % tomllib's wording
     end
     line = sum(p.s(1:p.i - 1) == char(10)) + 1;
     error('panama_uav:toml', 'TOML parse error on line %d: %s', line, message);
@@ -237,6 +258,9 @@ function [value, p] = parse_inline_table(p)
         p = expect(p, '=');
         p = skip_inline_ws(p);
         [item, p] = parse_value(p);
+        if numel(keys) == 1 && isfield(value, keys{1})
+            fail(p, ['duplicate inline table key ', keys{1}]);
+        end
         value = assign(value, keys, item);
         p = skip_inline_ws(p);
         if peek(p) == ','
@@ -255,11 +279,28 @@ function [value, p] = parse_number(p)
     while j <= numel(p.s) && any(p.s(j) == '0123456789abcdefABCDEFxXoO_+-.ein')
         j = j + 1;
     end
-    token = strrep(p.s(p.i:j - 1), '_', '');
-    p.i = j;
-    if isempty(token)
+    raw = p.s(p.i:j - 1);
+    if isempty(raw)
         fail(p, 'expected a value');
     end
+    % TOML number grammar, checked on the raw token like tomllib: underscores
+    % only between digits, no leading zeros, digits on both sides of '.',
+    % an exponent needs digits, and no sign on 0x/0o/0b.
+    digits = '[0-9](_?[0-9])*';
+    dec = '[+-]?(0|[1-9](_?[0-9])*)';
+    if is_match(raw, '[+-]?(inf|nan)')
+        kind = 'special';
+    elseif is_match(raw, '0x[0-9A-Fa-f](_?[0-9A-Fa-f])*|0o[0-7](_?[0-7])*|0b[01](_?[01])*')
+        kind = 'based';
+    elseif is_match(raw, [dec, '(\.', digits, '([eE][+-]?', digits, ')?|[eE][+-]?', digits, ')'])
+        kind = 'float';
+    elseif is_match(raw, dec)
+        kind = 'int';
+    else
+        fail(p, ['invalid value ', raw]);
+    end
+    p.i = j;
+    token = strrep(raw, '_', '');
     sign = 1;
     body = token;
     if body(1) == '+' || body(1) == '-'
@@ -268,24 +309,25 @@ function [value, p] = parse_number(p)
         end
         body = body(2:end);
     end
-    if strcmp(body, 'inf')
-        value = sign * Inf;
-    elseif strcmp(body, 'nan')
-        value = NaN;
-    elseif numel(body) > 2 && body(1) == '0' && any(body(2) == 'xob')
-        bases = struct('x', 16, 'o', 8, 'b', 2);
-        value = int64(sign) * int64(base2dec_any(body(3:end), bases.(body(2))));
-    elseif any(body == '.') || any(lower(body) == 'e')
-        value = sign * str2double(body);
-        if isnan(value)
-            fail(p, ['invalid float ', token]);
-        end
-    else
-        if ~all(isstrprop(body, 'digit'))
-            fail(p, ['invalid value ', token]);
-        end
-        value = int64(sign) * parse_int64(body);
+    switch kind
+        case 'special'
+            if strcmp(body, 'inf')
+                value = sign * Inf;
+            else
+                value = NaN;
+            end
+        case 'based'
+            bases = struct('x', 16, 'o', 8, 'b', 2);
+            value = int64(base2dec_any(body(3:end), bases.(body(2))));
+        case 'float'
+            value = sign * str2double(body);
+        otherwise
+            value = int64(sign) * parse_int64(body);
     end
+end
+
+function tf = is_match(text, pattern)
+    tf = ~isempty(regexp(text, ['^(', pattern, ')$'], 'once'));
 end
 
 function v = parse_int64(digits)
@@ -300,6 +342,72 @@ function v = base2dec_any(digits, base)
     for k = 1:numel(digits)
         d = int64(find(lower(digits(k)) == '0123456789abcdef', 1) - 1);
         v = v * int64(base) + d;
+    end
+end
+
+function [kind, id] = lookup(data, keys, st)
+% What KEYS (a header path, '#last' entries ignored) names in DATA: 'none',
+% 'table', 'aot' (array of tables), 'inline' (frozen inline table) or
+% 'value'; ID is a namespace id with the array-of-tables index, like
+% tomllib's key tuples.
+    keys = keys(~strcmp(keys, '#last'));
+    node = data;
+    id = '';
+    kind = 'table';
+    for i = 1:numel(keys)
+        k = keys{i};
+        id = [id, char(31), k]; %#ok<AGROW>
+        if ~strcmp(kind, 'table') || ~isfield(node, k)
+            if ~strcmp(kind, 'table')
+                return;            % below a value: report the value
+            end
+            kind = 'none';
+            for r = i + 1:numel(keys)
+                id = [id, char(31), keys{r}]; %#ok<AGROW>
+            end
+            return;
+        end
+        v = node.(k);
+        if iscell(v) && any(strcmp(id, st.aot))
+            if i == numel(keys)
+                kind = 'aot';
+                return;
+            end
+            id = sprintf('%s#%d', id, numel(v));
+            node = v{end};
+        elseif isstruct(v)
+            node = v;
+            if any(strcmp(id, st.inline))
+                kind = 'inline';
+            end
+        else
+            kind = 'value';
+        end
+    end
+end
+
+function [st, p] = check_assign(data, path, keys, value, st, p)
+% tomllib's rules for KEYS = VALUE inside the table PATH.
+    for i = 1:numel(keys) - 1          % dotted-key prefixes
+        [kind, id] = lookup(data, [path, keys(1:i)], st);
+        % A prefix through a plain value or an inline table is caught by the
+        % final lookup below (lookup stops there), so only arrays of tables,
+        % which lookup would descend into, need a check here.
+        if strcmp(kind, 'inline') || strcmp(kind, 'aot')
+            fail(p, 'cannot mutate an immutable namespace');
+        elseif any(strcmp(id, st.tables))
+            fail(p, 'cannot redefine a namespace with dotted keys');
+        end
+        if ~any(strcmp(id, st.dotted))
+            st.dotted{end + 1} = id;
+        end
+    end
+    [kind, id] = lookup(data, [path, keys], st);
+    if ~strcmp(kind, 'none')
+        fail(p, 'cannot overwrite a value');
+    end
+    if isstruct(value)
+        st.inline{end + 1} = id;
     end
 end
 

@@ -78,7 +78,7 @@ means a stub that raises `panama_uav:notImplemented`.
 
 | Python module | MATLAB | Status | Parity test (tolerance) |
 | --- | --- | --- | --- |
-| `config.py` (+ `tomllib`) | `+config`, `+util/toml_decode.m` | **parity-tested** | `TomlTest`: all 4 configs (base, fast_pilot, leo_learning, leo_tremblant) decode identically, with int/float type preserved (exact). `ConfigTest`: the 4 configs and the smoke profile match `to_dict()`, and 8 synthetic TOML texts are accepted or rejected exactly as Python's `load_config` does (same `ValueError` message) |
+| `config.py` (+ `tomllib`) | `+config`, `+util/toml_decode.m` | **parity-tested** | `TomlTest`: all 4 configs (base, fast_pilot, leo_learning, leo_tremblant) decode identically, with int/float type preserved (exact), and 66 small texts recorded from tomllib (number grammar, duplicate keys and tables, end of input) are accepted with the same value or rejected at tomllib's line. `ConfigTest`: the 4 configs and the smoke profile match `to_dict()`, and 24 synthetic TOML texts, at least one per study rule, are accepted or rejected exactly as Python's `load_config` does (same `ValueError` message). `matlab/tools/mutation_sweep.py` measures this: it disables each of the 20 config rules in turn and reports whether a test fails |
 | `scenarios.py` | `+scenarios` | **parity-tested** | `MapsTest`: all 13 maps, 3 scenario files (exact) |
 | `environment.py` | `+environment` | **parity-tested** (`prepare_decision` is a stub, M4) | `MapsTest`: 62 A* paths plus 7 hand-made up/down and left/right tie cases (exact). `EnvironmentParityTest`: 10 rollouts, 2–8 agents, including one truncated at a 12-step cap; reset info and reset observations are checked too. `Golden01Test`: the frozen 0.1 trace on 3 routes. Positions, collisions, termination, truncation and observations are exact; rewards abs 1e-12; UAV abs 1e-12 m. `RngTest`: seedless and seeded episode generation, Marsaglia's published xor128 outputs, and the odd-agent free-cell guard (off by one in Python, inherited on purpose; see PORT_PLAN §8) |
 | `information.py` | `+information` | **parity-tested** (except `prepare_decision`, M4) | Per-step information ages, report ages and cached guidance, abs 1e-12 s; `InformationTest` |
@@ -129,7 +129,7 @@ cd matlab
 octave-cli --no-gui --eval "ok = run_tests(); exit(~ok)"
 ```
 
-The full suite (44 tests) takes about 2.5 minutes on Octave. On Octave, `run_tests`
+The full suite (45 tests) takes about 2.5 minutes on Octave. On Octave, `run_tests`
 adds `matlab/compat/octave`, which provides a small `matlab.unittest.TestCase`
 shim. Like `matlab.unittest`, the shim's `verifyEqual` is class-strict:
 `int64(1)` vs `1` and `single` vs `double` both fail. MATLAB never loads it.

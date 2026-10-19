@@ -23,12 +23,20 @@ Whoever continues with a licensed MATLAB should first run the suite there
 
 Configuration is `configs/*.toml` (4 files: base, fast_pilot, leo_learning,
 leo_tremblant), all in the study schema read by `config.load_config`. The
-rejection rules of `load_config` (legacy sections, an unknown training key,
-invalid transport, the validation schedule, a ladder other than 2/4/6/8) are
-pinned with 8 small synthetic TOML texts in the `config` fixture group, since
-no committed config is rejected. `ConfigTest` compares Python's `ValueError`
+rejection rules of `load_config` are pinned with 24 small synthetic TOML
+texts in the `config` fixture group (at least one per rule), since no
+committed config is rejected. `ConfigTest` compares Python's `ValueError`
 message word for word; the unknown key is a Python `TypeError` (dataclass
 constructor), where only the rejection is compared.
+
+Coverage is measured, not assumed: `python matlab/tools/mutation_sweep.py`
+disables each rule in turn in a temporary copy of the tree and runs the
+relevant test file. At the last run it killed 20/20 config rules
+(load_config, validate_transport, overlay), 14/14 toml_decode rejection and
+location rules, and 2/2 start/goal pop-order mutants. Its summary goes to
+`matlab/output/mutation_sweep.txt` (gitignored). Rerun it when a rule is
+added and add a mutant for the new rule.
+
 Maps are MovingAI `.map` files in `maps/` (13 files) and scenarios are `.scen`
 files in `scens/` (3 sets).
 
