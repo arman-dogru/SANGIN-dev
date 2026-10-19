@@ -78,7 +78,7 @@ means a stub that raises `panama_uav:notImplemented`.
 
 | Python module | MATLAB | Status | Parity test (tolerance) |
 | --- | --- | --- | --- |
-| `config.py` (+ `tomllib`) | `+config`, `+util/toml_decode.m` | **parity-tested** | `TomlTest`: all 4 configs (base, fast_pilot, leo_learning, leo_tremblant) decode identically, with int/float type preserved (exact), and 66 small texts recorded from tomllib (number grammar, duplicate keys and tables, end of input) are accepted with the same value or rejected at tomllib's line. `ConfigTest`: the 4 configs and the smoke profile match `to_dict()`, and 24 synthetic TOML texts, at least one per study rule, are accepted or rejected exactly as Python's `load_config` does (same `ValueError` message). `matlab/tools/mutation_sweep.py` measures this: it disables each of the 20 config rules in turn and reports whether a test fails |
+| `config.py` (+ `tomllib`) | `+config`, `+util/toml_decode.m` | **parity-tested** | `TomlTest`: all 4 configs (base, fast_pilot, leo_learning, leo_tremblant) decode identically, with int/float type preserved (exact), and 93 small texts recorded from tomllib (number grammar, duplicate keys and tables including dotted keys in inline tables, line endings, int64 bounds, UTF-8 text, end of input) are accepted with the same value or rejected at tomllib's line; `matlab/tools/toml_corpus.py` adds a random-document comparison. `ConfigTest`: the 4 configs and the smoke profile match `to_dict()`, and 24 synthetic TOML texts, at least one per study rule, are accepted or rejected exactly as Python's `load_config` does (same `ValueError` message). `matlab/tools/mutation_sweep.py` measures this: it disables each of the 20 config rules in turn and reports whether an assertion catches it |
 | `scenarios.py` | `+scenarios` | **parity-tested** | `MapsTest`: all 13 maps, 3 scenario files (exact) |
 | `environment.py` | `+environment` | **parity-tested** (`prepare_decision` is a stub, M4) | `MapsTest`: 62 A* paths plus 7 hand-made up/down and left/right tie cases (exact). `EnvironmentParityTest`: 10 rollouts, 2–8 agents, including one truncated at a 12-step cap; reset info and reset observations are checked too. `Golden01Test`: the frozen 0.1 trace on 3 routes. Positions, collisions, termination, truncation and observations are exact; rewards abs 1e-12; UAV abs 1e-12 m. `RngTest`: seedless and seeded episode generation, Marsaglia's published xor128 outputs, and the odd-agent free-cell guard (off by one in Python, inherited on purpose; see PORT_PLAN §8) |
 | `information.py` | `+information` | **parity-tested** (except `prepare_decision`, M4) | Per-step information ages, report ages and cached guidance, abs 1e-12 s; `InformationTest` |
@@ -129,7 +129,7 @@ cd matlab
 octave-cli --no-gui --eval "ok = run_tests(); exit(~ok)"
 ```
 
-The full suite (45 tests) takes about 2.5 minutes on Octave. On Octave, `run_tests`
+The full suite (47 tests) takes about 2.5 minutes on Octave. On Octave, `run_tests`
 adds `matlab/compat/octave`, which provides a small `matlab.unittest.TestCase`
 shim. Like `matlab.unittest`, the shim's `verifyEqual` is class-strict:
 `int64(1)` vs `1` and `single` vs `double` both fail. MATLAB never loads it.
@@ -175,4 +175,4 @@ plumbing and not study results.
 - Python dicts keyed by agent id become cells or vectors indexed by `id+1`.
 - Name-value options reject unknown names, so a typo such as `'start'` errors.
 - Python `None` becomes `[]`, a Python tuple of strings becomes a cell row, and a tuple of numbers becomes a row vector.
-- Octave-specific workarounds are commented in the code. `until` is a keyword in Octave. Use `[a, b] = obj.f()` instead of `[a, ~] = obj.f()` inside classdef methods. JSON fixtures that need bit-exact doubles carry hex bits, because Octave's `jsondecode` is not correctly rounded.
+- Octave-specific workarounds are commented in the code. `until` is a keyword in Octave. Use `[a, b] = obj.f()` instead of `[a, ~] = obj.f()` inside classdef methods. JSON fixtures that need bit-exact doubles carry hex bits, because Octave's `jsondecode` is not correctly rounded. On Octave, `char` is 8-bit, so non-ASCII text holds its UTF-8 bytes ('é' is 2 chars); use `panama_uav.util.text_length` for Python-style lengths.
