@@ -2,5 +2,5 @@ function metadata = import_trace(source, output, direction, unit, start_s, end_s
 %IMPORT_TRACE Import a SATPIPE/Starlink OWD trace.
 %   Python source: src/panama_uav/transport.py:import_trace
 %   Status: stub, milestone M1b. Raises panama_uav:notImplemented.
-    error('panama_uav:notImplemented', 'import_trace is not ported yet (Python: transport.py:import_trace; milestone M1b). See docs/matlab/PORT_PLAN.md.');
+    error('panama_uav:notImplemented', 'import_trace is not ported yet (Python: transport.py:import_trace; milestone M1b). See matlab/PORT_PLAN.md.');
 end

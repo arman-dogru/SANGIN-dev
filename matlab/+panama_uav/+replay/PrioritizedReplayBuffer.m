@@ -4,7 +4,7 @@ classdef PrioritizedReplayBuffer < handle
     %   Status: stub, milestone M3. Every method raises panama_uav:notImplemented.
     methods
         function obj = PrioritizedReplayBuffer(varargin) %#ok<STOUT,INUSD>
-            error('panama_uav:notImplemented', 'PrioritizedReplayBuffer is not ported yet (Python: replay.py:PrioritizedReplayBuffer; milestone M3). See docs/matlab/PORT_PLAN.md.');
+            error('panama_uav:notImplemented', 'PrioritizedReplayBuffer is not ported yet (Python: replay.py:PrioritizedReplayBuffer; milestone M3). See matlab/PORT_PLAN.md.');
         end
     end
 end

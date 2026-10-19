@@ -4,13 +4,13 @@ The `matlab-port-v2` branch carries a MATLAB port of the UAV–PANAMA communicat
 study. It is a **starter**: the core simulation is ported and checked against
 the Python code, and every other module is a stub with the right signature.
 The plan, tolerances and handoff checklist are in
-[docs/matlab/PORT_PLAN.md](docs/matlab/PORT_PLAN.md).
+[matlab/PORT_PLAN.md](matlab/PORT_PLAN.md).
 
 - Plain MATLAB with no toolboxes. It targets R2021b or later.
 - So far it has only been verified on **GNU Octave 9.4.0** (there is no MATLAB license yet).
 - Code lives in [`matlab/`](matlab), package `+panama_uav`, with one
   sub-package per Python module.
-- The port adds only `matlab/`, `docs/matlab/` and this file. Python code,
+- The port adds only `matlab/` and this file. Python code,
   configs, maps and the rest of the repository are used as they are on `main`.
 
 ## Module map
@@ -110,7 +110,7 @@ portable generator, `panama_uav.util.Xorshift128`:
 
 The same seed gives the same episodes on MATLAB and Octave, but not the
 episodes NumPy draws for that seed. Those runs match Python only in
-distribution. See [PORT_PLAN §5](docs/matlab/PORT_PLAN.md).
+distribution. See [PORT_PLAN §5](matlab/PORT_PLAN.md).
 
 ## Run the tests
 

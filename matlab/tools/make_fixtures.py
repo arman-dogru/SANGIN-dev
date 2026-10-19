@@ -11,7 +11,7 @@ Fixtures are JSON in matlab/tests/fixtures/ (large groups gzip-compressed as
 infinities are written as the strings "inf"/"-inf" (see
 panama_uav.util.fixture_number on the MATLAB side). Randomness drawn by NumPy
 (start/goal shuffles, reservation windows) is recorded so MATLAB can inject the
-same draws; see docs/matlab/PORT_PLAN.md section 5.
+same draws; see matlab/PORT_PLAN.md section 5.
 
 To add a fixture group, write a function ``group_<name>()`` that returns a
 JSON-serializable dict and add it to GROUPS.

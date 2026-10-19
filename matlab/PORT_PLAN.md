@@ -4,11 +4,8 @@ This is the handoff document for the MATLAB port of the UAV–PANAMA
 communication staleness study. The work lives on the `matlab-port-v2`
 branch, which starts from the rewritten `main` at 64b5964. Each milestone
 lands through its own `matlab-port-v2-mN` pull request into `matlab-port-v2`,
-never into `main`. The port adds only `matlab/`, `docs/matlab/` and
+never into `main`. The port adds only `matlab/` (this plan included) and
 `README_MATLAB.md`; it does not change or restore any other file.
-
-`main` ignores `docs/`. This file is tracked anyway, so edits to it are picked
-up as usual; a new file under `docs/` needs `git add -f`.
 
 The starter was written **without a MATLAB license**. It is plain MATLAB that
 needs no toolboxes, targets R2021b or later, and is verified on GNU Octave 9.4.0.
