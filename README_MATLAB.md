@@ -1,6 +1,6 @@
 # MATLAB port (starter)
 
-This branch carries a MATLAB port of the UAV–PANAMA communication staleness
+The `matlab-port` branch carries a MATLAB port of the UAV–PANAMA communication staleness
 study. It is a **starter**: the core simulation is ported and checked against
 the Python code, and every other module is a stub with the right signature.
 The plan, tolerances and handoff checklist are in
@@ -10,6 +10,8 @@ The plan, tolerances and handoff checklist are in
 - So far it has only been verified on **GNU Octave 9.4.0** (there is no MATLAB license yet).
 - Code lives in [`matlab/`](matlab), package `+panama_uav`, with one
   sub-package per Python module.
+- The port adds only `matlab/`, `docs/matlab/` and this file. Python code,
+  configs, maps and the rest of the repository are used as they are on `main`.
 
 ## Module map
 
@@ -75,10 +77,10 @@ means a stub that raises `panama_uav:notImplemented`.
 ## Status
 
 | Python module | MATLAB | Status | Parity test (tolerance) |
-|---|---|---|---|
-| `config.py` (+ `tomllib`) | `+config`, `+util/toml_decode.m` | **parity-tested** | `TomlTest`: all 13 configs decode identically, with int/float type preserved (exact). `ConfigTest`: the 4 accepted configs (base, fast_pilot, leo_learning, leo_tremblant) and the smoke profile match `to_dict()`, and the 9 PANAMA-reproduction configs are rejected as in Python |
+| --- | --- | --- | --- |
+| `config.py` (+ `tomllib`) | `+config`, `+util/toml_decode.m` | **parity-tested** | `TomlTest`: all 4 configs (base, fast_pilot, leo_learning, leo_tremblant) decode identically, with int/float type preserved (exact). `ConfigTest`: the 4 configs and the smoke profile match `to_dict()`, and 7 synthetic TOML texts are accepted or rejected exactly as Python's `load_config` does |
 | `scenarios.py` | `+scenarios` | **parity-tested** | `MapsTest`: all 13 maps, 3 scenario files (exact) |
-| `environment.py` | `+environment` | **parity-tested** (`prepare_decision` is a stub, M4) | `MapsTest`: 62 A* paths plus 7 hand-made up/down and left/right tie cases (exact). `EnvironmentParityTest`: 10 rollouts, 2–8 agents, including one truncated at a 12-step cap; reset info and reset observations are checked too. `Golden01Test`: the frozen 0.1 trace on 3 routes. Positions, collisions, termination, truncation and observations are exact; rewards abs 1e-12; UAV abs 1e-12 m. `RngTest`: seedless and seeded episode generation |
+| `environment.py` | `+environment` | **parity-tested** (`prepare_decision` is a stub, M4) | `MapsTest`: 62 A* paths plus 7 hand-made up/down and left/right tie cases (exact). `EnvironmentParityTest`: 10 rollouts, 2–8 agents, including one truncated at a 12-step cap; reset info and reset observations are checked too. `Golden01Test`: the frozen 0.1 trace on 3 routes. Positions, collisions, termination, truncation and observations are exact; rewards abs 1e-12; UAV abs 1e-12 m. `RngTest`: seedless and seeded episode generation, Marsaglia's published xor128 outputs, and the odd-agent free-cell guard (off by one in Python, inherited on purpose; see PORT_PLAN §8) |
 | `information.py` | `+information` | **parity-tested** (except `prepare_decision`, M4) | Per-step information ages, report ages and cached guidance, abs 1e-12 s; `InformationTest` |
 | `transport.py` | `+transport/Transport.m` | **partial**: `perfect`/`controlled` profiles are parity-tested; `physical`, wire bytes, `DelayTrace`, `import_trace` are stubs (M1b) | Transport log (reservations, exposures, buffering, deliveries), abs 1e-12 s; message counters exact |
 | `event_calendar.py` (SimPy) | `+transport/EventCalendar.m` | **parity-tested** | `CalendarTest`: 60-op replay with ties and float offsets; times bit-exact |
@@ -127,7 +129,7 @@ cd matlab
 octave-cli --no-gui --eval "ok = run_tests(); exit(~ok)"
 ```
 
-The full suite (37 tests) takes about 1.5 minutes on Octave. On Octave, `run_tests`
+The full suite (40 tests) takes about 1.5 minutes on Octave. On Octave, `run_tests`
 adds `matlab/compat/octave`, which provides a small `matlab.unittest.TestCase`
 shim. Like `matlab.unittest`, the shim's `verifyEqual` is class-strict:
 `int64(1)` vs `1` and `single` vs `double` both fail. MATLAB never loads it.

@@ -22,6 +22,29 @@ classdef ConfigTest < matlab.unittest.TestCase
                 end
             end
         end
+        function testSyntheticAcceptAndRejectLikePython(tc)
+            % configs/ only holds accepted files, so the rejection rules
+            % (legacy sections, unknown keys, bad transport, wrong ladder)
+            % are pinned with small TOML texts run through Python too.
+            fx = load_fixture('config');
+            cases = as_cell(fx.synthetic);
+            tc.verifyEqual(numel(cases), 7);
+            root = tempname();
+            mkdir(fullfile(root, 'configs'));
+            cleanup = onCleanup(@() rmdir(root, 's')); %#ok<NASGU>
+            for k = 1:numel(cases)
+                path = fullfile(root, 'configs', [cases{k}.name '.toml']);
+                fid = fopen(path, 'w');
+                fwrite(fid, cases{k}.text, 'char');
+                fclose(fid);
+                if cases{k}.accepted
+                    c = panama_uav.config.load_config(path);
+                    tc.verifyEqual(normalize(rmfield(c, 'project_root')), normalize(cases{k}.config), cases{k}.name);
+                else
+                    tc.verifyError(@() panama_uav.config.load_config(path), 'panama_uav:config', cases{k}.name);
+                end
+            end
+        end
         function testTransportValidation(tc)
             c = panama_uav.config.load_config(fullfile(repo_root(), 'configs', 'base.toml'));
             tc.verifyError(@() panama_uav.config.with_communication(c, 'profile', 'bogus'), 'panama_uav:config');

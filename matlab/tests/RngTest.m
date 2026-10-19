@@ -20,6 +20,51 @@ classdef RngTest < matlab.unittest.TestCase
                 tc.verifyEqual(g.choice(249, 2), reshape(s.choice, 1, []), sprintf('seed %d choice', s.seed));
             end
         end
+        function testMarsagliaPublishedReference(tc)
+            % Independent of rng.json: Marsaglia (2003), "Xorshift RNGs", J. Stat.
+            % Softw. 8(14), xor128 with its default state. These first ten
+            % outputs are the widely reproduced reference sequence for that
+            % state (the same values appear in independent C, Rust and Ruby
+            % implementations); they are hard-coded, not generated.
+            g = panama_uav.util.Xorshift128.from_state([123456789 362436069 521288629 88675123]);
+            expected = [3701687786 458299110 2500872618 3633119408 516391518 ...
+                        2377269574 2599949379 717229868 137866584 395339113];
+            got = arrayfun(@(i) double(g.next_uint32()), 1:10);
+            tc.verifyEqual(got, expected);
+            tc.verifyError(@() panama_uav.util.Xorshift128.from_state([0 0 0 0]), 'panama_uav:rng');
+        end
+        function testOddAgentGuardOffByOneLikePython(tc)
+            % Python checks len(cells) < num_agents but an odd count pops
+            % num_agents + 1 cells. The port inherits this on purpose (driven
+            % through reset(), which samples starts/goals when none are injected):
+            %   3 agents, 2 free cells -> guard (Python RuntimeError)
+            %   3 agents, 3 free cells -> index error past the guard (Python IndexError)
+            %   3 agents, 4 free cells -> fine;  2 agents, 2 free cells -> fine
+            env = make_env(3, 1);
+            env.grid = free_grid(size(env.grid), 2);
+            tc.verifyError(@() env.reset(), 'panama_uav:environment');
+            env.grid = free_grid(size(env.grid), 3);
+            id = 'none';
+            where = '';
+            try
+                env.reset();
+            catch err
+                id = err.identifier;
+                where = err.stack(1).name;
+            end
+            tc.verifyTrue(~isempty(strfind(where, 'random_starts_and_goals')), ...
+                'the failure must come from popping cells, as in Python');
+            tc.verifyFalse(strcmp(id, 'none'), '3 agents on 3 cells must fail like Python');
+            tc.verifyFalse(strcmp(id, 'panama_uav:environment'), 'the guard must not catch it (inherited off-by-one)');
+            env.grid = free_grid(size(env.grid), 4);
+            [s, g] = episode(env);
+            tc.verifyEqual(size(s), [3 2]);
+            tc.verifyFalse(ismember(g(3, :), s, 'rows'));
+            env2 = make_env(2, 1);
+            env2.grid = free_grid(size(env2.grid), 2);
+            [s, ~] = episode(env2);
+            tc.verifyEqual(size(s), [2 2]);
+        end
         function testSeedlessResetsAdvance(tc)
             env = make_env(4, 123);
             [s1, g1, w1] = episode(env);
@@ -104,4 +149,12 @@ function [starts, goals, windows] = episode(env, seed)
     starts = reshape([env.agents.position], 2, [])';
     goals = reshape([env.agents.goal], 2, [])';
     windows = env.communication.transport.windows;
+end
+
+function g = free_grid(sz, free)
+% All obstacles except the first FREE cells in row-major order (like grid.flat).
+    g = ones(sz, 'uint8');
+    t = g';
+    t(1:free) = 0;
+    g = t';
 end

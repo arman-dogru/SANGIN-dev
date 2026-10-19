@@ -28,6 +28,7 @@ classdef Xorshift128 < handle
             end
         end
         function r = next_uint32(obj)
+            %NEXT_UINT32 Marsaglia (2003) xor128: t = x^(x<<11); w = w^(w>>19)^t^(t>>8).
             s = obj.state;
             t = bitxor(s(1), bitshift(s(1), 11));
             t = bitxor(t, bitshift(t, -8));
@@ -65,6 +66,21 @@ classdef Xorshift128 < handle
                 p(j) = tmp;
             end
             v = p(1:k);
+        end
+    end
+    methods (Static)
+        function obj = from_state(state)
+            %FROM_STATE Generator with the raw state [x y z w], no seed mixing
+            %   and no warm-up. from_state([123456789 362436069 521288629
+            %   88675123]) is Marsaglia's published xor128 and yields
+            %   3701687786, 458299110, 2500872618, ... (RngTest pins this).
+            state = double(state);
+            if numel(state) ~= 4 || any(state < 0 | state >= 2 ^ 32 | state ~= floor(state)) ...
+                    || all(state == 0)
+                error('panama_uav:rng', 'State must be four uint32 values, not all zero');
+            end
+            obj = panama_uav.util.Xorshift128(0);
+            obj.state = uint32(reshape(state, 1, 4));
         end
     end
 end

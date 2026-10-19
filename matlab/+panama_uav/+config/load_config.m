@@ -38,8 +38,9 @@ function c = load_config(path)
             || s.min_episodes < 500 || s.graduation_success_rate < 0.95;
     end
     if bad
-        error('panama_uav:config', ['Study requires fixed map, phases 2/4/6/8, 250 steps, ', ...
-            'minimum 500 episodes and 95% qualification']);
+        % '%s' keeps the literal '%' of the message out of the format string.
+        error('panama_uav:config', '%s', ['Study requires fixed map, phases 2/4/6/8, ', ...
+            '250 steps, minimum 500 episodes and 95% qualification']);
     end
     if c.training.validation_episodes ~= 200 || c.training.validation_interval_episodes ~= 250 ...
             || c.training.model_broadcast_steps ~= 16

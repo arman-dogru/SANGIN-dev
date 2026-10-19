@@ -121,7 +121,43 @@ def group_config():
             rejected.append({"file": f"configs/{name.name}", "accepted": False,
                              "error": type(exc).__name__})
     return {"base": clean(d), "smoke_training": clean(c.profile("smoke").to_dict()["training"]),
-            "vector_length": c.vector_length, "files": rejected}
+            "vector_length": c.vector_length, "files": rejected,
+            "synthetic": synthetic_configs()}
+
+
+# Small TOML texts that exercise load_config's accept/reject rules. The
+# repository's configs/ only holds accepted files, so rejection parity is
+# pinned here. Each text is written to <tmp>/configs/<name>.toml (load_config
+# takes the project root from the file's grandparent directory).
+SYNTHETIC_CONFIGS = {
+    "empty": "",
+    "legacy_extends": 'extends = "base.toml"\n',
+    "legacy_section": "[static_radio]\nsnr_db = 10.0\n",
+    "unknown_training_key": "[training]\nvalidation_episodes = 100\n",
+    "bad_profile": '[communication]\nprofile = "bogus"\n',
+    "three_windows": "[communication]\nwindows_min = 3\nwindows_max = 3\n",
+    "wrong_ladder": ('[[curriculum.stages]]\nname = "a"\nnum_agents = 3\n'
+                     'map_path = "maps/random-32-32-10.map"\nmax_episode_steps = 250\n'
+                     "min_episodes = 500\n"),
+}
+
+
+def synthetic_configs():
+    import tempfile
+    out = []
+    with tempfile.TemporaryDirectory() as tmp:
+        (Path(tmp) / "configs").mkdir()
+        for name, text in SYNTHETIC_CONFIGS.items():
+            path = Path(tmp) / "configs" / f"{name}.toml"
+            path.write_text(text, encoding="utf-8")
+            try:
+                loaded = load_config(path).to_dict()
+                loaded.pop("project_root")
+                out.append({"name": name, "text": text, "accepted": True, "config": clean(loaded)})
+            except Exception as exc:  # noqa: BLE001
+                out.append({"name": name, "text": text, "accepted": False,
+                            "error": type(exc).__name__})
+    return out
 
 
 def group_maps():

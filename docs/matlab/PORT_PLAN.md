@@ -1,32 +1,33 @@
 # MATLAB port plan and handoff
 
 This is the handoff document for the MATLAB port of the UAV–PANAMA
-communication staleness study. The work lives on the `matlab` branch, and each
-milestone lands through its own `matlab-mN-*` pull request into `matlab`, never
-into `main`.
+communication staleness study. The work lives on the `matlab-port` branch,
+which starts from `main` at be1b811. Each milestone lands through its own
+`matlab-port-mN` pull request into `matlab-port`, never into `main`. The port
+adds only `matlab/`, `docs/matlab/` and `README_MATLAB.md`; it does not
+change or restore any other file.
 
 The starter was written **without a MATLAB license**. It is plain MATLAB that
 needs no toolboxes, targets R2021b or later, and is verified on GNU Octave 9.4.0.
 Whoever continues with a licensed MATLAB should first run the suite there
 (`matlab/run_tests.m`), because the Octave run is the only one so far.
 
-## 1. Python source surveyed (commit 9636c81)
+## 1. Python source surveyed (commit be1b811)
 
 | Area | Python | Lines |
-|---|---|---:|
-| Library | `src/panama_uav/*.py` (21 modules) | 4,997 |
-| Experiment, report and plot scripts | `scripts/*.py` (31 scripts) | 8,679 |
-| Tests | `tests/*.py` | 1,802 |
-| **Total** | | **15,478** |
+| --- | --- | ---: |
+| Library | `src/panama_uav/*.py` (22 files, 21 modules plus `__init__`) | 4,997 |
+| Experiment, report and plot scripts | `scripts/*.py` (29 scripts) | 5,977 |
+| Tests | `tests/*.py` (11 files) | 1,170 |
+| **Total** | | **12,144** |
 
-Configuration is `configs/*.toml` (13 files) in two schemas:
-- the study schema read by `config.load_config` (4 files accepted: base,
-  fast_pilot, leo_learning, leo_tremblant), and
-- the PANAMA-reproduction schema with `extends`, `[static_radio]` and extra
-  training/reward keys (9 files, all rejected by `load_config`, in Python and
-  MATLAB alike). Its loader in `scripts/run_panama_reproduction.py` is ported
-  in **M6** with the other scripts; `toml_decode` already parses all 13 files. Maps are MovingAI `.map` files in
-`maps/` and scenarios are `.scen` files in `scens/`.
+Configuration is `configs/*.toml` (4 files: base, fast_pilot, leo_learning,
+leo_tremblant), all in the study schema read by `config.load_config`. The
+rejection rules of `load_config` (legacy sections, unknown keys, invalid
+transport, a ladder other than 2/4/6/8) are pinned with small synthetic TOML
+texts in the `config` fixture group, since no committed config is rejected.
+Maps are MovingAI `.map` files in `maps/` (13 files) and scenarios are `.scen`
+files in `scens/` (3 sets).
 
 ## 2. Module map
 
@@ -34,7 +35,7 @@ The MATLAB package is `matlab/+panama_uav`. Each Python module has one MATLAB
 sub-package or class with the same responsibility.
 
 | Python module | MATLAB location | Responsibility |
-|---|---|---|
+| --- | --- | --- |
 | `config.py` | `+panama_uav/+config/` (`load_config`, `defaults`, `validate_transport`, `profile`) | Typed config with defaults and study validation |
 | (tomllib) | `+panama_uav/+util/toml_decode.m` | TOML subset parser |
 | `scenarios.py` | `+panama_uav/+scenarios/` (`load_map`, `load_scenario`, `discover_scenarios`, `first`) | MovingAI maps and scenarios |
@@ -62,7 +63,7 @@ sub-package or class with the same responsibility.
 ## 3. Dependency replacements
 
 | Python dependency | Used for | MATLAB replacement (no toolbox) | With a license, could use |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `tomllib` | configs | `+util/toml_decode.m`: tables, arrays of tables, strings, ints with `_`, floats, booleans, inline and multiline arrays, comments. Integers stay `int64` so int/float is preserved. | (none built in) |
 | NumPy | arrays, RNG | Built-in arrays; `+util/Xorshift128.m` replaces `np.random.default_rng` (same distributions, different stream; see §5) | — |
 | SimPy 4.1.1 | event calendar | `EventCalendar.m`: binary heap keyed by (time, insertion id). It copies SimPy's timing arithmetic `now + max(0, at - now)`. | SimEvents (overkill) |
@@ -79,16 +80,16 @@ sub-package or class with the same responsibility.
 ## 4. Milestones
 
 | # | Branch | Scope | Status |
-|---|---|---|---|
-| M0 | `matlab` | This plan | done |
-| M1 | `matlab-m1-core` | Scaffold of the whole package (stubs that raise `panama_uav:notImplemented`), TOML/config, maps/scenarios, A*, UAV geometry, environment step, information caches, `perfect` and `controlled` transport, event calendar, portable RNG, fixture generator, parity tests, Octave instructions, README_MATLAB | see checklist |
-| M1b | `matlab-m1b-physical` | `physical` profile: link service, satellite handover pauses, pickle-exact wire sizes (`encode_size`), delay traces (`.npz` reader), byte counters and occupancy | next |
-| M2 | `matlab-m2-nn` | `+nn` layers and gradients, DQN, Huber, AdamW+AMSGrad, clipping, soft update, torch-weight exporter and loader; forward/backward/optimizer parity | |
-| M3 | `matlab-m3-training` | SumTree/PER, Double DQN `learn`, `TrainingSession` with experience upload and snapshot downlink, validation and qualification, MAT-file checkpoints, `+records` (JSONL/CSV, sha256) | |
-| M4 | `matlab-m4-evaluation` | Case bank, `run_episode`, treatments, decision deadline, paired bootstrap summary, `evaluate_suite` | |
-| M5 | `matlab-m5-leo` | `OrbitTimeline`, handshake model, SGP4 port and timeline builder, ITU-R port, `handover_study` | |
-| M6 | `matlab-m6-reporting` | Reporting figures, HTML replay, `cli.m`, script equivalents, including the PANAMA-reproduction config loader (`extends` schema) of `scripts/run_panama_reproduction.py` | |
-| M7 | `matlab-m7-docs` | Full parity table, side-by-side figures, CI | |
+| --- | --- | --- | --- |
+| M0 | `matlab-port` | This plan | done |
+| M1 | `matlab-port-m1` | Scaffold of the whole package (stubs that raise `panama_uav:notImplemented`), TOML/config, maps/scenarios, A*, UAV geometry, environment step, information caches, `perfect` and `controlled` transport, event calendar, portable RNG, fixture generator, parity tests, Octave instructions, README_MATLAB | see checklist |
+| M1b | `matlab-port-m1b` | `physical` profile: link service, satellite handover pauses, pickle-exact wire sizes (`encode_size`), delay traces (`.npz` reader), byte counters and occupancy | next |
+| M2 | `matlab-port-m2` | `+nn` layers and gradients, DQN, Huber, AdamW+AMSGrad, clipping, soft update, torch-weight exporter and loader; forward/backward/optimizer parity | |
+| M3 | `matlab-port-m3` | SumTree/PER, Double DQN `learn`, `TrainingSession` with experience upload and snapshot downlink, validation and qualification, MAT-file checkpoints, `+records` (JSONL/CSV, sha256) | |
+| M4 | `matlab-port-m4` | Case bank, `run_episode`, treatments, decision deadline, paired bootstrap summary, `evaluate_suite` | |
+| M5 | `matlab-port-m5` | `OrbitTimeline`, handshake model, SGP4 port and timeline builder, ITU-R port, `handover_study` | |
+| M6 | `matlab-port-m6` | Reporting figures, HTML replay, `cli.m`, script equivalents | |
+| M7 | `matlab-port-m7` | Full parity table, side-by-side figures, CI | |
 
 ## 5. Parity strategy and tolerances
 
@@ -110,7 +111,9 @@ reproduced. There are two modes:
 2. *Native MATLAB draws.* Without injection, the port follows Python's
    generator **semantics** with its own portable stream,
    `panama_uav.util.Xorshift128` (shift/xor only, so MATLAB and Octave give
-   bit-identical streams; `RngTest` checks it against a pure-Python reference):
+   bit-identical streams; `RngTest` checks it against a pure-Python reference
+   and, independently, against the first ten outputs of Marsaglia's published
+   xor128 state through `Xorshift128.from_state`):
    - the constructor seeds the environment's generator with `seed`;
      `reset()` with no seed keeps advancing it, so successive episodes differ
      (Python `environment.py:112,191`; used by `training.py:513` and
@@ -126,8 +129,8 @@ reproduced. There are two modes:
    comparable to Python runs only statistically.
 
 | Quantity | Tolerance |
-|---|---|
-| TOML decode of all 13 configs | exact (int64 vs double type preserved) |
+| --- | --- |
+| TOML decode of all 4 configs | exact (int64 vs double type preserved) |
 | Map grids, scenario starts/goals, A* paths | exact |
 | Agent positions, collisions, terminated/truncated, info counters | exact |
 | Observations (`single`) | exact (`isequal`) |
@@ -191,6 +194,7 @@ in [README_MATLAB.md](../../README_MATLAB.md).
 - [x] Information caches, guidance consumption, mission routes (UAV and cloud), staleness
 - [x] `EventCalendar` (SimPy replacement); `Transport` for the `perfect` and `controlled` profiles
 - [x] Portable seeded generator `+util/Xorshift128` with Python seedless-reset semantics
+- [x] Marsaglia (2003) reference outputs and synthetic config rejection cases
 - [x] Fixture generator `matlab/tools/make_fixtures.py`; class-strict Octave test shim and runner
 - [x] On-demand figure script `matlab/scripts/plot_rollout.m` (output gitignored)
 
@@ -215,8 +219,14 @@ in [README_MATLAB.md](../../README_MATLAB.md).
 **Known gaps and ambiguities:**
 - MATLAB-native episodes for a seed are not NumPy's episodes for that seed (identical between MATLAB and Octave).
 - `Transport.log` entries carry no byte counts until `encode_size` lands.
-- The links into the removed `output/` folder in README.md and docs/ are
-  annotated as no longer committed.
-- **Merge hazard:** if `matlab` is ever merged into `main`, commit `af79e23`
-  deletes the committed results and presentation deck (198 files). That merge
-  needs Arman's explicit OK.
+- **Inherited off-by-one (kept on purpose).** `_random_starts_and_goals` in
+  `environment.py` guards with `len(cells) < num_agents`, but an odd agent
+  count pops `num_agents + 1` cells (each pair pops two, the odd agent pops a
+  start and a goal). With exactly `num_agents` free cells and an odd count,
+  Python raises `IndexError` past the guard. The port keeps the same guard, so
+  it fails at the same point with an indexing error rather than
+  `panama_uav:environment`. Fix it in Python and MATLAB together.
+  `RngTest/testOddAgentGuardOffByOneLikePython` pins the current behaviour.
+- Generated output stays out of Git: figures go to `matlab/output/`, which
+  `matlab/.gitignore` ignores, and the repository's `/output/` rule covers the
+  Python side.

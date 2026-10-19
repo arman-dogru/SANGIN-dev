@@ -1,0 +1,4 @@
+# MATLAB port: figures and run outputs are produced on demand, never committed.
+output/
+*.asv
+octave-workspace

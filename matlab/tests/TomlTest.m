@@ -4,7 +4,7 @@ classdef TomlTest < matlab.unittest.TestCase
         function testAllConfigsMatchTomllib(tc)
             fx = load_fixture('toml');
             cases = as_cell(fx.cases);
-            tc.verifyEqual(numel(cases), 13);
+            tc.verifyEqual(numel(cases), 4);   % base, fast_pilot, leo_learning, leo_tremblant
             for k = 1:numel(cases)
                 text = panama_uav.util.read_text(fullfile(repo_root(), cases{k}.file));
                 got = panama_uav.util.canonical(panama_uav.util.toml_decode(text));

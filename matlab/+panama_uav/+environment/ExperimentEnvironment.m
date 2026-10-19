@@ -342,6 +342,16 @@ classdef ExperimentEnvironment < handle
             %   and pop pairs from the end, as Python does with self.rng.shuffle.
             %   Same distribution as NumPy, different stream: inject starts/goals
             %   for episodes identical to Python's.
+            %
+            %   Known off-by-one, inherited from Python ON PURPOSE: the guard
+            %   checks numel(cells) < num_agents, but an odd agent count pops
+            %   num_agents + 1 cells (each pair pops two, the odd agent pops a
+            %   start AND a goal). With exactly num_agents free cells and an odd
+            %   count, Python raises IndexError (pop from empty list) and this
+            %   port raises an index-out-of-bound error instead of the guard's
+            %   panama_uav:environment message. It is kept so the port matches
+            %   environment.py:_random_starts_and_goals; fix both together.
+            %   RngTest/testOddAgentGuardOffByOneLikePython pins it.
             [rows, cols] = find(obj.grid' == 0);       % row-major order like np.argwhere
             cells = [cols - 1, rows - 1];
             if size(cells, 1) < obj.num_agents
