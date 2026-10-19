@@ -52,7 +52,7 @@ classdef RngTest < matlab.unittest.TestCase
                 id = err.identifier;
                 where = err.stack(1).name;
             end
-            tc.verifyTrue(~isempty(strfind(where, 'random_starts_and_goals')), ...
+            tc.verifyTrue(~isempty(strfind(where, 'pop_starts_and_goals')), ...
                 'the failure must come from popping cells, as in Python');
             tc.verifyFalse(strcmp(id, 'none'), '3 agents on 3 cells must fail like Python');
             tc.verifyFalse(strcmp(id, 'panama_uav:environment'), 'the guard must not catch it (inherited off-by-one)');
@@ -66,28 +66,18 @@ classdef RngTest < matlab.unittest.TestCase
             tc.verifyEqual(size(s), [2 2]);
         end
         function testStartGoalPopOrderLikePython(tc)
-            % Pins Python's pop order on a 6-cell grid with an independent
-            % copy of the env stream: cells are shuffled with the env's
-            % generator, then each pair pops (first=end, second=end-1) with
-            % goals swapped, and the odd agent gets start=end, goal=end-1.
-            for n = [3 5]
-                for seed = [1 4 9]
-                    env = make_env(n, seed);
-                    env.grid = free_grid(size(env.grid), 6);
-                    [s, g] = episode(env);
-                    [rows, cols] = find(env.grid' == 0);
-                    cells = [cols - 1, rows - 1];
-                    ref = panama_uav.util.Xorshift128(seed);
-                    cells = cells(ref.permutation(size(cells, 1)), :);
-                    for k = 1:floor(n / 2)
-                        tc.verifyEqual(s(2 * k - 1, :), cells(end, :));
-                        tc.verifyEqual(s(2 * k, :), cells(end - 1, :));
-                        cells = cells(1:end - 2, :);
-                    end
-                    label = sprintf('odd agent, %d agents, seed %d', n, seed);
-                    tc.verifyEqual(s(n, :), cells(end, :), [label ' start']);
-                    tc.verifyEqual(g(n, :), cells(end - 1, :), [label ' goal']);
-                end
+            % Expected order recorded from Python (popping.json): the cells
+            % as Python's rng.shuffle left them and the starts/goals
+            % _random_starts_and_goals popped from them, for 2-5 agents.
+            fx = load_fixture('popping');
+            cases = as_cell(fx.cases);
+            tc.verifyEqual(numel(cases), 12);
+            for k = 1:numel(cases)
+                c = cases{k};
+                label = sprintf('%d agents, seed %d', c.agents, c.seed);
+                [s, g] = panama_uav.environment.pop_starts_and_goals(per_rows(c.shuffled), c.agents);
+                tc.verifyEqual(s, per_rows(c.starts), [label ' starts']);
+                tc.verifyEqual(g, per_rows(c.goals), [label ' goals']);
             end
         end
         function testSeedlessResetsAdvance(tc)
@@ -182,4 +172,13 @@ function g = free_grid(sz, free)
     t = g';
     t(1:free) = 0;
     g = t';
+end
+
+function m = per_rows(v)
+% A JSON list of [r c] pairs as an N-by-2 double matrix.
+    if iscell(v)
+        m = cell2mat(cellfun(@(x) reshape(double(x), 1, 2), v(:), 'UniformOutput', false));
+    else
+        m = double(reshape(v, [], 2));
+    end
 end

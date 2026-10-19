@@ -358,19 +358,7 @@ classdef ExperimentEnvironment < handle
                 error('panama_uav:environment', 'Not enough traversable cells for the requested agents');
             end
             cells = cells(obj.rng.permutation(size(cells, 1)), :);
-            starts = zeros(0, 2);
-            goals = zeros(0, 2);
-            for k = 1:floor(obj.num_agents / 2)
-                first = cells(end, :);
-                second = cells(end - 1, :);
-                cells = cells(1:end - 2, :);
-                starts = [starts; first; second]; %#ok<AGROW>
-                goals = [goals; second; first]; %#ok<AGROW>
-            end
-            if mod(obj.num_agents, 2)
-                starts(end + 1, :) = cells(end, :);
-                goals(end + 1, :) = cells(end - 1, :);
-            end
+            [starts, goals] = panama_uav.environment.pop_starts_and_goals(cells, obj.num_agents);
         end
 
         function [final, collided, rewards, info] = resolve_positions(obj, actions, rewards, info, before)
