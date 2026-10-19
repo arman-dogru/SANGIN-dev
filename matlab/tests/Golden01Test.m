@@ -39,6 +39,6 @@ function replay(tc, route)
             tc.verifyEqual(r.observations(a).vector, single(reshape(fr.vector.(names{a}), 1, [])), ...
                 sprintf('%s agent %d vector', label, a - 1));
         end
-        tc.verifyEqual(r.info.uav_position, reshape(fr.uav, 1, []), 'AbsTol', 1e-9, [label, ' uav']);
+        tc.verifyEqual(r.info.uav_position, reshape(fr.uav, 1, []), 'AbsTol', 1e-12, [label, ' uav']);
     end
 end

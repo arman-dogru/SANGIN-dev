@@ -345,7 +345,7 @@ We extracted the paired recording `2025-04-11-15-16-16` from the archive:
 | Uplink | 187,624 | 30.45 ms | 42.83 ms | 122.74 ms |
 | Downlink | 187,745 | 25.83 ms | 31.37 ms | 92.72 ms |
 
-![Measured directional packet delay distributions](../output/leo/tremblant-data-20261005-01/measured_one_way_delay.png)
+*Figure not committed: measured directional packet delay distributions (`output/leo/tremblant-data-20261005-01/measured_one_way_delay.png`).*
 
 The plot uses measured data. The timeline thins points for display; the cumulative distributions and statistics include every imported sample. The recording is about 50 s, so it cannot support a 250 s episode by silent repetition, stretching or extrapolation.
 

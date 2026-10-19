@@ -58,15 +58,15 @@ classdef TestCase < handle
                 if ischar(varargin{k}) && strcmp(varargin{k}, 'RelTol'), reltol = varargin{k + 1}; end
             end
             why = '';
+            % Class-strict like matlab.unittest IsEqualTo: Octave's isequal
+            % treats int64(1) == 1 and single == double as equal; MATLAB does not.
+            if ~strcmp(class(a), class(e))
+                ok = false;
+                why = sprintf('class %s vs %s', class(a), class(e));
+                return;
+            end
             if abstol == 0 && reltol == 0
-                ok = isequal(a, e);
-                if ~ok && isnumeric(a) && isnumeric(e)
-                    ok = isequal(class(a), class(e)) && isequal(size(a), size(e)) && isequaln(a, e);
-                end
-                if ~ok
-                    why = sprintf('values differ (%s %s vs %s %s)', class(a), mat2str(size(a)), ...
-                        class(e), mat2str(size(e)));
-                end
+                [ok, why] = strict_equal(a, e);
                 return;
             end
             if ~isequal(size(a), size(e))
@@ -84,4 +84,51 @@ classdef TestCase < handle
             end
         end
     end
+end
+
+function [ok, why] = strict_equal(a, e)
+    ok = false;
+    why = '';
+    if ~strcmp(class(a), class(e))
+        why = sprintf('class %s vs %s', class(a), class(e));
+        return;
+    end
+    if ~isequal(size(a), size(e))
+        why = sprintf('size %s vs %s', mat2str(size(a)), mat2str(size(e)));
+        return;
+    end
+    if isstruct(a)
+        fa = sort(fieldnames(a));
+        fe = sort(fieldnames(e));
+        if ~isequal(fa, fe)
+            why = 'struct field names differ';
+            return;
+        end
+        for i = 1:numel(a)
+            for k = 1:numel(fa)
+                [ok, why] = strict_equal(a(i).(fa{k}), e(i).(fa{k}));
+                if ~ok
+                    why = [fa{k}, ': ', why];
+                    return;
+                end
+            end
+        end
+    elseif iscell(a)
+        for i = 1:numel(a)
+            [ok, why] = strict_equal(a{i}, e{i});
+            if ~ok
+                why = sprintf('cell %d: %s', i, why);
+                return;
+            end
+        end
+    elseif isobject(a)
+        if ~isequal(a, e)
+            why = 'objects differ';
+            return;
+        end
+    elseif ~isequaln(a, e)
+        why = sprintf('values differ (%s %s)', class(a), mat2str(size(a)));
+        return;
+    end
+    ok = true;
 end

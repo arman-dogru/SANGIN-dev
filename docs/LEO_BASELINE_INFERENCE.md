@@ -105,7 +105,7 @@ synthetic curves, modified successes, recovery controllers or radio-dependent
 task rewards are introduced.
 
 The completed `leo-baseline-20261019-02` comparison and its measured figures are
-published in [the inference report](../output/results/leo-inference-20261019-02/README.md).
+published in the inference report (`output/results/leo-inference-20261019-02/README.md`, no longer committed).
 The earlier `leo-baseline-20261019-01` remains archived after a fractional-bit
 service-loop stall; the replacement reran all cases after the numerical fix,
 without carrying partial-run outcomes forward.

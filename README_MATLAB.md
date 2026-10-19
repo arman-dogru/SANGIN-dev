@@ -40,7 +40,7 @@ flowchart LR
         m_cfg[+config, +util/toml_decode]:::done
         m_scen[+scenarios]:::done
         m_env[+environment]:::done
-        m_info[+information]:::done
+        m_info[+information]:::partial
         m_tr[+transport/Transport]:::partial
         m_cal[+transport/EventCalendar]:::done
         m_uav[+uav, +radio]:::done
@@ -76,13 +76,13 @@ means a stub that raises `panama_uav:notImplemented`.
 
 | Python module | MATLAB | Status | Parity test (tolerance) |
 |---|---|---|---|
-| `config.py` (+ `tomllib`) | `+config`, `+util/toml_decode.m` | **parity-tested** | `TomlTest`: all 13 configs decode identically, with int/float type preserved (exact). `ConfigTest`: base, smoke and the 3 accepted configs match `to_dict()`, and the 10 rejected configs are rejected (exact) |
+| `config.py` (+ `tomllib`) | `+config`, `+util/toml_decode.m` | **parity-tested** | `TomlTest`: all 13 configs decode identically, with int/float type preserved (exact). `ConfigTest`: the 4 accepted configs (base, fast_pilot, leo_learning, leo_tremblant) and the smoke profile match `to_dict()`, and the 9 PANAMA-reproduction configs are rejected as in Python |
 | `scenarios.py` | `+scenarios` | **parity-tested** | `MapsTest`: all 13 maps, 3 scenario files (exact) |
-| `environment.py` | `+environment` | **parity-tested** | `MapsTest`: 62 A* paths (exact). `EnvironmentParityTest`: 9 rollouts, 2–8 agents, ≤80 steps. `Golden01Test`: the frozen 0.1 trace on 3 routes. Positions, collisions, termination and observations are exact; rewards abs 1e-12; UAV abs 1e-9 m |
+| `environment.py` | `+environment` | **parity-tested** (`prepare_decision` is a stub, M4) | `MapsTest`: 62 A* paths plus 7 hand-made up/down and left/right tie cases (exact). `EnvironmentParityTest`: 10 rollouts, 2–8 agents, including one truncated at a 12-step cap; reset info and reset observations are checked too. `Golden01Test`: the frozen 0.1 trace on 3 routes. Positions, collisions, termination, truncation and observations are exact; rewards abs 1e-12; UAV abs 1e-12 m. `RngTest`: seedless and seeded episode generation |
 | `information.py` | `+information` | **parity-tested** (except `prepare_decision`, M4) | Per-step information ages, report ages and cached guidance, abs 1e-12 s; `InformationTest` |
 | `transport.py` | `+transport/Transport.m` | **partial**: `perfect`/`controlled` profiles are parity-tested; `physical`, wire bytes, `DelayTrace`, `import_trace` are stubs (M1b) | Transport log (reservations, exposures, buffering, deliveries), abs 1e-12 s; message counters exact |
 | `event_calendar.py` (SimPy) | `+transport/EventCalendar.m` | **parity-tested** | `CalendarTest`: 60-op replay with ties and float offsets; times bit-exact |
-| `uav.py`, `radio.py` | `+uav`, `+radio` | **parity-tested** | `UavTest`: model constants rel 1e-12, 25-step trajectory abs 1e-9 m, SNR map abs 1e-4 dB |
+| `uav.py`, `radio.py` | `+uav`, `+radio` | **parity-tested** | `UavTest`: model constants rel 1e-12, 25-step trajectory and tracking error abs 1e-12 m, float32 SNR maps exact at single precision (per step at 5 cells and the sum, and the full map at the end) |
 | `records.py` | `+records` | stub (M3) | — |
 | `models.py`, `learning.py` | `+models`, `+nn`, `+learning` | stub (M2/M3) | — |
 | `replay.py` | `+replay` | stub (M3) | — |
@@ -91,13 +91,24 @@ means a stub that raises `panama_uav:notImplemented`.
 | `leo.py`, `leo_radio.py`, `handover_study.py` | `+leo`, `+leo_radio`, `+itur`, `+handover_study` | stub (M5) | — |
 | `reporting.py`, `replay_viewer.py`, `cli.py` | `+reporting`, `+replay_viewer`, `cli.m` | stub (M6) | — |
 
-`ScaffoldTest` checks that all 59 stubs raise `panama_uav:notImplemented`.
+`ScaffoldTest` checks that exactly 59 stub files exist and that each raises
+`panama_uav:notImplemented`. Unported methods on ported classes
+(`ExperimentEnvironment.prepare_decision`, `MissionCommunication.prepare_decision`,
+`Transport.occupancy`, and delay traces passed to `Transport`) raise the same error.
 
-**Exact versus statistical parity.** NumPy's random streams are not
-reproduced. The parity tests inject the NumPy draws (starts and goals, and
-reservation windows) through `reset('starts', S, 'goals', G, 'windows', W)`.
-Without injected draws, MATLAB draws from its own generator with the same
-distributions, so those runs are only statistically equivalent to Python's.
+**Random draws.** NumPy's random streams are not reproduced. The parity
+tests inject the NumPy draws (starts and goals, and reservation windows)
+through `reset('starts', S, 'goals', G, 'windows', W)`.
+
+Without injected draws, the environment follows Python's semantics with a
+portable generator, `panama_uav.util.Xorshift128`:
+- `reset()` advances the environment's generator, so every episode differs.
+- `reset('seed', s)` reseeds it.
+- Reservation windows come from the base or explicit seed.
+
+The same seed gives the same episodes on MATLAB and Octave, but not the
+episodes NumPy draws for that seed. Those runs match Python only in
+distribution. See [PORT_PLAN §5](docs/matlab/PORT_PLAN.md).
 
 ## Run the tests
 
@@ -116,9 +127,10 @@ cd matlab
 octave-cli --no-gui --eval "ok = run_tests(); exit(~ok)"
 ```
 
-The full suite is 29 tests and takes about 1.5 minutes on Octave. On Octave,
-`run_tests` adds `matlab/compat/octave`, which provides a small
-`matlab.unittest.TestCase` shim. MATLAB never loads it.
+The full suite (37 tests) takes about 1.5 minutes on Octave. On Octave, `run_tests`
+adds `matlab/compat/octave`, which provides a small `matlab.unittest.TestCase`
+shim. Like `matlab.unittest`, the shim's `verifyEqual` is class-strict:
+`int64(1)` vs `1` and `single` vs `double` both fail. MATLAB never loads it.
 
 **CI (Octave).** An `ubuntu-latest` job only needs
 `sudo apt-get install -y octave-cli` followed by the `octave-cli` command
@@ -158,5 +170,6 @@ plumbing and not study results.
 - Positions stay zero-based `[row col]`, as in Python, and the grid is indexed as `grid(r+1, c+1)`.
 - Spatial observations are `fov×fov×3` single precision (MATLAB layout), where Python uses `3×fov×fov`.
 - Python dicts keyed by agent id become cells or vectors indexed by `id+1`.
+- Name-value options reject unknown names, so a typo such as `'start'` errors.
 - Python `None` becomes `[]`, a Python tuple of strings becomes a cell row, and a tuple of numbers becomes a row vector.
 - Octave-specific workarounds are commented in the code. `until` is a keyword in Octave. Use `[a, b] = obj.f()` instead of `[a, ~] = obj.f()` inside classdef methods. JSON fixtures that need bit-exact doubles carry hex bits, because Octave's `jsondecode` is not correctly rounded.

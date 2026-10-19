@@ -21,6 +21,7 @@ classdef ExperimentEnvironment < handle
         num_agents
         max_episode_steps
         base_seed
+        rng            % panama_uav.util.Xorshift128; replaces np.random.default_rng(seed)
         scenario
         fov_radius
         fov_size
@@ -48,6 +49,7 @@ classdef ExperimentEnvironment < handle
             obj.num_agents = num_agents;
             obj.max_episode_steps = max_episode_steps;
             obj.base_seed = seed;
+            obj.rng = panama_uav.util.Xorshift128(seed);
             if ~isempty(scenario)
                 scenario = panama_uav.scenarios.first(scenario, num_agents);
             end
@@ -65,25 +67,39 @@ classdef ExperimentEnvironment < handle
                 config.map.meters_per_cell, config.uav);
         end
 
+        function [spatial, vector_length] = observation_shape(obj)
+            %OBSERVATION_SHAPE Python returns ((3, fov, fov), vector_length); the
+            %   MATLAB spatial layout is [fov fov 3].
+            spatial = [obj.fov_size, obj.fov_size, 3];
+            vector_length = panama_uav.config.vector_length(obj.config);
+        end
+
+        function observations = prepare_decision(obj, deadline_seconds) %#ok<STOUT,INUSD>
+            %PREPARE_DECISION Decision-deadline processing (environment.py:prepare_decision).
+            error('panama_uav:notImplemented', ['ExperimentEnvironment.prepare_decision is not ported yet ', ...
+                '(Python: environment.py:prepare_decision -> information.py:prepare_decision; milestone M4)']);
+        end
+
         function tf = all_agents_at_goals(obj)
             tf = ~isempty(obj.agents) && all(arrayfun(@(a) isequal(a.position, a.goal), obj.agents));
         end
 
         function [observations, info] = reset(obj, varargin)
-            opts = struct('seed', [], 'starts', [], 'goals', [], 'windows', []);
-            for k = 1:2:numel(varargin)
-                opts.(varargin{k}) = varargin{k + 1};
+            opts = panama_uav.util.parse_options(struct('seed', [], 'starts', [], 'goals', [], ...
+                'windows', []), varargin, 'ExperimentEnvironment.reset');
+            if isempty(opts.starts) ~= isempty(opts.goals)
+                error('panama_uav:options', 'reset: inject starts and goals together');
+            end
+            % Python: reset(seed) replaces self.rng; reset() keeps advancing it.
+            if ~isempty(opts.seed)
+                obj.rng = panama_uav.util.Xorshift128(opts.seed);
             end
             obj.step_count = 0;
             if ~isempty(opts.starts)
                 starts = double(opts.starts);
                 goals = double(opts.goals);
             elseif isempty(obj.scenario)
-                seed = obj.base_seed;
-                if ~isempty(opts.seed)
-                    seed = opts.seed;
-                end
-                [starts, goals] = obj.random_starts_and_goals(seed);
+                [starts, goals] = obj.random_starts_and_goals();
             else
                 starts = obj.scenario.starts;
                 goals = obj.scenario.goals;
@@ -321,15 +337,17 @@ classdef ExperimentEnvironment < handle
             end
         end
 
-        function [starts, goals] = random_starts_and_goals(obj, seed)
-            %RANDOM_STARTS_AND_GOALS MATLAB-RNG equivalent of the NumPy shuffle
-            %   (statistical parity only; inject starts/goals for exact parity).
+        function [starts, goals] = random_starts_and_goals(obj)
+            %RANDOM_STARTS_AND_GOALS Shuffle free cells with the env's own stream
+            %   and pop pairs from the end, as Python does with self.rng.shuffle.
+            %   Same distribution as NumPy, different stream: inject starts/goals
+            %   for episodes identical to Python's.
             [rows, cols] = find(obj.grid' == 0);       % row-major order like np.argwhere
             cells = [cols - 1, rows - 1];
             if size(cells, 1) < obj.num_agents
                 error('panama_uav:environment', 'Not enough traversable cells for the requested agents');
             end
-            cells = cells(panama_uav.util.seeded_randperm(seed, size(cells, 1)), :);
+            cells = cells(obj.rng.permutation(size(cells, 1)), :);
             starts = zeros(0, 2);
             goals = zeros(0, 2);
             for k = 1:floor(obj.num_agents / 2)

@@ -12,6 +12,7 @@ classdef EnvironmentParityTest < matlab.unittest.TestCase
         function testPerfectProfileIgnoresStaleness(tc), check_case(tc, 'perfect_stale'); end
         function testNoContentionEdgeProcessing(tc), check_case(tc, 'no_contention'); end
         function testCloudProcessingDelay(tc), check_case(tc, 'cloud_processing'); end
+        function testTruncationAtShortCap(tc), check_case(tc, 'truncated_cap12'); end
     end
 end
 
@@ -21,9 +22,18 @@ function check_case(tc, name)
         fx = load_fixture('env');
     end
     k = fx.(name);
-    [env, ~] = make_env(k);
+    [env, ~, obs0, info0] = make_env(k);
     frames = as_cell(k.frames);
     n = k.agents;
+    tc.verifyEqual(info0.max_initial_astar_distance, k.info0.max_initial_astar_distance, [name, ' reset info']);
+    spatial0 = per_agent(k.reset_observations.spatial_ones, n);
+    for a = 1:n
+        tc.verifyEqual(python_flat_ones(obs0(a).spatial), reshape(spatial0{a}, 1, []), ...
+            sprintf('%s reset agent %d spatial', name, a - 1));
+        tc.verifyEqual(obs0(a).vector, single(reshape(k.reset_observations.vector(a, :), 1, [])), ...
+            sprintf('%s reset agent %d vector', name, a - 1));
+    end
+
     for f = 1:numel(frames)
         fr = frames{f};
         label = sprintf('%s step %d', name, f);
@@ -37,8 +47,8 @@ function check_case(tc, name)
         tc.verifyEqual(r.info.path_conflict_penalty_step, fr.path_conflict, [label, ' path conflict']);
         tc.verifyEqual(r.info.targets_reached_step, fr.targets, [label, ' targets']);
         tc.verifyEqual(r.info.agents_at_goal_step, fr.at_goal, [label, ' at goal']);
-        tc.verifyEqual(r.info.uav_position, reshape(fr.uav, 1, []), 'AbsTol', 1e-9, [label, ' uav']);
-        tc.verifyEqual(r.info.uav_distance_moved_step, fr.uav_moved, 'AbsTol', 1e-9, [label, ' uav moved']);
+        tc.verifyEqual(r.info.uav_position, reshape(fr.uav, 1, []), 'AbsTol', 1e-12, [label, ' uav']);
+        tc.verifyEqual(r.info.uav_distance_moved_step, fr.uav_moved, 'AbsTol', 1e-12, [label, ' uav moved']);
         tc.verifyEqual(r.info.communication.information_age, reshape(fr.ages, n, 3), 'AbsTol', 1e-12, ...
             [label, ' information age']);
         tc.verifyEqual(r.info.communication.uav_report_age_seconds, reshape(fr.report_age, 1, []), ...
@@ -58,9 +68,13 @@ function check_case(tc, name)
         end
     end
     check_log(tc, name, env.communication.transport, k);
+    if frames{end}.truncated
+        tc.verifyEqual(env.step_count, k.cap, [name, ' cap']);
+        tc.verifyError(@() env.step(4 * ones(1, n)), 'panama_uav:environment');
+    end
 end
 
-function [env, c] = make_env(k)
+function [env, c, obs0, info0] = make_env(k)
     c = panama_uav.config.load_config(fullfile(repo_root(), 'configs', 'base.toml'));
     comm = k.communication;
     names = fieldnames(comm);
@@ -73,9 +87,9 @@ function [env, c] = make_env(k)
         args = [args, {names{j}, v}]; %#ok<AGROW>
     end
     c = panama_uav.config.with_communication(c, args{:});
-    env = panama_uav.environment.ExperimentEnvironment(c, 'maps/random-32-32-10.map', k.agents, 250, k.seed);
+    env = panama_uav.environment.ExperimentEnvironment(c, 'maps/random-32-32-10.map', k.agents, k.cap, k.seed);
     windows = fixture_windows(k.windows, k.agents);
-    env.reset('starts', reshape(k.starts, [], 2), 'goals', reshape(k.goals, [], 2), 'windows', windows);
+    [obs0, info0] = env.reset('starts', reshape(k.starts, [], 2), 'goals', reshape(k.goals, [], 2), 'windows', windows);
 end
 
 function idx = python_flat_ones(spatial)

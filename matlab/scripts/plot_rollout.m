@@ -12,9 +12,7 @@ function out = plot_rollout(varargin)
     root = fileparts(here);
     opts = struct('agents', 4, 'seed', 21, 'delay_steps', 10, 'steps', 120, ...
         'output', fullfile(here, 'output', 'rollout.png'));
-    for k = 1:2:numel(varargin)
-        opts.(varargin{k}) = varargin{k + 1};
-    end
+    opts = panama_uav.util.parse_options(opts, varargin, 'plot_rollout');
     c = panama_uav.config.load_config(fullfile(root, 'configs', 'base.toml'));
     c = panama_uav.config.with_communication(c, 'stale_information', ...
         {'task', 'intentions', 'priorities'}, 'delay_steps', opts.delay_steps);

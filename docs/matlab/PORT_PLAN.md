@@ -19,9 +19,13 @@ Whoever continues with a licensed MATLAB should first run the suite there
 | Tests | `tests/*.py` | 1,802 |
 | **Total** | | **15,478** |
 
-Configuration is `configs/*.toml` (13 files, two schemas: the study schema read
-by `config.load_config`, and the PANAMA-reproduction schema with `extends`
-read by `scripts/run_panama_reproduction.py`). Maps are MovingAI `.map` files in
+Configuration is `configs/*.toml` (13 files) in two schemas:
+- the study schema read by `config.load_config` (4 files accepted: base,
+  fast_pilot, leo_learning, leo_tremblant), and
+- the PANAMA-reproduction schema with `extends`, `[static_radio]` and extra
+  training/reward keys (9 files, all rejected by `load_config`, in Python and
+  MATLAB alike). Its loader in `scripts/run_panama_reproduction.py` is ported
+  in **M6** with the other scripts; `toml_decode` already parses all 13 files. Maps are MovingAI `.map` files in
 `maps/` and scenarios are `.scen` files in `scens/`.
 
 ## 2. Module map
@@ -34,7 +38,7 @@ sub-package or class with the same responsibility.
 | `config.py` | `+panama_uav/+config/` (`load_config`, `defaults`, `validate_transport`, `profile`) | Typed config with defaults and study validation |
 | (tomllib) | `+panama_uav/+util/toml_decode.m` | TOML subset parser |
 | `scenarios.py` | `+panama_uav/+scenarios/` (`load_map`, `load_scenario`, `discover_scenarios`, `first`) | MovingAI maps and scenarios |
-| `environment.py` | `+panama_uav/+env/ExperimentEnvironment.m`, `astar_path.m`, `manhattan.m` | Task dynamics, rewards, collisions, observations |
+| `environment.py` | `+panama_uav/+environment/ExperimentEnvironment.m`, `astar_path.m`, `manhattan.m` | Task dynamics, rewards, collisions, observations |
 | `information.py` | `+panama_uav/+information/` (`InformationCache`, `Guidance`, `MissionCommunication`) | Receiver caches, staleness, mission routes |
 | `transport.py` | `+panama_uav/+transport/` (`Transport`, `DelayTrace`, `import_trace`, `encode_size`) | Virtual-time links, reservations, FIFO buffering |
 | `event_calendar.py` | `+panama_uav/+transport/EventCalendar.m` | Minimal discrete-event scheduler (SimPy replacement) |
@@ -60,11 +64,11 @@ sub-package or class with the same responsibility.
 | Python dependency | Used for | MATLAB replacement (no toolbox) | With a license, could use |
 |---|---|---|---|
 | `tomllib` | configs | `+util/toml_decode.m`: tables, arrays of tables, strings, ints with `_`, floats, booleans, inline and multiline arrays, comments. Integers stay `int64` so int/float is preserved. | (none built in) |
-| NumPy | arrays, RNG | Built-in arrays. RNG streams differ (see §5). | — |
+| NumPy | arrays, RNG | Built-in arrays; `+util/Xorshift128.m` replaces `np.random.default_rng` (same distributions, different stream; see §5) | — |
 | SimPy 4.1.1 | event calendar | `EventCalendar.m`: binary heap keyed by (time, insertion id). It copies SimPy's timing arithmetic `now + max(0, at - now)`. | SimEvents (overkill) |
 | `pickle` | wire sizes | `+transport/encode_size.m`: byte-exact pickle protocol-5 size for the value types sent (planned M1b) | — |
 | PyTorch | DQN, Adam, Huber | `+nn/` hand-written forward and backward for Conv2d(3×3, pad 1), ReLU, MaxPool2d(2), Flatten, Linear; Huber loss; AdamW with AMSGrad; grad-norm clip; soft target update | **Deep Learning Toolbox** (`dlnetwork`, `dlgradient`, `adamupdate`). Keep the hand-written path as the parity reference. |
-| Torch checkpoints | weights | `matlab/tools/export_torch_weights.py` → `.mat` (v5 via SciPy) or JSON; `+models/load_weights.m` | `importNetworkFromPyTorch` (Deep Learning Toolbox Converter for PyTorch) |
+| Torch checkpoints | weights | *Planned for M2, not written yet:* `matlab/tools/export_torch_weights.py` → `.mat` (v5 via SciPy) or JSON, read by `+models/load_weights.m` (currently a stub) | `importNetworkFromPyTorch` (Deep Learning Toolbox Converter for PyTorch) |
 | sgp4 2.27, Skyfield 1.55 | `scripts/build_leo_timeline.py`, `scripts/report_leo_full.py` | Port of Vallado SGP4 (OMM → `Satrec`, `sgp4`), plus only the Skyfield calls used (UTC→TT/UT1, TEME→ITRS, `wgs84.latlon`, `altaz`) | **Aerospace Toolbox / Satellite Communications Toolbox** (`satelliteScenario`, `propagateOrbit` with SGP4) |
 | ITU-Rpy 0.4.0 | `leo_radio.atmospheric_curves` (`atmospheric_attenuation_slant_path`) | Port of P.676 (gas), P.840 (cloud), P.618 (rain, scintillation), P.453/P.836/P.837/P.1510/P.1511 lookups. Digital-map grids exported once from ITU-Rpy to `.mat` by a Python tool. | **Satellite Communications Toolbox** (`p618Config`, `p618PropagationLosses`, `gaspl`, `cloudpl`, `rainpl`) |
 | astropy constants | `c`, `k_B` | Literal constants with a CODATA reference | — |
@@ -77,13 +81,13 @@ sub-package or class with the same responsibility.
 | # | Branch | Scope | Status |
 |---|---|---|---|
 | M0 | `matlab` | This plan | done |
-| M1 | `matlab-m1-core` | Scaffold of the whole package (stubs that raise `panama_uav:notImplemented`), TOML/config, maps/scenarios, A*, UAV geometry, environment step, information caches, `perfect` and `controlled` transport, event calendar, records, fixture generator, parity tests, Octave instructions, README_MATLAB | see checklist |
+| M1 | `matlab-m1-core` | Scaffold of the whole package (stubs that raise `panama_uav:notImplemented`), TOML/config, maps/scenarios, A*, UAV geometry, environment step, information caches, `perfect` and `controlled` transport, event calendar, portable RNG, fixture generator, parity tests, Octave instructions, README_MATLAB | see checklist |
 | M1b | `matlab-m1b-physical` | `physical` profile: link service, satellite handover pauses, pickle-exact wire sizes (`encode_size`), delay traces (`.npz` reader), byte counters and occupancy | next |
 | M2 | `matlab-m2-nn` | `+nn` layers and gradients, DQN, Huber, AdamW+AMSGrad, clipping, soft update, torch-weight exporter and loader; forward/backward/optimizer parity | |
-| M3 | `matlab-m3-training` | SumTree/PER, Double DQN `learn`, `TrainingSession` with experience upload and snapshot downlink, validation and qualification, MAT-file checkpoints, JSONL/CSV logs | |
+| M3 | `matlab-m3-training` | SumTree/PER, Double DQN `learn`, `TrainingSession` with experience upload and snapshot downlink, validation and qualification, MAT-file checkpoints, `+records` (JSONL/CSV, sha256) | |
 | M4 | `matlab-m4-evaluation` | Case bank, `run_episode`, treatments, decision deadline, paired bootstrap summary, `evaluate_suite` | |
 | M5 | `matlab-m5-leo` | `OrbitTimeline`, handshake model, SGP4 port and timeline builder, ITU-R port, `handover_study` | |
-| M6 | `matlab-m6-reporting` | Reporting figures, HTML replay, `cli.m`, script equivalents | |
+| M6 | `matlab-m6-reporting` | Reporting figures, HTML replay, `cli.m`, script equivalents, including the PANAMA-reproduction config loader (`extends` schema) of `scripts/run_panama_reproduction.py` | |
 | M7 | `matlab-m7-docs` | Full parity table, side-by-side figures, CI | |
 
 ## 5. Parity strategy and tolerances
@@ -94,16 +98,32 @@ Golden fixtures come from the Python implementation through
 `"inf"`/`"-inf"` strings. `panama_uav.util.fixture_number` maps them back.
 
 **RNG.** NumPy's PCG64 and `Generator.shuffle/integers/choice` are not
-reproduced in MATLAB. Wherever Python draws randomness, the MATLAB API accepts
-the draws as inputs:
-- `ExperimentEnvironment.reset(seed, starts, goals)` takes the starts and goals
-  that `np.random.default_rng(seed).shuffle` produced in Python.
-- `Transport.schedule_episode(seed, agents, cap, windows)` takes the reservation
-  windows that `rng.integers` and `rng.choice` produced.
-Without injected draws, MATLAB uses its own `RandStream` with the same
-distributions (uniform shuffle; window count uniform on [min, max]; distinct
-starts uniform on 1..cap-1). Those runs are only **statistically equivalent**,
-not bit-identical.
+reproduced. There are two modes:
+
+1. *Exact parity with Python (tests).* Inject the NumPy draws through the one
+   entry point a caller needs, `ExperimentEnvironment.reset`:
+   `env.reset('starts', S, 'goals', G, 'windows', W)`, with `S`/`G` the N-by-2
+   zero-based cells Python's `self.rng.shuffle` produced and `W` a 1-by-N cell
+   of K-by-2 `[start end]` reservation windows from `Transport.schedule_episode`.
+   `reset` forwards `W` through `MissionCommunication` to
+   `Transport.schedule_episode(seed, agents, cap, windows)`.
+2. *Native MATLAB draws.* Without injection, the port follows Python's
+   generator **semantics** with its own portable stream,
+   `panama_uav.util.Xorshift128` (shift/xor only, so MATLAB and Octave give
+   bit-identical streams; `RngTest` checks it against a pure-Python reference):
+   - the constructor seeds the environment's generator with `seed`;
+     `reset()` with no seed keeps advancing it, so successive episodes differ
+     (Python `environment.py:112,191`; used by `training.py:513` and
+     `evaluation.py:27`); `reset('seed', s)` replaces it;
+   - reservation windows come from a fresh `Xorshift128(seed)` on every reset,
+     with `seed` the base seed or the explicit one, like Python's
+     `np.random.default_rng(seed)` in `schedule_episode`.
+   The same seed therefore gives the same episode sequence on MATLAB and
+   Octave, but **not** the episodes NumPy produces for that seed. The
+   distributions match: a uniform shuffle of free cells with pairs popped from
+   the end, a window count uniform on `[windows_min, windows_max]`, and
+   distinct window starts uniform on 1..cap-1. MATLAB-native runs are
+   comparable to Python runs only statistically.
 
 | Quantity | Tolerance |
 |---|---|
@@ -126,8 +146,9 @@ not bit-identical.
   MATLAB run cannot reproduce the same number of generated steps in the same
   budget. With Deep Learning Toolbox and a GPU (Parallel Computing Toolbox),
   `dlarray` on `gpuArray` narrows this gap.
-- **RNG streams** (above). Learning curves from MATLAB-native seeds are
-  statistically, not numerically, comparable.
+- **RNG streams** (above). MATLAB and Octave agree with each other bit for
+  bit, but learning curves from MATLAB-native seeds are only statistically
+  comparable to Python's.
 - **Checkpoints.** Python checkpoints pickle Python objects. MATLAB checkpoints
   are `.mat` files and cannot resume a Python run; only weights cross over.
 - **Wire format.** Sizes come from pickle protocol 5. MATLAB reproduces the
@@ -145,17 +166,20 @@ not bit-identical.
   Test method names start with `test` so the Octave runner can find them. On
   MATLAB the shim is never on the path.
 - `jsondecode`/`jsonencode` exist in both (MATLAB R2016b+, Octave 7+).
-- `containers.Map` is used for integer-keyed dictionaries, with keys as
-  `double`.
+- Integer-keyed Python dicts become cells or vectors indexed by `id + 1`
+  (no `containers.Map`).
 - No `string` arrays (Octave support is partial); `char` and `cellstr` only.
-- No `arguments` blocks (Octave does not parse them); inputs are checked by hand.
+- No `arguments` blocks (Octave does not parse them); name-value options go
+  through `+util/parse_options.m`, which rejects unknown names.
+- No `RandStream`/`rng` (Octave lacks `RandStream`, and MATLAB's and Octave's
+  `rand('twister')` differ); use `+util/Xorshift128`.
 
 ## 8. Checklist: done and next
 
 Updated at the end of each milestone. Per-module status and test counts are
 in [README_MATLAB.md](../../README_MATLAB.md).
 
-**Done (M0 + M1, verified on Octave 9.4.0, 29/29 tests):**
+**Done (M0 + M1, verified on Octave 9.4.0; see README_MATLAB for the test count):**
 - [x] Port plan (this file)
 - [x] Full `+panama_uav` scaffold: every Python module has a MATLAB
       counterpart. 59 stubs name their Python source and raise
@@ -166,7 +190,8 @@ in [README_MATLAB.md](../../README_MATLAB.md).
 - [x] `ExperimentEnvironment`: reset (injectable draws), collisions, rewards, observations
 - [x] Information caches, guidance consumption, mission routes (UAV and cloud), staleness
 - [x] `EventCalendar` (SimPy replacement); `Transport` for the `perfect` and `controlled` profiles
-- [x] Fixture generator `matlab/tools/make_fixtures.py`; Octave test shim and runner
+- [x] Portable seeded generator `+util/Xorshift128` with Python seedless-reset semantics
+- [x] Fixture generator `matlab/tools/make_fixtures.py`; class-strict Octave test shim and runner
 - [x] On-demand figure script `matlab/scripts/plot_rollout.m` (output gitignored)
 
 **Next, in order:**
@@ -188,7 +213,10 @@ in [README_MATLAB.md](../../README_MATLAB.md).
 8. [ ] M6/M7: reporting, HTML replay, CLI, CI workflow, side-by-side figures
 
 **Known gaps and ambiguities:**
-- MATLAB-native RNG draws are only statistically equivalent to NumPy's.
+- MATLAB-native episodes for a seed are not NumPy's episodes for that seed (identical between MATLAB and Octave).
 - `Transport.log` entries carry no byte counts until `encode_size` lands.
-- The repository README still links to `output/results/...`, which was
-  removed on this branch (see the M1 PR); main will be updated separately.
+- The links into the removed `output/` folder in README.md and docs/ are
+  annotated as no longer committed.
+- **Merge hazard:** if `matlab` is ever merged into `main`, commit `af79e23`
+  deletes the committed results and presentation deck (198 files). That merge
+  needs Arman's explicit OK.

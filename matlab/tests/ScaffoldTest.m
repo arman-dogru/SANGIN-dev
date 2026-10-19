@@ -1,6 +1,21 @@
 classdef ScaffoldTest < matlab.unittest.TestCase
     % Every not-yet-ported entry point fails loudly with panama_uav:notImplemented.
     methods (Test)
+        function testStubMethodsOnPortedClasses(tc)
+            c = panama_uav.config.load_config(fullfile(repo_root(), 'configs', 'base.toml'));
+            env = panama_uav.environment.ExperimentEnvironment(c, 'maps/random-32-32-10.map', 2, 250, 1);
+            env.reset();
+            tc.verifyError(@() env.prepare_decision(0.1), 'panama_uav:notImplemented');
+            tc.verifyError(@() env.communication.prepare_decision(env.agents, 0, 0.1), 'panama_uav:notImplemented');
+            tc.verifyError(@() env.communication.transport.occupancy(), 'panama_uav:notImplemented');
+            [spatial, vector_length] = env.observation_shape();
+            tc.verifyEqual(spatial, [15 15 3]);
+            tc.verifyEqual(vector_length, 12);
+            t = c.communication;
+            t.uplink_trace = 'traces/uplink.npz';
+            tc.verifyError(@() panama_uav.transport.Transport(t), 'panama_uav:notImplemented');
+            tc.verifyError(@() env.reset('start', [0 0]), 'panama_uav:options');
+        end
         function testStubsRaiseNotImplemented(tc)
             here = fileparts(fileparts(mfilename('fullpath')));
             files = list_m(fullfile(here, '+panama_uav'));
@@ -14,7 +29,8 @@ classdef ScaffoldTest < matlab.unittest.TestCase
                 name = qualified_name(here, files{k});
                 tc.verifyError(@() feval(name), 'panama_uav:notImplemented', name);
             end
-            tc.verifyTrue(stubs >= 50, sprintf('only %d stubs found', stubs));
+            % Pinned: a stub that is ported must update this count and README_MATLAB.
+            tc.verifyEqual(stubs, 59, sprintf('%d stub files found', stubs));
         end
     end
 end

@@ -25,6 +25,10 @@ classdef Transport < handle
                 error('panama_uav:notImplemented', ...
                     'Transport physical profile (transport.py:Transport._start/_finish_transmission) is milestone M1b');
             end
+            if ~isempty(config.uplink_trace) || ~isempty(config.downlink_trace)
+                error('panama_uav:notImplemented', ['Delay traces (transport.py:DelayTrace, loaded for ', ...
+                    'every profile in Python) are milestone M1b; unset uplink_trace/downlink_trace']);
+            end
             obj.config = config;
             obj.calendar = panama_uav.transport.EventCalendar();
             obj.counters = struct('messages_generated', 0, 'messages_delivered', 0, ...
@@ -33,8 +37,11 @@ classdef Transport < handle
         function schedule_episode(obj, seed, agents, cap, windows)
             %SCHEDULE_EPISODE Reservation windows (Transport.schedule_episode).
             %   WINDOWS, when given, is a cell (one per agent) of K-by-2 window
-            %   [start end] times recorded from NumPy; otherwise MATLAB's RNG
-            %   draws them with the same distributions (statistical parity).
+            %   [start end] times recorded from NumPy. Otherwise a fresh
+            %   panama_uav.util.Xorshift128(SEED) draws them for all agents in
+            %   turn, like Python's np.random.default_rng(seed): count uniform
+            %   on [windows_min, windows_max], distinct start steps uniform on
+            %   1..cap-1. Same distribution as NumPy, different stream.
             if nargin < 4 || isempty(cap)
                 cap = 250;
             end
@@ -44,14 +51,16 @@ classdef Transport < handle
                 return;
             end
             c = obj.config;
+            rng = [];
+            if nargin < 5 || isempty(windows)
+                rng = panama_uav.util.Xorshift128(seed);
+            end
             for agent = 0:agents - 1
                 if nargin >= 5 && ~isempty(windows)
                     w = reshape(double(windows{agent + 1}), [], 2);
                 else
-                    base = seed * 1000 + 2 * agent;
-                    count = c.windows_min - 1 + panama_uav.util.seeded_randperm(base, ...
-                        c.windows_max - c.windows_min + 1, 1);
-                    starts = sort(panama_uav.util.seeded_randperm(base + 1, cap - 1, count));
+                    count = c.windows_min + rng.randint(c.windows_max - c.windows_min + 1);
+                    starts = sort(rng.choice(cap - 1, count));
                     w = [obj.now + starts' * c.seconds_per_step, ...
                         obj.now + (starts' + c.reservation_steps) * c.seconds_per_step];
                 end
@@ -65,10 +74,8 @@ classdef Transport < handle
         function id = send(obj, agent, kind, payload, varargin)
             %SEND Queue a message (Transport.send). Options: 'route' (cellstr),
             %   'generated_at', 'version', 'delayed' (default true).
-            opts = struct('route', {{}}, 'generated_at', [], 'version', 0, 'delayed', true);
-            for k = 1:2:numel(varargin)
-                opts.(varargin{k}) = varargin{k + 1};
-            end
+            opts = panama_uav.util.parse_options(struct('route', {{}}, 'generated_at', [], ...
+                'version', 0, 'delayed', true), varargin, 'Transport.send');
             obj.message_sequence = obj.message_sequence + 1;
             if isempty(opts.generated_at)
                 generated = obj.now;

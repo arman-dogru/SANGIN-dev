@@ -68,7 +68,11 @@ archived-orbit/empirical-delay methodology are documented in
 
 ## Recorded figures
 
-The [completed full LEO comparison](output/results/leo-learning-20261019-01/README.md)
+> Recorded results, figures and the presentation deck are no longer committed
+> on this branch (`output/` is gitignored). Regenerate them with the scripts
+> named below; the paths are kept for reference.
+
+The completed full LEO comparison (`output/results/leo-learning-20261019-01/README.md`, no longer committed)
 qualified all four phases in both conditions. Perfect communication required
 8,500 episodes and 502,968 generated steps; full LEO upload/deployment required
 10,000 episodes and 559,456 steps. Recorded run time was 5.58 versus 10.90 hours,
@@ -77,7 +81,7 @@ The package contains 11 figures in PNG/PDF/SVG, audited numerical summaries and
 an editable plotting script. These are single-seed learning results; curriculum
 validation uses fresh communication and does not test mission-input staleness.
 
-The [qualified-baseline inference comparison](output/results/leo-inference-20261019-02/README.md)
+The qualified-baseline inference comparison (`output/results/leo-inference-20261019-02/README.md`, no longer committed)
 is now complete: 9,800 measured episode executions with 50 identical held-out
 cases per stage in every condition. Its 18 figures compare perfect communication
 with stale A* guidance, intentions, priorities and all three together. Controlled
@@ -93,7 +97,7 @@ conditions. Run `scripts/run_deadline_inference.py` with a fresh run ID, then
 `scripts/plot_deadline_inference.py` for audited success, makespan, PAR-2,
 deadline-miss, source-age and latency figures.
 
-The [completed paired deadline/handover results](output/results/deadline-handover-20261019-01/README.md)
+The completed paired deadline/handover results (`output/results/deadline-handover-20261019-01/README.md`, no longer committed)
 contain 4,200 measured episodes, all four stages and all input selections.
 Modeled handovers on/off produced identical robot outcomes in the 800 paired
 cases; artificial 10/20-second interruptions substantially increased makespan.
@@ -102,15 +106,15 @@ editable plotting script.
 
 ### Earlier pilot figures
 
-The [presentation package](output/results/presentation-20261007-01/README.md)
+The presentation package (`output/results/presentation-20261007-01/README.md`, no longer committed)
 contains 13 measured figures in PNG, PDF and editable SVG, with stages labeled
 only Stage 1–4. The four learning arms qualified through Stage 3; none
 qualified Stage 4. The frozen-policy inference results are exploratory.
 
-- [Training progress versus environment steps and wall-clock time](output/results/presentation-20261007-01/training_stage_progress.png)
-- [Inference without delay versus controlled delay](output/results/presentation-20261007-01/inference_mission_delay_20.png)
-- [All figures and supporting summaries](output/results/presentation-20261007-01/)
-- [Experiment assumptions, datasets and equations](output/results/presentation-20261007-01/EXPERIMENT_ASSUMPTIONS.md)
+- Training progress versus environment steps and wall-clock time (`output/results/presentation-20261007-01/training_stage_progress.png`, no longer committed)
+- Inference without delay versus controlled delay (`output/results/presentation-20261007-01/inference_mission_delay_20.png`, no longer committed)
+- All figures and supporting summaries (`output/results/presentation-20261007-01/`, no longer committed)
+- Experiment assumptions, datasets and equations (`output/results/presentation-20261007-01/EXPERIMENT_ASSUMPTIONS.md`, no longer committed)
 - [Editable plotting script](scripts/plot_presentation_results.py)
 
 Rebuild from the local recorded JSONL data with:

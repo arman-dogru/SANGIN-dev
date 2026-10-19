@@ -153,7 +153,21 @@ def group_astar():
     blocked = np.argwhere(grid == 1)[0]
     cases.append({"start": tuple(int(v) for v in free[0]), "goal": tuple(int(v) for v in blocked),
                   "path": astar_path(grid, tuple(int(v) for v in free[0]), tuple(int(v) for v in blocked))})
-    return {"map": "maps/random-32-32-10.map", "cases": clean(cases)}
+    # Hand-made grids where up/down and left/right expansions tie, so the
+    # neighbour order (up, down, left, right) is pinned by MapsTest itself.
+    small = []
+    g1 = np.zeros((3, 5), dtype=np.uint8)
+    g1[1, 2] = 1                      # wall in the middle row: detour above or below
+    g2 = g1.T.copy()                  # wall in the middle column: detour left or right
+    g3 = np.zeros((5, 5), dtype=np.uint8)
+    g3[2, 1:4] = 1                    # longer symmetric detours
+    for grid, start, goal in ((g1, (1, 0), (1, 4)), (g1, (1, 4), (1, 0)),
+                              (g2, (0, 1), (4, 1)), (g2, (4, 1), (0, 1)),
+                              (g3, (1, 2), (3, 2)), (g3, (3, 2), (1, 2)),
+                              (g3, (2, 0), (2, 4))):
+        small.append({"grid": grid.tolist(), "start": start, "goal": goal,
+                      "path": astar_path(grid, start, goal)})
+    return {"map": "maps/random-32-32-10.map", "cases": clean(cases), "tie_cases": clean(small)}
 
 
 def group_uav():
@@ -166,7 +180,11 @@ def group_uav():
         points = rng.integers(0, 32, size=(int(rng.integers(1, 9)), 2))
         xy = controller.positions_to_xy_m([tuple(map(int, p)) for p in points])
         d = controller.update(xy)
+        q = controller.snapshot().quality_db
         steps.append({"positions": points.tolist(), "position": controller.position.tolist(),
+                      # float32 snapshot at fixed cells, and its float64 sum
+                      "snapshot_cells": [float(q[r, c]) for r, c in ((0, 0), (5, 17), (16, 16), (31, 2), (31, 31))],
+                      "snapshot_sum": float(q.astype(np.float64).sum()),
                       "target": d.target_position.tolist(), "moved": d.distance_moved,
                       "oracle": d.oracle_served, "actual": d.actual_served,
                       "tracking": d.tracking_error_m})
@@ -213,10 +231,13 @@ def group_calendar():
     return {"ops": ops}
 
 
-def _env_run(config, agents, seed, steps, policy_seed):
+def _env_run(config, agents, seed, steps, policy_seed, cap=250):
     env = ExperimentEnvironment(config, ExperimentMode.UAV, "maps/random-32-32-10.map",
-                                agents, 250, seed)
+                                agents, cap, seed)
     obs, info0 = env.reset()
+    reset_obs = {"spatial_ones": [np.flatnonzero(obs[a.id]["spatial"].ravel()).tolist()
+                                  for a in env.agents],
+                 "vector": [obs[a.id]["vector"].astype(float).tolist() for a in env.agents]}
     starts = [a.position for a in env.agents]
     goals = [a.goal for a in env.agents]
     windows = {a: w for a, w in env.communication.transport.windows.items()}
@@ -258,7 +279,8 @@ def _env_run(config, agents, seed, steps, policy_seed):
            ("scheduled_reservation", "reservation_exposure", "buffered", "delivered")]
     log = [{k: e[k] for k in ("event", "time", "agent", "id", "kind", "release", "ready_at",
                                "source_time", "version") if k in e} for e in log]
-    return {"agents": agents, "seed": seed, "starts": starts, "goals": goals,
+    return {"agents": agents, "seed": seed, "cap": cap, "reset_observations": reset_obs,
+            "starts": starts, "goals": goals,
             "windows": [windows.get(a, []) for a in range(agents)],
             "info0": info0, "frames": frames, "log": log,
             "counters": {"messages_generated": env.communication.transport.counters["messages_generated"],
@@ -283,19 +305,75 @@ ENV_CASES = [
     ("cloud_processing", {"stale_information": ("task", "intentions", "priorities"),
                           "mission_route": "cloud", "cloud_processing_seconds": 1.5,
                           "delay_steps": 1.0}, 4, 8, 60),
+    # Short cap so the episode truncates (cap is the 6th element).
+    ("truncated_cap12", {"stale_information": ("task",), "delay_steps": 5.0}, 6, 17, 12, 12),
 ]
 
 
 def group_env():
     c = base_config()
     out = {}
-    for name, changes, agents, seed, steps in ENV_CASES:
+    for name, changes, agents, seed, steps, *cap in ENV_CASES:
         cfg = with_comm(c, **changes) if changes else c
-        case = _env_run(cfg, agents, seed, steps, policy_seed=seed + 1000)
+        case = _env_run(cfg, agents, seed, steps, policy_seed=seed + 1000, cap=cap[0] if cap else 250)
         case["communication"] = {k: (list(v) if isinstance(v, tuple) else v)
                                  for k, v in changes.items()}
         out[name] = clean(case)
     return out
+
+
+class Xorshift128:
+    """Reference for +panama_uav/+util/Xorshift128.m (MATLAB/Octave portable stream)."""
+
+    M = 0xFFFFFFFF
+
+    def __init__(self, seed):
+        lo, hi = seed & self.M, (seed >> 32) & self.M
+        self.s = [lo ^ 123456789, hi ^ 362436069, 521288629, 88675123]
+        for _ in range(64):
+            self.next_uint32()
+
+    def next_uint32(self):
+        s = self.s
+        t = (s[0] ^ (s[0] << 11)) & self.M
+        t ^= t >> 8
+        w = s[3]
+        r = (w ^ (w >> 19)) ^ t
+        self.s = [s[1], s[2], s[3], r]
+        return r
+
+    def rand(self):
+        a = self.next_uint32() >> 5
+        b = self.next_uint32() >> 6
+        return (a * 67108864 + b) / 9007199254740992.0
+
+    def randint(self, n):
+        return math.floor(self.rand() * n)
+
+    def permutation(self, n):
+        p = list(range(1, n + 1))
+        for i in range(n, 1, -1):
+            j = self.randint(i) + 1
+            p[i - 1], p[j - 1] = p[j - 1], p[i - 1]
+        return p
+
+    def choice(self, n, k):
+        p = list(range(1, n + 1))
+        for i in range(1, k + 1):
+            j = i + self.randint(n - i + 1)
+            p[i - 1], p[j - 1] = p[j - 1], p[i - 1]
+        return p[:k]
+
+
+def group_rng():
+    """Streams of the portable MATLAB generator, from the pure-Python reference."""
+    out = []
+    for seed in (0, 1, 42, 123, 2**32 + 7):
+        g = Xorshift128(seed)
+        out.append({"seed": seed, "uint32": [g.next_uint32() for _ in range(8)],
+                    "rand_hex": [hexfloat(g.rand()) for _ in range(4)],
+                    "permutation": g.permutation(10), "choice": g.choice(249, 2)})
+    return {"streams": out}
 
 
 def group_golden01():

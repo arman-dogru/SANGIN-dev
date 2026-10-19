@@ -30,6 +30,17 @@ classdef MapsTest < matlab.unittest.TestCase
             tc.verifyError(@() panama_uav.scenarios.load_map(path), 'panama_uav:map');
             delete(path);
         end
+        function testAStarNeighbourOrderOnTies(tc)
+            % Up/down and left/right detours tie; Python expands up, down, left, right.
+            fx = load_fixture('astar');
+            cases = as_cell(fx.tie_cases);
+            tc.verifyEqual(numel(cases), 7);
+            for k = 1:numel(cases)
+                g = uint8(cases{k}.grid);
+                p = panama_uav.environment.astar_path(g, cases{k}.start, cases{k}.goal);
+                tc.verifyEqual(p, reshape(cases{k}.path, [], 2), sprintf('tie case %d', k));
+            end
+        end
         function testAStarMatchesPython(tc)
             fx = load_fixture('astar');
             g = panama_uav.scenarios.load_map(fullfile(repo_root(), fx.map));
