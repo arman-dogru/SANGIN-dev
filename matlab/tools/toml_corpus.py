@@ -15,7 +15,10 @@ toml_decode raises panama_uav:toml at tomllib's location ("line N" or
 disagreement, a different value, a different location, or a crash with
 another error identifier.
 
-The generator stays inside the subset toml_decode documents as supported:
+Documents are bytes (hex in corpus.json) and may hold control characters
+and invalid UTF-8, which Python rejects before tomllib parses (a match then
+needs panama_uav:utf8 with Python's exact message). The generator otherwise
+stays inside the subset toml_decode documents as supported:
 no dates/times, multiline strings or \\uXXXX escapes, bare keys that are
 valid MATLAB field names, and integers inside int64 (out-of-range integers
 are a deliberate divergence, tested in TomlTest). Outputs go to
@@ -41,7 +44,13 @@ OCTAVE = os.environ.get("OCTAVE", "octave-cli")
 
 KEYS = ["a", "b", "c", "d", "x_1", "k"]
 BAD_NUMBERS = ["-", "+", "1.", "1__0", "_1", "01", ".5", "1e", "-0x1", "0x", "inf_", "1.e5", "0X1"]
-STRING_CHARS = list("abc xyz019_-.#=[]{},") + ["é", "ü", "π", "\\n", "\\t", '\\"', "\\\\"]
+STRING_CHARS = list("abc xyz019_-.#=[]{},") + ["é", "ü", "π", "😀", "\\n", "\\t", '\\"', "\\\\",
+                                               "\t", "\x01", "\x1b", "\x7f", "\r"]
+# Byte sequences that are not valid UTF-8 (Python rejects the document
+# before tomllib sees it): invalid start bytes, overlongs, surrogates,
+# above U+10FFFF, truncated and broken sequences.
+BAD_UTF8 = [b"\xff", b"\xc3", b"\xc0\xaf", b"\xed\xa0\x80", b"\xe0\x80\x80", b"\xf0\x80\x80\x80",
+            b"\xf4\x90\x80\x80", b"\xf5", b"\xe2\x82", b"\x80", b"\xc3x"]
 
 
 def canonical(value):
@@ -127,7 +136,7 @@ class Gen:
             elif r < 0.22:
                 lines.append(f"[[{self.key()}]]")
             elif r < 0.27:
-                lines.append("# " + self.string())
+                lines.append("# " + self.string())        # may carry control characters
             elif r < 0.3:
                 lines.append("")
             else:
@@ -139,7 +148,11 @@ class Gen:
         text = eol.join(lines)
         if self.r.random() < 0.6:
             text += eol
-        return text
+        raw = text.encode("utf-8")
+        if self.r.random() < 0.05:
+            at = self.r.randrange(len(raw) + 1)
+            raw = raw[:at] + self.r.choice(BAD_UTF8) + raw[at:]
+        return raw
 
 
 def location(exc):
@@ -153,11 +166,17 @@ def build(n, seed):
     gen = Gen(random.Random(seed))
     docs = []
     for _ in range(n):
-        text = gen.document()
+        raw = gen.document()
+        doc = {"hex": raw.hex()}
         try:
-            docs.append({"text": text, "accepted": True, "canonical": canonical(tomllib.loads(text))})
+            text = raw.decode("utf-8")           # what tomllib.load does first
+        except UnicodeDecodeError as exc:
+            docs.append({**doc, "accepted": False, "utf8": str(exc)})
+            continue
+        try:
+            docs.append({**doc, "accepted": True, "canonical": canonical(tomllib.loads(text))})
         except tomllib.TOMLDecodeError as exc:
-            docs.append({"text": text, "accepted": False, "location": location(exc), "message": str(exc)})
+            docs.append({**doc, "accepted": False, "location": location(exc), "message": str(exc)})
     return docs
 
 
@@ -180,13 +199,16 @@ def main(argv):
     for _, s in bad:
         kinds[s.split(":", 1)[0]] = kinds.get(s.split(":", 1)[0], 0) + 1
     accepted = sum(d["accepted"] for d in docs)
-    lines = [f"documents: {len(docs)} (seed {args.seed}); tomllib accepts {accepted}, rejects {len(docs) - accepted}",
+    utf8 = sum("utf8" in d for d in docs)
+    lines = [f"documents: {len(docs)} (seed {args.seed}); tomllib accepts {accepted}, rejects "
+             f"{len(docs) - accepted} ({utf8} of them as invalid UTF-8)",
              f"mismatches: {len(bad)} ({100 * len(bad) / len(docs):.2f}%)"]
     lines += [f"  {k}: {v}" for k, v in sorted(kinds.items())]
     for i, s in bad:
         d = docs[i]
-        lines.append(f"--- #{i} {s}\n{d['text']!r}\n    tomllib: "
-                     + (d["canonical"] if d["accepted"] else f"reject at {d['location']}: {d['message']}"))
+        verdict = (d["canonical"] if d["accepted"] else d.get("utf8")
+                   or f"reject at {d['location']}: {d['message']}")
+        lines.append(f"--- #{i} {s}\n{bytes.fromhex(d['hex'])!r}\n    python: {verdict}")
     (OUT / "report.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print("\n".join(lines[:2 + len(kinds)]))
     print(f"written {(OUT / 'report.txt').relative_to(ROOT)}")
