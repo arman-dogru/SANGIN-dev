@@ -1,6 +1,6 @@
 function validate_transport(t)
 %VALIDATE_TRANSPORT Checks of TransportConfig.__post_init__ (src/panama_uav/config.py).
-    err = @(msg) error('panama_uav:config', msg);
+    err = @(msg) error('panama_uav:config', '%s', msg);   % '%s': messages are literal
     if ~any(strcmp(t.profile, {'perfect', 'controlled', 'physical'}))
         err('Unknown communication profile');
     end

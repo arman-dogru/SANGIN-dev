@@ -24,11 +24,16 @@ classdef ConfigTest < matlab.unittest.TestCase
         end
         function testSyntheticAcceptAndRejectLikePython(tc)
             % configs/ only holds accepted files, so the rejection rules
-            % (legacy sections, unknown keys, bad transport, wrong ladder)
-            % are pinned with small TOML texts run through Python too.
+            % (legacy sections, unknown keys, bad transport, validation
+            % schedule, wrong ladder) are pinned with small TOML texts run
+            % through Python too. For Python ValueErrors the message must
+            % match word for word, so a rejection by the wrong rule fails.
+            % unknown_training_key is a Python TypeError from the dataclass
+            % constructor, whose text names Python classes; only the
+            % rejection is compared there.
             fx = load_fixture('config');
             cases = as_cell(fx.synthetic);
-            tc.verifyEqual(numel(cases), 7);
+            tc.verifyEqual(numel(cases), 8);
             root = tempname();
             mkdir(fullfile(root, 'configs'));
             cleanup = onCleanup(@() rmdir(root, 's')); %#ok<NASGU>
@@ -42,6 +47,15 @@ classdef ConfigTest < matlab.unittest.TestCase
                     tc.verifyEqual(normalize(rmfield(c, 'project_root')), normalize(cases{k}.config), cases{k}.name);
                 else
                     tc.verifyError(@() panama_uav.config.load_config(path), 'panama_uav:config', cases{k}.name);
+                    if strcmp(cases{k}.error, 'ValueError')
+                        msg = '';
+                        try
+                            panama_uav.config.load_config(path);
+                        catch err
+                            msg = err.message;
+                        end
+                        tc.verifyEqual(msg, cases{k}.message, [cases{k}.name ' message']);
+                    end
                 end
             end
         end

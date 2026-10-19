@@ -133,7 +133,11 @@ SYNTHETIC_CONFIGS = {
     "empty": "",
     "legacy_extends": 'extends = "base.toml"\n',
     "legacy_section": "[static_radio]\nsnr_db = 10.0\n",
-    "unknown_training_key": "[training]\nvalidation_episodes = 100\n",
+    "validation_episodes_100": "[training]\nvalidation_episodes = 100\n",
+    # A key TrainingConfig does not have: Python's dataclass constructor
+    # raises TypeError (its message names the Python class, so only the
+    # rejection is compared); MATLAB raises panama_uav:config.
+    "unknown_training_key": "[training]\nbogus = 1\n",
     "bad_profile": '[communication]\nprofile = "bogus"\n',
     "three_windows": "[communication]\nwindows_min = 3\nwindows_max = 3\n",
     "wrong_ladder": ('[[curriculum.stages]]\nname = "a"\nnum_agents = 3\n'
@@ -156,7 +160,7 @@ def synthetic_configs():
                 out.append({"name": name, "text": text, "accepted": True, "config": clean(loaded)})
             except Exception as exc:  # noqa: BLE001
                 out.append({"name": name, "text": text, "accepted": False,
-                            "error": type(exc).__name__})
+                            "error": type(exc).__name__, "message": str(exc)})
     return out
 
 
