@@ -8,28 +8,14 @@ __pycache__/
 dist/
 build/
 *.egg-info/
-artifacts/runs/**
-!artifacts/runs/.gitkeep
-artifacts/legacy/**
-!artifacts/legacy/.gitkeep
-artifacts/.mplconfig/
+# Generated results, figures and run artifacts are not committed.
+/output/
+/artifacts/
 
-# Communication-study outputs and local tools
-!/output/
-/output/*
-!/output/results/
-/output/results/*
-!/output/results/presentation-20261007-01/
-!/output/results/presentation-20261007-01/**
-!/output/results/leo-learning-20261019-01/
-!/output/results/leo-learning-20261019-01/**
-!/output/results/leo-inference-20261019-02/
-!/output/results/leo-inference-20261019-02/**
-!/output/results/deadline-handover-20261019-01/
-!/output/results/deadline-handover-20261019-01/**
-!/output/presentations/
-/output/presentations/*
-!/output/presentations/SANGIN_Oct_8_with_LEO_next_steps.pptx
+# MATLAB port: figures and run outputs are produced on demand.
+/matlab/output/
+*.asv
+octave-workspace
 /tmp/
 /traces/
 /data/leo/

@@ -1,9 +1,0 @@
-{
-  "previous_run": "leo-baseline-20261019-01",
-  "reason": "Fractional-bit satellite service loop",
-  "source_fix_commit": "054e5c0",
-  "tests_passed": 57,
-  "carried_episode_records": 0,
-  "model_and_config_unchanged": true,
-  "fresh_full_suite": true
-}
