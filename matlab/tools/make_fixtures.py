@@ -119,6 +119,19 @@ TOML_TEXTS = [
     # valid re-openings
     "[a.b]\n[a]", "[a]\n[a.b]", "a.b = 1\na.c = 2", "[[t]]\nx = 1\n[[t]]\nx = 2",
     "[[t]]\n[t.u]\nx = 1\n[[t]]\n[t.u]\nx = 2", "[a.b]\nc = 1\n[a]\nd = 2",
+    # dotted keys inside inline tables (namespace tracking as at top level)
+    "a = {b.c = 1, b.c = 2}", "a = {b = {c = 1}, b.d = 2}", "a = {b = 1, b.c = 2}",
+    'b = {c = {}, c.c = "s"}', "a = {b.c = 1, b.d = 2}", "a = [{b = 1, b = 2}]",
+    "a = {a = {b.a = 1}, a.b.a = 2}\n[c.b.c]\n[a]", "a = {b = {c = 1}}\n[a.b]",
+    "a = {b.c = 1}\na.b.d = 2", "a = {b = {c = {d = 1}}, e.f.g = 2}",
+    # line endings: CRLF is fine, a bare CR is not
+    "a = 1\r", "a = 1\r\n", "a = 1\rb = 2", "# c\r", "# c\r\na = 1", "a = 1 # c\r\n",
+    "\r\na = 1", "a = 1\r\r\n",
+    # int64 bounds (in range; out-of-range values are a documented divergence)
+    "a = 9223372036854775807", "a = -9223372036854775808", "a = 0x7FFFFFFFFFFFFFFF",
+    "a = 0o777777777777777777777", "a = -0",
+    # non-ASCII text (Octave keeps UTF-8 bytes; canonical counts code points)
+    'k = "é"', 'k = "naïve ünïcödé"', "k = 'π≈3.14'", 'k = "x" # é',
     # end of input with and without a final newline
     "[training", "[training\n", "k = [1,\n2", "k = [1,\n2\n", "a = \"x", "a = {b = 1",
 ]

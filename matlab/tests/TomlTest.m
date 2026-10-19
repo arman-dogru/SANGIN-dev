@@ -31,7 +31,7 @@ classdef TomlTest < matlab.unittest.TestCase
             % ones raise panama_uav:toml at tomllib's location.
             fx = load_fixture('toml');
             texts = as_cell(fx.texts);
-            tc.verifyEqual(numel(texts), 66);
+            tc.verifyEqual(numel(texts), 93);
             for k = 1:numel(texts)
                 t = texts{k};
                 label = sprintf('%s', strrep(t.text, char(10), '\n'));
@@ -61,6 +61,38 @@ classdef TomlTest < matlab.unittest.TestCase
                     tc.verifyTrue(~isempty(strfind(msg, want)), sprintf('%s: want "%s", got "%s"', label, want, msg));
                 end
             end
+        end
+        function testIntegerRangeIsExactOrRejected(tc)
+            % int64 bounds are exact; anything outside raises panama_uav:toml
+            % instead of saturating. This diverges from tomllib on purpose:
+            % Python ints are unbounded, but the TOML spec requires an error
+            % for integers that cannot be represented losslessly.
+            d = panama_uav.util.toml_decode(sprintf('a = -9223372036854775808\nb = 9223372036854775807\nc = 0x7fff_ffff_ffff_ffff\n'));
+            tc.verifyEqual(d.a, intmin('int64'));
+            tc.verifyEqual(d.b, intmax('int64'));
+            tc.verifyEqual(d.c, intmax('int64'));
+            for t = {'a = 9223372036854775808', 'a = -9223372036854775809', ...
+                     'a = 99999999999999999999', 'a = 0x8000000000000000', 'a = 0o1000000000000000000000'}
+                tc.verifyError(@() panama_uav.util.toml_decode(t{1}), 'panama_uav:toml', t{1});
+            end
+        end
+        function testUtf8Text(tc)
+            % Octave's char is 8-bit: decoded text holds the UTF-8 bytes, and
+            % text_length counts code points as Python does. MATLAB's char is
+            % UTF-16, so the value is the code point itself.
+            path = [tempname(), '.toml'];
+            fid = fopen(path, 'w');
+            fwrite(fid, uint8([double('k = "') 195 169 double('"') 10]));
+            fclose(fid);
+            cleanup = onCleanup(@() delete(path)); %#ok<NASGU>
+            d = panama_uav.util.toml_decode(panama_uav.util.read_text(path));
+            if panama_uav.util.is_octave()
+                tc.verifyEqual(double(d.k), [195 169]);
+            else
+                tc.verifyEqual(double(d.k), 233);
+            end
+            tc.verifyEqual(panama_uav.util.text_length(d.k), 1);
+            tc.verifyEqual(panama_uav.util.canonical(d), ['{k:s1:', d.k, '}']);
         end
         function testExponentOnlyFloats(tc)
             % Floats with an exponent and no '.' (TOML allows 1e5) stay double.
