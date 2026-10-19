@@ -3,6 +3,15 @@ function out = overlay(defaults, raw, section)
 %   Unknown keys raise panama_uav:config, as the Python dataclass(**raw)
 %   constructor raises TypeError. int64 values become double; cell arrays of
 %   numbers become row vectors; cell arrays of strings stay cell rows.
+%
+%   The int64 -> double conversion is deliberate: config values are used in
+%   arithmetic with doubles everywhere downstream, and MATLAB integer
+%   arithmetic saturates and rounds (int64(7) * 0.5 is 4), so keeping int64
+%   is not safe. Integers are exact up to 2^53 = 9007199254740992; larger
+%   magnitudes round to the nearest double (2^53 + 1 becomes 2^53). The
+%   largest integers in use are 262,144 (configs/*.toml) and 80,000,000
+%   (the target_environment_steps default). ConfigTest/
+%   testIntegerOptionsBecomeDouble pins this.
     out = defaults;
     names = fieldnames(raw);
     for k = 1:numel(names)

@@ -62,6 +62,59 @@ classdef TomlTest < matlab.unittest.TestCase
                 end
             end
         end
+        function testBytesMatchPython(tc)
+            % Control characters and UTF-8 validity, as bytes (hex in the
+            % fixture). Python decodes UTF-8 first (tomllib.load), so invalid
+            % bytes must raise panama_uav:utf8 with Python's exact message;
+            % valid ones then follow the tomllib rules.
+            fx = load_fixture('toml');
+            cases = as_cell(fx.bytes);
+            tc.verifyEqual(numel(cases), 37);
+            for k = 1:numel(cases)
+                c = cases{k};
+                raw = uint8(hex2dec(reshape(c.hex, 2, [])'))';
+                label = c.hex;
+                id = '';
+                msg = '';
+                got = '';
+                try
+                    got = panama_uav.util.canonical(panama_uav.util.toml_decode(panama_uav.util.decode_utf8(raw)));
+                catch err
+                    id = err.identifier;
+                    msg = err.message;
+                end
+                if c.accepted
+                    tc.verifyEqual(got, c.canonical, label);
+                elseif isfield(c, 'utf8')
+                    tc.verifyEqual(id, 'panama_uav:utf8', label);
+                    tc.verifyEqual(msg, c.utf8, label);
+                else
+                    tc.verifyEqual(id, 'panama_uav:toml', label);
+                    if strcmp(c.location, 'end of document')
+                        want = 'at end of document:';
+                    else
+                        want = ['on ', c.location, ':'];
+                    end
+                    tc.verifyTrue(~isempty(strfind(msg, want)), sprintf('%s: want "%s", got "%s"', label, want, msg));
+                end
+            end
+        end
+        function testReadTextRejectsInvalidUtf8(tc)
+            % read_text validates a file's bytes before any parsing.
+            path = [tempname(), '.toml'];
+            fid = fopen(path, 'w');
+            fwrite(fid, uint8([double('a = "') 192 175 double('"') 10]));
+            fclose(fid);
+            cleanup = onCleanup(@() delete(path)); %#ok<NASGU>
+            msg = '';
+            try
+                panama_uav.util.read_text(path);
+            catch err
+                tc.verifyEqual(err.identifier, 'panama_uav:utf8');
+                msg = err.message;
+            end
+            tc.verifyEqual(msg, '''utf-8'' codec can''t decode byte 0xc0 in position 5: invalid start byte');
+        end
         function testIntegerRangeIsExactOrRejected(tc)
             % int64 bounds are exact; anything outside raises panama_uav:toml
             % instead of saturating. This diverges from tomllib on purpose:

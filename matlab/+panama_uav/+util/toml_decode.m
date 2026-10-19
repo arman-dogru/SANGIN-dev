@@ -11,7 +11,10 @@ function data = toml_decode(text)
 %   Rejected like tomllib: malformed numbers (bare signs, leading zeros,
 %   stray underscores, '1.', signed 0x), duplicate keys (also dotted keys
 %   inside inline tables), tables declared twice, extending inline tables or
-%   arrays of tables, and a bare CR line ending (TomlTest replays texts
+%   arrays of tables, a bare CR line ending, and control characters
+%   (U+0000-U+001F except tab, U+007F; CR included) in strings, quoted keys
+%   and comments. Invalid UTF-8 is rejected earlier, by read_text /
+%   decode_utf8, with Python's message (TomlTest replays texts
 %   recorded from tomllib, and matlab/tools/toml_corpus.py compares random
 %   documents).
 %
@@ -121,8 +124,19 @@ function p = skip_comment(p)
             p = crlf(p);
             return;
         end
+        if is_control(p.s(p.i))
+            fail(p, sprintf('invalid character 0x%02x in comment', double(p.s(p.i))));
+        end
         p.i = p.i + 1;
     end
+end
+
+function tf = is_control(c)
+% Characters tomllib rejects in strings, quoted keys and comments: U+0000
+% to U+001F except tab, and U+007F. (LF ends the line and CR is only valid
+% in CRLF; both are handled by the callers.)
+    v = double(c);
+    tf = (v < 32 && v ~= 9) || v == 127;
 end
 
 function p = end_of_line(p)
@@ -227,6 +241,9 @@ function [value, p] = parse_string(p)
         if c == q
             p.i = p.i + 1;
             break;
+        end
+        if is_control(c)                   % includes CR: single-line strings have no CRLF
+            fail(p, sprintf('illegal character 0x%02x in string', double(c)));
         end
         if q == '"' && c == '\'
             q1 = p;

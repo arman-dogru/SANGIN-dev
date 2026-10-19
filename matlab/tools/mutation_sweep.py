@@ -8,6 +8,8 @@ Octave test files run there. Each mutant is reported as
 *killed* (a verify/assert failed), *ERRORED* (no assertion failed, but a
 test raised an unexpected exception or the run crashed), *TIMEOUT* or
 *SURVIVED* (every test passed). Only assertion kills count as coverage.
+A run with both assertion failures and errors counts as killed: at least
+one verify/assert caught the mutant (the summary shows both counts).
 
     python matlab/tools/mutation_sweep.py              # all groups
     python matlab/tools/mutation_sweep.py config       # one group
@@ -41,6 +43,8 @@ TRANSPORT = "matlab/+panama_uav/+config/validate_transport.m"
 OVERLAY = "matlab/+panama_uav/+config/overlay.m"
 TOML = "matlab/+panama_uav/+util/toml_decode.m"
 POP = "matlab/+panama_uav/+environment/pop_starts_and_goals.m"
+UTF8 = "matlab/+panama_uav/+util/decode_utf8.m"
+READ = "matlab/+panama_uav/+util/read_text.m"
 
 
 def drop(marker):
@@ -107,6 +111,31 @@ MUTANTS = [
     ("toml", "'end of document' past the real text", TOML,
      swap("    if p.i >= numel(p.s)           % past the real text",
           "    if p.i > numel(p.s)           % past the real text")),
+    ("toml", "control characters in strings and quoted keys", TOML,
+     swap("        if is_control(c)                   % includes CR", "        if false")),
+    ("toml", "control characters in comments", TOML,
+     swap("        if is_control(p.s(p.i))", "        if false")),
+    ("toml", "U+007F is a control character", TOML,
+     swap("tf = (v < 32 && v ~= 9) || v == 127;", "tf = (v < 32 && v ~= 9);")),
+    ("toml", "utf-8: invalid start byte", UTF8,
+     swap("            fail(bytes, i, i, 'invalid start byte');", "            need = 0; lo = 0; hi = 0;")),
+    ("toml", "utf-8: C0/C1 overlong 2-byte forms", UTF8,
+     swap("if b >= 194 && b <= 223", "if b >= 192 && b <= 223")),
+    ("toml", "utf-8: E0 overlong 3-byte forms", UTF8,
+     swap("if b == 224, lo = 160;", "if b == 224, lo = 128;")),
+    ("toml", "utf-8: ED surrogates", UTF8,
+     swap("elseif b == 237, hi = 159;", "elseif b == 237, hi = 191;")),
+    ("toml", "utf-8: F0 overlong 4-byte forms", UTF8,
+     swap("if b == 240, lo = 144;", "if b == 240, lo = 128;")),
+    ("toml", "utf-8: F4 above U+10FFFF", UTF8,
+     swap("elseif b == 244, hi = 143;", "elseif b == 244, hi = 191;")),
+    ("toml", "utf-8: truncated sequence", UTF8,
+     swap("                fail(bytes, i, i + j - 1, 'unexpected end of data');", "                break;")),
+    ("toml", "utf-8: continuation bytes", UTF8,
+     swap("            if ~ok\n                fail(bytes, i, i + j - 1, 'invalid continuation byte');",
+          "            if false\n                fail(bytes, i, i + j - 1, 'invalid continuation byte');")),
+    ("toml", "read_text validates UTF-8", READ,
+     swap("    text = panama_uav.util.decode_utf8(bytes);", "    text = char(bytes);")),
     ("env", "odd agent start/goal order", POP,
      swap("        starts(end + 1, :) = cells(end, :);\n        goals(end + 1, :) = cells(end - 1, :);",
           "        starts(end + 1, :) = cells(end - 1, :);\n        goals(end + 1, :) = cells(end, :);")),
@@ -146,7 +175,8 @@ def run_tests(tree, pattern):
     """Run one test file pattern; return (verdict, summary).
 
     verdict is "pass" (every test passed), "assert" (at least one test
-    FAILed on a verify/assert), "error" (no assertion failed, but a test
+    FAILed on a verify/assert, even if other tests ERRORed), "error" (no
+    assertion failed, but a test
     ERRORed with an unexpected exception or the run printed no summary) or
     "timeout".
     """

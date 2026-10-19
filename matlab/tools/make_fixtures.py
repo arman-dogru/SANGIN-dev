@@ -137,6 +137,33 @@ TOML_TEXTS = [
 ]
 
 
+# Byte-level texts (control characters and UTF-8 validity), stored as hex.
+# Python decodes the bytes as UTF-8 first (as tomllib.load does), then parses.
+TOML_BYTES = [
+    b'a = "x\x01"', b'a = "x\x7f"', b'a = "x\x00"', b'a = "x\ty"', b"a = 'x\x1f'",
+    b"a = 'x\x7f'", b'a = "x\ry"', b'a = "x\r\n"', b'"k\x01" = 1', b"'k\x02' = 1",
+    b'"k\rk" = 1', b"# c\x01\na = 1", b"# c\x7f", b"# c\t\na = 1", b"a = 1 # \x02",
+    b"# \x00", b'a = "\x1b[0m"', b'a = "tab\there"',
+    b'a = "\xff"', b'a = "\xc3', b'a = "\xc3"', b'a = "\xc0\xaf"', b'a = "\xed\xa0\x80"',
+    b'a = "\xe0\x80\x80"', b'a = "\xf0\x80\x80\x80"', b'a = "\xf4\x90\x80\x80"', b'a = "\xf5"',
+    b"# \xe2\x82", b'a = "\xe2\x82x"', b'a = "\xf0\x9f\x98', b'a = "\x80"',
+    b'a = "\xef\xbf\xbf"', b'a = "\xf0\x9f\x98\x80"', b'a = "\xed\x9f\xbf"',
+    b'a = "\xf4\x8f\xbf\xbf"', b"# \xc3\xa9\na = 1", b"k = '\xc3\xa9\xe2\x82\xac'",
+]
+
+
+def toml_bytes_case(raw):
+    case = {"hex": raw.hex()}
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        return {**case, "accepted": False, "utf8": str(exc)}
+    try:
+        return {**case, "accepted": True, "canonical": canonical(tomllib.loads(text))}
+    except tomllib.TOMLDecodeError as exc:
+        return {**case, "accepted": False, "location": toml_location(exc), "message": str(exc)}
+
+
 def toml_location(exc):
     text = str(exc)
     if "(at end of document)" in text:
@@ -156,7 +183,7 @@ def group_toml():
         except tomllib.TOMLDecodeError as exc:
             texts.append({"text": text, "accepted": False, "location": toml_location(exc),
                           "message": str(exc)})
-    return {"cases": cases, "texts": texts}
+    return {"cases": cases, "texts": texts, "bytes": [toml_bytes_case(b) for b in TOML_BYTES]}
 
 
 def group_config():

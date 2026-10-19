@@ -59,6 +59,18 @@ classdef ConfigTest < matlab.unittest.TestCase
                 end
             end
         end
+        function testIntegerOptionsBecomeDouble(tc)
+            % overlay turns TOML int64 into double (see overlay.m): exact up
+            % to 2^53, rounded beyond it.
+            d = panama_uav.config.defaults(repo_root());
+            raw = struct('target_environment_steps', int64(9007199254740992), ...
+                'batch_size', int64(9007199254740993), 'replay_capacity', int64(80000000));
+            t = panama_uav.config.overlay(d.training, raw, 'training');
+            tc.verifyEqual(t.target_environment_steps, 9007199254740992);
+            tc.verifyEqual(t.batch_size, 9007199254740992, '2^53 + 1 rounds to 2^53');
+            tc.verifyEqual(t.replay_capacity, 80000000);
+            tc.verifyTrue(isa(t.batch_size, 'double'));
+        end
         function testTransportValidation(tc)
             c = panama_uav.config.load_config(fullfile(repo_root(), 'configs', 'base.toml'));
             tc.verifyError(@() panama_uav.config.with_communication(c, 'profile', 'bogus'), 'panama_uav:config');
