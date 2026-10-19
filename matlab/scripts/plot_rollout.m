@@ -1,17 +1,20 @@
 function out = plot_rollout(varargin)
 %PLOT_ROLLOUT Map, robot trajectories and information age of one rollout.
-%   out = plot_rollout() runs a 4-agent episode on maps/random-32-32-10.map
+%   out = plot_rollout() runs a 6-agent episode (seed 3) on maps/random-32-32-10.map
 %   with all three mission inputs stale (UAV route, 10-step reservation
 %   delay), using a scripted policy that follows each robot's *cached*
 %   guidance, and writes matlab/output/rollout.png (gitignored).
-%   Options: 'agents', 'seed', 'delay_steps', 'steps', 'output'.
+%   Options: 'agents', 'seed', 'delay_steps', 'steps', 'output', and
+%   'draw' (false: simulate only, no figure). The defaults are chosen so the
+%   information-age panel is not empty: max_age is 10 (PlotRolloutTest);
+%   the earlier 4 agents / seed 21 gave max_age 0.
 %
 %   This is a plumbing/visual check of the ported simulator, not a study
 %   result: the policy is scripted, not the trained PANAMA DQN (milestone M2).
     here = fileparts(fileparts(mfilename('fullpath')));
     root = fileparts(here);
-    opts = struct('agents', 4, 'seed', 21, 'delay_steps', 10, 'steps', 120, ...
-        'output', fullfile(here, 'output', 'rollout.png'));
+    opts = struct('agents', 6, 'seed', 3, 'delay_steps', 10, 'steps', 120, ...
+        'output', fullfile(here, 'output', 'rollout.png'), 'draw', true);
     opts = panama_uav.util.parse_options(opts, varargin, 'plot_rollout');
     c = panama_uav.config.load_config(fullfile(root, 'configs', 'base.toml'));
     c = panama_uav.config.with_communication(c, 'stale_information', ...
@@ -44,6 +47,12 @@ function out = plot_rollout(varargin)
         if r.terminated || r.truncated
             break;
         end
+    end
+    out = struct('path', opts.output, 'steps', size(ages, 1), 'terminated', r.terminated, ...
+        'max_age', max([0; ages(:)]));
+    if ~opts.draw                  % simulation only (used by PlotRolloutTest)
+        out.path = '';
+        return;
     end
     positions = cat(3, track{:});
     if panama_uav.util.is_octave() && any(strcmp(available_graphics_toolkits(), 'gnuplot'))
@@ -81,6 +90,4 @@ function out = plot_rollout(varargin)
     end
     print(fig, opts.output, '-dpng', '-r110');
     close(fig);
-    out = struct('path', opts.output, 'steps', size(ages, 1), 'terminated', r.terminated, ...
-        'max_age', max(ages(:)));
 end
