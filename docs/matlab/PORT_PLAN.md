@@ -1,18 +1,21 @@
 # MATLAB port plan and handoff
 
 This is the handoff document for the MATLAB port of the UAV–PANAMA
-communication staleness study. The work lives on the `matlab-port` branch,
-which starts from `main` at be1b811. Each milestone lands through its own
-`matlab-port-mN` pull request into `matlab-port`, never into `main`. The port
-adds only `matlab/`, `docs/matlab/` and `README_MATLAB.md`; it does not
-change or restore any other file.
+communication staleness study. The work lives on the `matlab-port-v2`
+branch, which starts from the rewritten `main` at 64b5964. Each milestone
+lands through its own `matlab-port-v2-mN` pull request into `matlab-port-v2`,
+never into `main`. The port adds only `matlab/`, `docs/matlab/` and
+`README_MATLAB.md`; it does not change or restore any other file.
+
+`main` ignores `docs/`. This file is tracked anyway, so edits to it are picked
+up as usual; a new file under `docs/` needs `git add -f`.
 
 The starter was written **without a MATLAB license**. It is plain MATLAB that
 needs no toolboxes, targets R2021b or later, and is verified on GNU Octave 9.4.0.
 Whoever continues with a licensed MATLAB should first run the suite there
 (`matlab/run_tests.m`), because the Octave run is the only one so far.
 
-## 1. Python source surveyed (commit be1b811)
+## 1. Python source surveyed (commit 64b5964)
 
 | Area | Python | Lines |
 | --- | --- | ---: |
@@ -81,15 +84,15 @@ sub-package or class with the same responsibility.
 
 | # | Branch | Scope | Status |
 | --- | --- | --- | --- |
-| M0 | `matlab-port` | This plan | done |
-| M1 | `matlab-port-m1` | Scaffold of the whole package (stubs that raise `panama_uav:notImplemented`), TOML/config, maps/scenarios, A*, UAV geometry, environment step, information caches, `perfect` and `controlled` transport, event calendar, portable RNG, fixture generator, parity tests, Octave instructions, README_MATLAB | see checklist |
-| M1b | `matlab-port-m1b` | `physical` profile: link service, satellite handover pauses, pickle-exact wire sizes (`encode_size`), delay traces (`.npz` reader), byte counters and occupancy | next |
-| M2 | `matlab-port-m2` | `+nn` layers and gradients, DQN, Huber, AdamW+AMSGrad, clipping, soft update, torch-weight exporter and loader; forward/backward/optimizer parity | |
-| M3 | `matlab-port-m3` | SumTree/PER, Double DQN `learn`, `TrainingSession` with experience upload and snapshot downlink, validation and qualification, MAT-file checkpoints, `+records` (JSONL/CSV, sha256) | |
-| M4 | `matlab-port-m4` | Case bank, `run_episode`, treatments, decision deadline, paired bootstrap summary, `evaluate_suite` | |
-| M5 | `matlab-port-m5` | `OrbitTimeline`, handshake model, SGP4 port and timeline builder, ITU-R port, `handover_study` | |
-| M6 | `matlab-port-m6` | Reporting figures, HTML replay, `cli.m`, script equivalents | |
-| M7 | `matlab-port-m7` | Full parity table, side-by-side figures, CI | |
+| M0 | `matlab-port-v2` | This plan | done |
+| M1 | `matlab-port-v2-m1` | Scaffold of the whole package (stubs that raise `panama_uav:notImplemented`), TOML/config, maps/scenarios, A*, UAV geometry, environment step, information caches, `perfect` and `controlled` transport, event calendar, portable RNG, fixture generator, parity tests, Octave instructions, README_MATLAB | see checklist |
+| M1b | `matlab-port-v2-m1b` | `physical` profile: link service, satellite handover pauses, pickle-exact wire sizes (`encode_size`), delay traces (`.npz` reader), byte counters and occupancy | next |
+| M2 | `matlab-port-v2-m2` | `+nn` layers and gradients, DQN, Huber, AdamW+AMSGrad, clipping, soft update, torch-weight exporter and loader; forward/backward/optimizer parity | |
+| M3 | `matlab-port-v2-m3` | SumTree/PER, Double DQN `learn`, `TrainingSession` with experience upload and snapshot downlink, validation and qualification, MAT-file checkpoints, `+records` (JSONL/CSV, sha256) | |
+| M4 | `matlab-port-v2-m4` | Case bank, `run_episode`, treatments, decision deadline, paired bootstrap summary, `evaluate_suite` | |
+| M5 | `matlab-port-v2-m5` | `OrbitTimeline`, handshake model, SGP4 port and timeline builder, ITU-R port, `handover_study` | |
+| M6 | `matlab-port-v2-m6` | Reporting figures, HTML replay, `cli.m`, script equivalents | |
+| M7 | `matlab-port-v2-m7` | Full parity table, side-by-side figures, CI | |
 
 ## 5. Parity strategy and tolerances
 

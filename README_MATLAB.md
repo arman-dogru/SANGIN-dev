@@ -1,6 +1,6 @@
 # MATLAB port (starter)
 
-The `matlab-port` branch carries a MATLAB port of the UAV–PANAMA communication staleness
+The `matlab-port-v2` branch carries a MATLAB port of the UAV–PANAMA communication staleness
 study. It is a **starter**: the core simulation is ported and checked against
 the Python code, and every other module is a stub with the right signature.
 The plan, tolerances and handoff checklist are in
