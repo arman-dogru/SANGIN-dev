@@ -31,11 +31,16 @@ constructor), where only the rejection is compared.
 
 Coverage is measured, not assumed: `python matlab/tools/mutation_sweep.py`
 disables each rule in turn in a temporary copy of the tree and runs the
-relevant test file. At the last run it killed 20/20 config rules
-(load_config, validate_transport, overlay), 14/14 toml_decode rejection and
-location rules, and 2/2 start/goal pop-order mutants. Its summary goes to
-`matlab/output/mutation_sweep.txt` (gitignored). Rerun it when a rule is
-added and add a mutant for the new rule.
+relevant test file. It reports each mutant as killed (an assertion failed),
+ERRORED (a crash), TIMEOUT or SURVIVED, and counts only assertion kills.
+Measured on a fresh clone of commit 63b34ac: config 20/20, toml 17/17 and
+env 2/2 killed by assertions, with 0 errored, 0 timed out and 0 survived.
+`python matlab/tools/toml_corpus.py` compares toml_decode with tomllib on
+seeded random documents within the supported subset: at 63b34ac, 0 of 3,000
+documents mismatched for each of seeds 1, 2 and 3 (the decoder at dadf244
+mismatched 89 of 3,000 on seed 1). Both tools write to `matlab/output/`
+(gitignored). Rerun them when a rule changes, add a mutant for a new rule,
+and update this paragraph with the commit you measured.
 
 Maps are MovingAI `.map` files in `maps/` (13 files) and scenarios are `.scen`
 files in `scens/` (3 sets).

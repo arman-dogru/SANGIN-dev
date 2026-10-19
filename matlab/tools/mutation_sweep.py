@@ -4,8 +4,10 @@
 Measures, rather than asserts, that the parity tests cover each rule. For
 every mutant the working tree is copied to a temporary directory (the
 repository itself is never modified), one rule is disabled, and the named
-Octave test files run there. A mutant is *killed* when a test fails, the
-run errors, or it times out; it *survives* when every test still passes.
+Octave test files run there. Each mutant is reported as
+*killed* (a verify/assert failed), *ERRORED* (no assertion failed, but a
+test raised an unexpected exception or the run crashed), *TIMEOUT* or
+*SURVIVED* (every test passed). Only assertion kills count as coverage.
 
     python matlab/tools/mutation_sweep.py              # all groups
     python matlab/tools/mutation_sweep.py config       # one group
@@ -15,8 +17,8 @@ Groups: config (the 20 load_config / validate_transport / overlay rules,
 run against ConfigTest), toml (toml_decode's rejection and location rules,
 TomlTest) and env (start/goal pop order, RngTest). The summary is printed
 and written to matlab/output/mutation_sweep.txt, which is gitignored.
-Exit status is 0 only when every mutant is killed and the unmutated
-baseline passes. Needs octave-cli (override with $OCTAVE).
+Exit status is 0 only when the unmutated baseline passes and every mutant
+is killed by an assertion (ERRORED, TIMEOUT and SURVIVED all fail it). Needs octave-cli (override with $OCTAVE).
 """
 
 from __future__ import annotations
@@ -85,7 +87,16 @@ MUTANTS = [
     ("toml", "[[t]] over a value", TOML, drop("cannot mutate an immutable value with")),
     ("toml", "[[t]] over a table", TOML, drop("cannot overwrite a table with")),
     ("toml", "[t] declared twice", TOML, drop("cannot declare a table twice")),
-    ("toml", "duplicate inline key", TOML, drop("duplicate inline table key")),
+    ("toml", "namespace tracking inside inline tables", TOML,
+     swap("        [st, p] = check_assign(value, {}, keys, item, st, p);\n", "")),
+    ("toml", "decimal int64 range", TOML,
+     swap("    ok = numel(digits) < numel(limit) || (numel(digits) == numel(limit) && string_le(digits, limit));",
+          "    ok = true;")),
+    ("toml", "0x/0o/0b int64 range", TOML,
+     swap("    ok = numel(digits) < w || (numel(digits) == w && (base ~= 16 || lower(digits(1)) <= '7'));",
+          "    ok = true;")),
+    ("toml", "bare carriage return", TOML,
+     swap("    if p.i + 1 < numel(p.s) && p.s(p.i + 1) == char(10)", "    if true")),
     ("toml", "dotted key into inline/aot", TOML, drop("cannot mutate an immutable namespace')")),
     ("toml", "dotted key into a [table]", TOML, drop("cannot redefine a namespace")),
     ("toml", "duplicate key", TOML,
@@ -132,15 +143,31 @@ def copy_tree(dest):
 
 
 def run_tests(tree, pattern):
+    """Run one test file pattern; return (verdict, summary).
+
+    verdict is "pass" (every test passed), "assert" (at least one test
+    FAILed on a verify/assert), "error" (no assertion failed, but a test
+    ERRORed with an unexpected exception or the run printed no summary) or
+    "timeout".
+    """
     cmd = [OCTAVE, "--no-gui", "--eval", f"cd matlab; ok = run_tests('{pattern}'); exit(~ok)"]
     try:
         res = subprocess.run(cmd, cwd=tree, capture_output=True, text=True, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
-        return "timeout", "timeout"
+        return "timeout", f"no result after {TIMEOUT} s"
     out = res.stdout + res.stderr
     m = re.search(r"(\d+) passed, (\d+) failed", out)
-    summary = f"{m.group(1)} passed, {m.group(2)} failed" if m else "no summary (run errored)"
-    return ("pass" if res.returncode == 0 and m and m.group(2) == "0" else "fail"), summary
+    fails = len(re.findall(r"^  FAIL ", out, re.M))
+    errors = len(re.findall(r"^  ERROR ", out, re.M))
+    if not m:
+        return "error", "no summary (run errored)"
+    summary = f"{m.group(1)} passed, {m.group(2)} failed ({fails} FAIL, {errors} ERROR)"
+    if res.returncode == 0 and m.group(2) == "0":
+        return "pass", summary
+    return ("assert" if fails else "error"), summary
+
+
+VERDICT = {"pass": "SURVIVED", "assert": "killed", "error": "ERRORED", "timeout": "TIMEOUT"}
 
 
 def main(argv):
@@ -152,6 +179,7 @@ def main(argv):
         return 0
     lines = []
     ok = True
+    counts = {g: {v: 0 for v in VERDICT.values()} for g in groups}
     with tempfile.TemporaryDirectory(prefix="mutation_sweep_") as tmp:
         tree = Path(tmp) / "repo"
         copy_tree(tree)
@@ -168,14 +196,18 @@ def main(argv):
             t0 = time.time()
             status, summary = run_tests(tree, TESTS[group])
             target.write_text(original, encoding="utf-8")
-            verdict = "SURVIVED" if status == "pass" else "killed"
+            verdict = VERDICT[status]
+            counts[group][verdict] += 1
+            # Only assertion kills count as covered: a crash or a hang shows
+            # the mutant broke something, not that a test checks the rule.
             ok = ok and verdict == "killed"
             lines.append(f"{verdict:8} {group:7} {name:45} {summary} ({time.time() - t0:.0f} s)")
             print(lines[-1], flush=True)
     for group in groups:
-        sub = [line for line in lines if line.split()[1:2] == [group] and not line.startswith("baseline")]
-        killed = sum(line.startswith("killed") for line in sub)
-        lines.append(f"{group}: {killed}/{len(sub)} killed")
+        c = counts[group]
+        total = sum(c.values())
+        lines.append(f"{group}: {c['killed']}/{total} killed by assertions, {c['ERRORED']} errored, "
+                     f"{c['TIMEOUT']} timed out, {c['SURVIVED']} survived")
         print(lines[-1])
     out = ROOT / "matlab" / "output" / "mutation_sweep.txt"
     out.parent.mkdir(parents=True, exist_ok=True)

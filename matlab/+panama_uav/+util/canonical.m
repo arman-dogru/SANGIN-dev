@@ -4,7 +4,8 @@ function s = canonical(value)
 %   matlab/tools/make_fixtures.py:canonical gives for the Python value, so
 %   parity tests compare decoded TOML/JSON values including int/float type.
 %   struct -> {k:v,...}; cell -> [..]; int -> i<n>; double -> f<%.17g>;
-%   logical -> true/false; char -> s<len>:<text>; [] -> none.
+%   logical -> true/false; char -> s<len>:<text> with len in code points
+%   (panama_uav.util.text_length); [] -> none.
     if isstruct(value)
         names = fieldnames(value);
         parts = cell(1, numel(names));
@@ -20,7 +21,7 @@ function s = canonical(value)
     elseif isinteger(value)
         s = ['i', sprintf('%d', value)];
     elseif ischar(value)
-        s = sprintf('s%d:%s', numel(value), value);
+        s = sprintf('s%d:%s', panama_uav.util.text_length(value), value);   % code points, as Python
     elseif isempty(value)
         s = 'none';
     elseif isnumeric(value)

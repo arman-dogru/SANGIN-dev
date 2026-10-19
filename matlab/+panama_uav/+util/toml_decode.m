@@ -9,9 +9,19 @@ function data = toml_decode(text)
 %   trailing commas) and inline tables. Not supported: dates/times and
 %   multiline strings (no config uses them); they raise an error.
 %   Rejected like tomllib: malformed numbers (bare signs, leading zeros,
-%   stray underscores, '1.', signed 0x), duplicate keys, tables declared
-%   twice, and extending inline tables or arrays of tables (TomlTest
-%   replays 66 texts recorded from tomllib).
+%   stray underscores, '1.', signed 0x), duplicate keys (also dotted keys
+%   inside inline tables), tables declared twice, extending inline tables or
+%   arrays of tables, and a bare CR line ending (TomlTest replays texts
+%   recorded from tomllib, and matlab/tools/toml_corpus.py compares random
+%   documents).
+%
+%   Differences from tomllib, on purpose or by platform:
+%   - Integers outside int64 raise an error (the TOML spec requires it);
+%     tomllib returns unbounded Python ints.
+%   - On Octave, char is 8-bit, so strings hold their UTF-8 bytes ('é' is
+%     [195 169]); panama_uav.util.text_length counts code points and
+%     canonical uses it. On MATLAB, char is UTF-16 and 'é' is one char.
+%   - \uXXXX escapes, multiline strings and dates/times are not supported.
 %
 %   Representation: tables are structs, arrays are cell row vectors (so a
 %   one-element array stays distinguishable from a scalar), integers are
@@ -83,27 +93,45 @@ end
 function p = skip_ws_comments_newlines(p)
     while p.i <= numel(p.s)
         c = p.s(p.i);
-        if c == ' ' || c == char(9) || c == char(10) || c == char(13)
+        if c == char(13)
+            p = crlf(p);
+        elseif c == ' ' || c == char(9) || c == char(10)
             p.i = p.i + 1;
         elseif c == '#'
-            while p.i <= numel(p.s) && p.s(p.i) ~= char(10)
-                p.i = p.i + 1;
-            end
+            p = skip_comment(p);
         else
             break;
         end
     end
 end
 
+function p = crlf(p)
+% A CR is only allowed as part of CRLF; tomllib rejects a bare CR. The LF
+% must be real text, not the sentinel newline appended to p.s.
+    if p.i + 1 < numel(p.s) && p.s(p.i + 1) == char(10)
+        p.i = p.i + 1;
+    else
+        fail(p, 'bare carriage return');
+    end
+end
+
+function p = skip_comment(p)
+    while p.i <= numel(p.s) && p.s(p.i) ~= char(10)
+        if p.s(p.i) == char(13)
+            p = crlf(p);
+            return;
+        end
+        p.i = p.i + 1;
+    end
+end
+
 function p = end_of_line(p)
     p = skip_inline_ws(p);
     if p.i <= numel(p.s) && p.s(p.i) == '#'
-        while p.i <= numel(p.s) && p.s(p.i) ~= char(10)
-            p.i = p.i + 1;
-        end
+        p = skip_comment(p);
     end
     if p.i <= numel(p.s) && p.s(p.i) == char(13)
-        p.i = p.i + 1;
+        p = crlf(p);
     end
     if p.i <= numel(p.s) && p.s(p.i) ~= char(10)
         fail(p, 'expected end of line');
@@ -253,14 +281,16 @@ function [value, p] = parse_inline_table(p)
         p.i = p.i + 1;
         return;
     end
+    % Same namespace rules as at top level, relative to this inline table:
+    % dotted keys may build sub-tables, but nothing is assigned twice and
+    % nested inline tables are frozen.
+    st = struct('tables', {{}}, 'dotted', {{}}, 'inline', {{}}, 'aot', {{}});
     while true
         [keys, p] = parse_key(p);
         p = expect(p, '=');
         p = skip_inline_ws(p);
         [item, p] = parse_value(p);
-        if numel(keys) == 1 && isfield(value, keys{1})
-            fail(p, ['duplicate inline table key ', keys{1}]);
-        end
+        [st, p] = check_assign(value, {}, keys, item, st, p);
         value = assign(value, keys, item);
         p = skip_inline_ws(p);
         if peek(p) == ','
@@ -299,6 +329,7 @@ function [value, p] = parse_number(p)
     else
         fail(p, ['invalid value ', raw]);
     end
+    at = p;                        % range errors point at the token, as other number errors do
     p.i = j;
     token = strrep(raw, '_', '');
     sign = 1;
@@ -318,11 +349,17 @@ function [value, p] = parse_number(p)
             end
         case 'based'
             bases = struct('x', 16, 'o', 8, 'b', 2);
-            value = int64(base2dec_any(body(3:end), bases.(body(2))));
+            [value, ok] = base2dec_any(body(3:end), bases.(body(2)));
+            if ~ok
+                fail(at, ['integer out of int64 range ', raw]);
+            end
         case 'float'
             value = sign * str2double(body);
         otherwise
-            value = int64(sign) * parse_int64(body);
+            [value, ok] = parse_int64(body, sign);
+            if ~ok
+                fail(at, ['integer out of int64 range ', raw]);
+            end
     end
 end
 
@@ -330,15 +367,50 @@ function tf = is_match(text, pattern)
     tf = ~isempty(regexp(text, ['^(', pattern, ')$'], 'once'));
 end
 
-function v = parse_int64(digits)
+function [v, ok] = parse_int64(digits, sign)
+% Exact signed decimal in [-2^63, 2^63-1]; OK is false outside it (the TOML
+% spec requires an error, never a clamped value). int64 arithmetic
+% saturates, so the range is checked on the digit string first.
+    digits = regexprep(digits, '^0+(?=.)', '');
+    limit = '9223372036854775807';
+    if sign < 0
+        limit = '9223372036854775808';
+    end
+    ok = numel(digits) < numel(limit) || (numel(digits) == numel(limit) && string_le(digits, limit));
     v = int64(0);
+    if ~ok
+        return;
+    end
+    if sign < 0 && strcmp(digits, limit)
+        v = intmin('int64');
+        return;
+    end
     for k = 1:numel(digits)
         v = v * 10 + int64(digits(k) - '0');
     end
+    if sign < 0
+        v = -v;
+    end
 end
 
-function v = base2dec_any(digits, base)
+function tf = string_le(a, b)
+% Equal-length digit strings: a <= b numerically.
+    k = find(a ~= b, 1);
+    tf = isempty(k) || a(k) < b(k);
+end
+
+function [v, ok] = base2dec_any(digits, base)
+% Unsigned 0x/0o/0b value; OK is false above 2^63-1 instead of saturating.
+% The range is checked on the digit string (Octave's int64 division goes
+% through double, so arithmetic checks near 2^63 are not exact).
     v = int64(0);
+    digits = regexprep(digits, '^0+(?=.)', '');
+    width = struct('b16', 16, 'b8', 21, 'b2', 63);
+    w = width.(sprintf('b%d', base));
+    ok = numel(digits) < w || (numel(digits) == w && (base ~= 16 || lower(digits(1)) <= '7'));
+    if ~ok
+        return;
+    end
     for k = 1:numel(digits)
         d = int64(find(lower(digits(k)) == '0123456789abcdef', 1) - 1);
         v = v * int64(base) + d;
