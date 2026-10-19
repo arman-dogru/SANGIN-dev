@@ -24,6 +24,44 @@ classdef TomlTest < matlab.unittest.TestCase
             tc.verifyError(@() panama_uav.util.toml_decode('a = '), 'panama_uav:toml');
             tc.verifyError(@() panama_uav.util.toml_decode('a = 1 2'), 'panama_uav:toml');
         end
+        function testTextsMatchTomllib(tc)
+            % Number grammar, duplicate keys/tables and end-of-input wording,
+            % each text recorded from tomllib (make_fixtures.py TOML_TEXTS):
+            % accepted texts decode to the same canonical value; rejected
+            % ones raise panama_uav:toml at tomllib's location.
+            fx = load_fixture('toml');
+            texts = as_cell(fx.texts);
+            tc.verifyEqual(numel(texts), 66);
+            for k = 1:numel(texts)
+                t = texts{k};
+                label = sprintf('%s', strrep(t.text, char(10), '\n'));
+                if t.accepted
+                    got = 'error';
+                    try
+                        got = panama_uav.util.canonical(panama_uav.util.toml_decode(t.text));
+                    catch err
+                        got = ['error: ', err.message];
+                    end
+                    tc.verifyEqual(got, t.canonical, label);
+                else
+                    msg = '';
+                    id = '';
+                    try
+                        panama_uav.util.toml_decode(t.text);
+                    catch err
+                        msg = err.message;
+                        id = err.identifier;
+                    end
+                    tc.verifyEqual(id, 'panama_uav:toml', label);
+                    if strcmp(t.location, 'end of document')
+                        want = 'at end of document:';
+                    else
+                        want = ['on ', t.location, ':'];
+                    end
+                    tc.verifyTrue(~isempty(strfind(msg, want)), sprintf('%s: want "%s", got "%s"', label, want, msg));
+                end
+            end
+        end
         function testExponentOnlyFloats(tc)
             % Floats with an exponent and no '.' (TOML allows 1e5) stay double.
             d = panama_uav.util.toml_decode(sprintf('a = 1e5\nb = -2E-3\nc = 3e+2\nd = 5\n'));
