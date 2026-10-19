@@ -13,7 +13,7 @@ classdef EventCalendar < handle
         keys = zeros(0, 1) % ordering times
         ids = zeros(0, 1)  % SimPy eids (tie-break)
         tokens = zeros(0, 1)
-        records = {}       % {at, token, kind, value}
+        records = cell(0, 1) % {at, token, kind, value}
     end
     methods
         function schedule(obj, at, kind, value)
@@ -22,10 +22,13 @@ classdef EventCalendar < handle
             end
             obj.sequence = obj.sequence + 1;
             obj.eid = obj.eid + 1;
-            obj.keys(end + 1, 1) = obj.now + max(0.0, at - obj.now);
-            obj.ids(end + 1, 1) = obj.eid;
-            obj.tokens(end + 1, 1) = obj.sequence;
-            obj.records{end + 1, 1} = {double(at), obj.sequence, kind, value};
+            % Linear indexing on column vectors; (end+1, 1) misbehaves on a
+            % 1-by-0 cell left by deletion in Octave.
+            n = numel(obj.keys) + 1;
+            obj.keys(n, 1) = obj.now + max(0.0, at - obj.now);
+            obj.ids(n, 1) = obj.eid;
+            obj.tokens(n, 1) = obj.sequence;
+            obj.records{n, 1} = {double(at), obj.sequence, kind, value};
         end
         function t = peek(obj)
             if isempty(obj.keys)
@@ -48,6 +51,7 @@ classdef EventCalendar < handle
             obj.ids(k) = [];
             obj.tokens(k) = [];
             obj.records(k) = [];
+            obj.records = reshape(obj.records, [], 1);
             [at, token, kind, value] = r{:};
         end
         function n = count(obj)

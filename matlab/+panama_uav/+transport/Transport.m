@@ -126,7 +126,7 @@ classdef Transport < handle
             delivered = {};
             obj.event(until_time, 'clock', []);
             while obj.calendar.peek() <= until_time + 1e-12
-                [at, ~, kind, value] = obj.calendar.pop();
+                [at, token, kind, value] = obj.calendar.pop(); %#ok<ASGLU> (Octave mis-handles ~ here)
                 obj.now = at;
                 if strcmp(kind, 'clock')
                     continue;

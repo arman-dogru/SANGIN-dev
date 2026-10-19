@@ -6,7 +6,8 @@ Run from the repository root with the Python package's dependencies installed
     python matlab/tools/make_fixtures.py            # all fixture groups
     python matlab/tools/make_fixtures.py env maps   # selected groups
 
-Fixtures are JSON in matlab/tests/fixtures/. JSON has no Infinity, so float
+Fixtures are JSON in matlab/tests/fixtures/ (large groups gzip-compressed as
+.json.gz). JSON has no Infinity, so float
 infinities are written as the strings "inf"/"-inf" (see
 panama_uav.util.fixture_number on the MATLAB side). Randomness drawn by NumPy
 (start/goal shuffles, reservation windows) is recorded so MATLAB can inject the
@@ -18,6 +19,7 @@ JSON-serializable dict and add it to GROUPS.
 
 from __future__ import annotations
 
+import gzip
 import json
 import math
 import sys
@@ -312,6 +314,7 @@ def group_guidance():
     return clean({"sequence": seq})
 
 
+COMPRESSED = {"env"}
 GROUPS = {name[len("group_"):]: fn for name, fn in globals().items() if name.startswith("group_")}
 
 
@@ -322,8 +325,16 @@ def main(argv):
         data = GROUPS[name]()
         data["_generator"] = {"script": "matlab/tools/make_fixtures.py", "group": name,
                               "numpy": np.__version__}
-        path = OUT / f"{name}.json"
-        path.write_text(json.dumps(data, allow_nan=False, separators=(",", ":")), encoding="utf-8")
+        text = json.dumps(data, allow_nan=False, separators=(",", ":")).encode("utf-8")
+        if name in COMPRESSED:
+            # Deterministic gzip (mtime 0) keeps large fixtures small in git.
+            path = OUT / f"{name}.json.gz"
+            with open(path, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0,
+                                                         filename="", compresslevel=9) as stream:
+                stream.write(text)
+        else:
+            path = OUT / f"{name}.json"
+            path.write_bytes(text)
         print(f"{path.relative_to(ROOT)}: {path.stat().st_size} bytes")
 
 
