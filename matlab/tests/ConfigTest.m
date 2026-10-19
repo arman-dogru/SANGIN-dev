@@ -33,7 +33,7 @@ classdef ConfigTest < matlab.unittest.TestCase
             % rejection is compared there.
             fx = load_fixture('config');
             cases = as_cell(fx.synthetic);
-            tc.verifyEqual(numel(cases), 8);
+            tc.verifyEqual(numel(cases), 24);
             root = tempname();
             mkdir(fullfile(root, 'configs'));
             cleanup = onCleanup(@() rmdir(root, 's')); %#ok<NASGU>

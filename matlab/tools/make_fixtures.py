@@ -98,12 +98,52 @@ def with_comm(config, **changes):
 # ---------------------------------------------------------------- groups
 
 
+# Small texts for decoder parity with tomllib: number grammar, duplicate
+# keys and tables, and end-of-input positions. Each is recorded with
+# tomllib's result or its error location ("line N" or "end of document").
+TOML_TEXTS = [
+    # numbers tomllib rejects
+    "a = -", "a = +", "a = 1.", "a = 1__0", "a = 1_", "a = _1", "a = 01", "a = 00",
+    "a = 0_1", "a = .5", "a = 1.e5", "a = 1._0", "a = 1.0_", "a = 1e", "a = 1e_5",
+    "a = -0x1", "a = 0x", "a = 0xg", "a = 0X1", "a = inf_",
+    # numbers tomllib accepts
+    "a = 1_000", "a = 1e5", "a = -2E-3", "a = +inf", "a = -nan", "a = 0.0", "a = -0",
+    "a = +7", "a = 0o17", "a = 0b101", "a = 0xDEAD_beef", "a = 1_0.0_1e1_0", "a = 1.5E-3",
+    # duplicate keys and tables
+    "a = 1\na = 2", "a = 1\na = 2\n", "[t]\nx = 1\nx = 2", "a.b = 1\na.b = 2",
+    "a = 1\na.b = 2", "a = {b = 1, b = 2}", "a = {b = 1}\na.c = 2",
+    "[t]\nx = 1\n[t]\ny = 2", "[t]\n[t.u]\n[t]", "a = 1\n[a]", "a.b = 1\n[a]",
+    "[x]\na.b = 1\n[x.a]", "[a.b]\nc = 1\n[a]\nb.d = 2", "[t]\nu = {}\n[t.u]",
+    "a = [1]\n[[a]]", "[[t]]\n[t]", "[t]\n[[t]]", "[[x.t]]\n[x]\nt.y = 1",
+    "[[x.t]]\n[x]\nt = 1", "a = 1\na.b.c = 2", "a = {b = {c = 1}}\na.b.d = 2",
+    # valid re-openings
+    "[a.b]\n[a]", "[a]\n[a.b]", "a.b = 1\na.c = 2", "[[t]]\nx = 1\n[[t]]\nx = 2",
+    "[[t]]\n[t.u]\nx = 1\n[[t]]\n[t.u]\nx = 2", "[a.b]\nc = 1\n[a]\nd = 2",
+    # end of input with and without a final newline
+    "[training", "[training\n", "k = [1,\n2", "k = [1,\n2\n", "a = \"x", "a = {b = 1",
+]
+
+
+def toml_location(exc):
+    text = str(exc)
+    if "(at end of document)" in text:
+        return "end of document"
+    return "line " + text.rsplit("(at line ", 1)[1].split(",", 1)[0]
+
+
 def group_toml():
     cases = []
     for path in sorted((ROOT / "configs").glob("*.toml")):
         raw = tomllib.loads(path.read_text(encoding="utf-8"))
         cases.append({"file": f"configs/{path.name}", "canonical": canonical(raw)})
-    return {"cases": cases}
+    texts = []
+    for text in TOML_TEXTS:
+        try:
+            texts.append({"text": text, "accepted": True, "canonical": canonical(tomllib.loads(text))})
+        except tomllib.TOMLDecodeError as exc:
+            texts.append({"text": text, "accepted": False, "location": toml_location(exc),
+                          "message": str(exc)})
+    return {"cases": cases, "texts": texts}
 
 
 def group_config():
@@ -140,6 +180,26 @@ SYNTHETIC_CONFIGS = {
     "unknown_training_key": "[training]\nbogus = 1\n",
     "bad_profile": '[communication]\nprofile = "bogus"\n',
     "three_windows": "[communication]\nwindows_min = 3\nwindows_max = 3\n",
+    # One case per remaining load_config / TransportConfig rule, so each
+    # rule is exercised with Python's message (matlab/tools/mutation_sweep.py
+    # disables each rule in turn and checks that a test fails).
+    "reward_changed": "[reward]\ngoal = 1.0\n",
+    "map_changed": "[map]\nfov_radius = 5\n",
+    "budget_zero": "[training]\nbudget_seconds = 0.0\n",
+    "budget_over_24h": "[training]\nbudget_seconds = 86401.0\n",
+    "bad_mission_route": '[communication]\nmission_route = "satellite"\n',
+    "bad_stale_information": '[communication]\nstale_information = ["task", "weather"]\n',
+    "bad_simulated_time": "[communication]\nseconds_per_step = 0.0\n",
+    "negative_backhaul_offset": "[communication]\nbackhaul_time_offset_seconds = -1.0\n",
+    "negative_packet_size": "[communication]\npacket_payload_bytes = -1\n",
+    "bad_scheduling_frame": "[communication]\nscheduler_guard_fraction = 1.0\n",
+    "orbital_replay_without_timeline": "[communication]\norbital_replay = true\n",
+    "bad_model_distribution": '[communication]\nmodel_distribution = "broadcast"\n',
+    "timeline_and_trace": ('[communication]\nleo_timeline = "data/leo/timeline.npz"\n'
+                           'uplink_trace = "traces/up.npz"\n'),
+    "zero_reservation": "[communication]\nreservation_steps = 0\n",
+    "zero_capacity": "[communication]\nsatellite_uplink_mbps = 0.0\n",
+    "bad_physical_delays": "[communication]\nhandover_interval_seconds = 0.0\n",
     "wrong_ladder": ('[[curriculum.stages]]\nname = "a"\nnum_agents = 3\n'
                      'map_path = "maps/random-32-32-10.map"\nmax_episode_steps = 250\n'
                      "min_episodes = 500\n"),
@@ -430,6 +490,28 @@ def group_guidance():
     g = Guidance([(1, 1), (1, 2), (1, 3), (2, 3)], 3)
     seq = [g.consume(p) for p in [(1, 1), (1, 2), (2, 2), (2, 3)]]
     return clean({"sequence": seq})
+
+
+def group_popping():
+    """Python's start/goal pop order after its shuffle (environment.py
+    _random_starts_and_goals), on a 6-free-cell grid. The shuffled cell list
+    is recorded too, so MATLAB can replay the pops on the same order."""
+    import copy
+    cases = []
+    for n in (2, 3, 4, 5):
+        for seed in (1, 4, 9):
+            env = ExperimentEnvironment(base_config(), ExperimentMode.UAV,
+                                        "maps/random-32-32-10.map", n, 250, seed)
+            grid = np.ones_like(env.grid)
+            grid.flat[:6] = 0
+            env.grid = grid
+            twin = copy.deepcopy(env.rng)
+            cells = [tuple(int(v) for v in c) for c in np.argwhere(grid == 0)]
+            twin.shuffle(cells)
+            starts, goals = env._random_starts_and_goals()
+            cases.append({"agents": n, "seed": seed, "shuffled": [list(c) for c in cells],
+                          "starts": [list(c) for c in starts], "goals": [list(c) for c in goals]})
+    return {"cases": cases}
 
 
 COMPRESSED = {"env"}
