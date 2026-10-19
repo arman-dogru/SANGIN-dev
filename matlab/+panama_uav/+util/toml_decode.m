@@ -99,15 +99,28 @@ function p = expect(p, token)
 end
 
 function fail(p, message)
-    line = sum(p.s(1:min(p.i, numel(p.s))) == char(10)) + 1;
+    % Newlines strictly before p.i, so an error at a line's own newline
+    % reports that line, as tomllib does.
+    if p.i > numel(p.s)            % past the sentinel newline: tomllib says "at end of document"
+        error('panama_uav:toml', 'TOML parse error at end of document: %s', message);
+    end
+    line = sum(p.s(1:p.i - 1) == char(10)) + 1;
     error('panama_uav:toml', 'TOML parse error on line %d: %s', line, message);
+end
+
+function c = peek(p)
+% Character at p.i; a clean parse error (not an index error) at end of input.
+    if p.i > numel(p.s)
+        fail(p, 'unexpected end of document');
+    end
+    c = p.s(p.i);
 end
 
 function [keys, p] = parse_key(p)
     keys = {};
     while true
         p = skip_inline_ws(p);
-        c = p.s(p.i);
+        c = peek(p);
         if c == '"' || c == ''''
             [k, p] = parse_string(p);
         else
@@ -132,7 +145,7 @@ function [keys, p] = parse_key(p)
 end
 
 function [value, p] = parse_value(p)
-    c = p.s(p.i);
+    c = peek(p);
     if c == '"' || c == ''''
         [value, p] = parse_string(p);
     elseif c == '['
@@ -167,7 +180,9 @@ function [value, p] = parse_string(p)
             break;
         end
         if q == '"' && c == '\'
-            e = p.s(p.i + 1);
+            q1 = p;
+            q1.i = p.i + 1;
+            e = peek(q1);
             switch e
                 case 'n', out(end + 1) = char(10); %#ok<AGROW>
                 case 't', out(end + 1) = char(9); %#ok<AGROW>
@@ -191,16 +206,16 @@ function [value, p] = parse_array(p)
     value = {};
     while true
         p = skip_ws_comments_newlines(p);
-        if p.s(p.i) == ']'
+        if peek(p) == ']'
             p.i = p.i + 1;
             return;
         end
         [item, p] = parse_value(p);
         value{end + 1} = item; %#ok<AGROW>
         p = skip_ws_comments_newlines(p);
-        if p.s(p.i) == ','
+        if peek(p) == ','
             p.i = p.i + 1;
-        elseif p.s(p.i) == ']'
+        elseif peek(p) == ']'
             p.i = p.i + 1;
             return;
         else
@@ -213,7 +228,7 @@ function [value, p] = parse_inline_table(p)
     p.i = p.i + 1;
     value = struct();
     p = skip_inline_ws(p);
-    if p.s(p.i) == '}'
+    if peek(p) == '}'
         p.i = p.i + 1;
         return;
     end
@@ -224,9 +239,9 @@ function [value, p] = parse_inline_table(p)
         [item, p] = parse_value(p);
         value = assign(value, keys, item);
         p = skip_inline_ws(p);
-        if p.s(p.i) == ','
+        if peek(p) == ','
             p.i = p.i + 1;
-        elseif p.s(p.i) == '}'
+        elseif peek(p) == '}'
             p.i = p.i + 1;
             return;
         else

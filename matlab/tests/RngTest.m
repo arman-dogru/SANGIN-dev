@@ -65,6 +65,31 @@ classdef RngTest < matlab.unittest.TestCase
             [s, ~] = episode(env2);
             tc.verifyEqual(size(s), [2 2]);
         end
+        function testStartGoalPopOrderLikePython(tc)
+            % Pins Python's pop order on a 6-cell grid with an independent
+            % copy of the env stream: cells are shuffled with the env's
+            % generator, then each pair pops (first=end, second=end-1) with
+            % goals swapped, and the odd agent gets start=end, goal=end-1.
+            for n = [3 5]
+                for seed = [1 4 9]
+                    env = make_env(n, seed);
+                    env.grid = free_grid(size(env.grid), 6);
+                    [s, g] = episode(env);
+                    [rows, cols] = find(env.grid' == 0);
+                    cells = [cols - 1, rows - 1];
+                    ref = panama_uav.util.Xorshift128(seed);
+                    cells = cells(ref.permutation(size(cells, 1)), :);
+                    for k = 1:floor(n / 2)
+                        tc.verifyEqual(s(2 * k - 1, :), cells(end, :));
+                        tc.verifyEqual(s(2 * k, :), cells(end - 1, :));
+                        cells = cells(1:end - 2, :);
+                    end
+                    label = sprintf('odd agent, %d agents, seed %d', n, seed);
+                    tc.verifyEqual(s(n, :), cells(end, :), [label ' start']);
+                    tc.verifyEqual(g(n, :), cells(end - 1, :), [label ' goal']);
+                end
+            end
+        end
         function testSeedlessResetsAdvance(tc)
             env = make_env(4, 123);
             [s1, g1, w1] = episode(env);

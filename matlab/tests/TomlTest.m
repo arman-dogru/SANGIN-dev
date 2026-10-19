@@ -24,5 +24,36 @@ classdef TomlTest < matlab.unittest.TestCase
             tc.verifyError(@() panama_uav.util.toml_decode('a = '), 'panama_uav:toml');
             tc.verifyError(@() panama_uav.util.toml_decode('a = 1 2'), 'panama_uav:toml');
         end
+        function testExponentOnlyFloats(tc)
+            % Floats with an exponent and no '.' (TOML allows 1e5) stay double.
+            d = panama_uav.util.toml_decode(sprintf('a = 1e5\nb = -2E-3\nc = 3e+2\nd = 5\n'));
+            tc.verifyEqual(d.a, 1e5);
+            tc.verifyEqual(d.b, -2e-3);
+            tc.verifyEqual(d.c, 300);
+            tc.verifyEqual(d.d, int64(5));
+        end
+        function testErrorLineMatchesTomllib(tc)
+            % Expected lines are tomllib's (Python 3.13) for the same texts.
+            cases = { ...
+                sprintf('[training\n'),             'line 1:'; ...
+                sprintf('a = 1\n[training\n\n'),    'line 2:'; ...
+                sprintf('a = 1\nb = \n'),           'line 2:'; ...
+                sprintf('a = 1\nb = 2\nc = @\n'),   'line 3:'; ...
+                'a = 1 2',                          'line 1:'; ...
+                sprintf('a = "x\n'),               'line 1:'; ...
+                sprintf('k = [1,\n2\n'),           'at end of document:'};
+            for k = 1:size(cases, 1)
+                msg = '';
+                id = '';
+                try
+                    panama_uav.util.toml_decode(cases{k, 1});
+                catch err
+                    msg = err.message;
+                    id = err.identifier;
+                end
+                tc.verifyEqual(id, 'panama_uav:toml', sprintf('case %d', k));
+                tc.verifyTrue(~isempty(strfind(msg, cases{k, 2})), sprintf('case %d: %s', k, msg));
+            end
+        end
     end
 end
