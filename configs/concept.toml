@@ -1,0 +1,45 @@
+extends = "base.toml"
+
+# A short, single-map curriculum for validating learning behavior and the
+# complete telemetry/reporting pipeline before launching the full study.
+[training]
+target_environment_steps = 12000
+learning_rate = 0.00002
+replay_capacity = 12000
+replay_checkpoint_size = 2000
+epsilon_start = 0.20
+epsilon_end = 0.05
+epsilon_decay_steps = 8000
+num_actors = 4
+model_broadcast_steps = 256
+checkpoint_interval_steps = 2000
+validation_interval_episodes = 25
+validation_episodes = 10
+initial_model_path = "artifacts/legacy/2026-09-02/Models/saved_curriculum_model_v2/final_model.pth"
+
+[curriculum]
+[[curriculum.stages]]
+name = "concept-random-32-2"
+map_path = "maps/random-32-32-10.map"
+num_agents = 2
+max_episode_steps = 200
+min_episodes = 25
+max_episodes = 50
+graduation_success_rate = 0.70
+
+[[curriculum.stages]]
+name = "concept-random-32-4"
+map_path = "maps/random-32-32-10.map"
+num_agents = 4
+max_episode_steps = 200
+min_episodes = 25
+max_episodes = 100
+graduation_success_rate = 0.60
+
+[evaluation]
+agent_counts = [4]
+scenario_directories = ["scens/scen-random-32-32-10"]
+training_seeds = [42]
+bootstrap_samples = 250
+save_step_telemetry = true
+failure_trace_limit = 10

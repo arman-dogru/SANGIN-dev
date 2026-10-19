@@ -1,0 +1,6 @@
+# Preserve supplied TeX/BibTeX bytes when cloning on another platform.
+*.tex -text
+*.bib -text
+*.pdf binary
+*.png binary
+*.zip binary

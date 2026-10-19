@@ -1,0 +1,37 @@
+{
+  "audit": {
+    "status": "passed",
+    "episodes": 4200,
+    "conditions": 21,
+    "cases_per_stage": 50,
+    "identical_seeds_starts_goals": true,
+    "frozen_policy": true,
+    "decision_phase_verified": true,
+    "model_map_timeline_and_script_hashes_verified": true,
+    "geometry_and_rates_preserved": true,
+    "handover_toggle_isolated": true,
+    "unselected_inputs_fresh": true,
+    "summary_values_recomputed": true,
+    "perfect_matches_previous_run": true,
+    "uav_edge_matches_perfect_robot_outcomes": true
+  },
+  "figures": [
+    "success_rate",
+    "successful_makespan",
+    "par2",
+    "deadline_miss_fraction",
+    "selected_input_mean_age_seconds",
+    "latency_timeline"
+  ],
+  "source_root": "D:\\Projects\\PANAMA+UAV\\panama_uav\\output\\inference\\deadline-handover-20261019-01",
+  "model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+  "postprocessing_script_sha256": "3bf3aa9f88b8acceaf313e0e8a4d85088710289e3ddeb812342390a1c01676ce",
+  "synthetic_extension": false,
+  "caveats": [
+    "10/20-second interruptions are artificial stresses at actual satellite changes, not measured LEO durations",
+    "Handovers off retains resource reconfiguration and all ordinary transport delays",
+    "Action cadence remains one per second; deadline is a fixed 100 ms phase within the cycle",
+    "Makespan averages successful episodes; PAR-2 assigns 500 to failures",
+    "Paired confidence intervals quantify case variability for one frozen training seed"
+  ]
+}

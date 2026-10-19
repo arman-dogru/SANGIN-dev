@@ -1,0 +1,64 @@
+\section{System Model}
+The system is as follows.
+
+Let $\mathcal{N} = \{1, 2, \dots, N\}$ denote the set of ground robots. Each robot $i \in \mathcal{N}$ generates a computationally intensive task modeled as a tuple $D_i = \{s_i, c_i, \tau_i\}$, where $s_i$ is the input data size in bits, $c_i$ is the required CPU cycles per bit, and $\tau_i$ is the maximum tolerable latency in seconds.
+
+The system relies on the following decision variables:
+\begin{itemize}
+    \item $x_i \in \{0, 1\}$: The offloading decision indicator. $x_i = 1$ if task $i$ is processed locally at the Drone-AP; $x_i = 0$ if the task is relayed to the Cloud.
+    \item $P_i \ge 0$: The transmit power of robot $i$ on the Ground-to-Air (G2A) link.
+    \item $f_{D,i} \ge 0$: The Drone CPU frequency allocated to task $i$.
+    \item $f_{C,i} \ge 0$: The Cloud CPU frequency allocated to task $i$.
+\end{itemize}
+\subsection{Ground-to-Air (G2A) Channel}
+The G2A channel between the ground robots and the Drone-AP is modeled using a probabilistic Line-of-Sight (LoS) and Non-Line-of-Sight (NLoS) framework. The path loss for robot $i$, denoted $L^{\text{G2A}}_i$ in dB, is expressed as:
+\begin{equation}
+L^{\text{G2A}}_i = 20 \log_{10}\left(\frac{4\pi f_c d_i}{c}\right) + \eta
+\end{equation}
+where $d_i$ is the 3D distance between robot $i$ and the drone, $f_c$ is the carrier frequency, $c$ is the speed of light, and $\eta$ is the additional attenuation factor depending on whether the link is LoS ($\eta_{\text{LoS}}$) or NLoS ($\eta_{\text{NLoS}}$).\hl{Add Al-Hourani's channel model here!!}
+
+The achievable uplink data rate is given by:
+\begin{equation}
+R^{\text{G2A}}_i = B_{\text{G2A}} \log_2 \left( 1 + \frac{P_i 10^{-L^{\text{G2A}}_i/10}}{N_0 B_{\text{G2A}}} \right)
+\end{equation}
+where $B_{\text{G2A}}$ is the channel bandwidth and $N_0$ is the noise power spectral density.\hl{take the channel bw value from simulator!}
+
+\subsection{Air-to-Space (A2S) Channel}
+The backhaul link from the Drone-AP to the LEO satellite relies on a strong LoS channel. The path loss $L^{\text{A2S}}$ incorporates Free Space Path Loss and atmospheric attenuation $\xi_{\text{atm}}$:
+\begin{equation}
+L^{\text{A2S}} = 20 \log_{10}\left(\frac{4\pi f_{\text{sat}} d^{t}_{\text{sat}}}{c}\right) + \xi_{\text{atm}},
+\end{equation}
+where $d^{t}_{\text{sat}}$ indicates the distance between the satellite and the UAV-BS at time $t$.\hl{consider using $\bar{d}$ to indicate average d while uav and sat are associated!}
+
+The achievable A2S data rate for relayed tasks is:
+\begin{equation}
+R^{\text{A2S}}_i = B_{\text{A2S}} \log_2 \left( 1 + \frac{P_D |g|^2 10^{-L^{\text{A2S}}/10}}{N_0 B_{\text{A2S}}} \right)
+\end{equation}
+where $P_D$ is the transmission power of the Drone-AP and $g$ models the Rician fading component.\hl{find the bw value and exact channel parameters!}
+
+\hl{We need to add space-air and air-to-ground downlink parameters. Only changing the tx power may be sufficient!}
+
+\subsection{Latency Model}
+The latency experienced by task $i$ depends on the offloading decision. If computed at the Drone-AP ($x_i = 1$):
+\begin{equation}
+T_{i, \text{Drone}} = \frac{s_i}{R^{\text{G2A}}_i} + \frac{s_i c_i}{f_{D,i}}
+\end{equation}
+
+If the task is relayed to the Cloud ($x_i = 0$):
+\begin{equation}
+T_{i, \text{Cloud}} = \frac{s_i}{R^{\text{G2A}}_i} + \frac{s_i}{R^{\text{A2S}}_i} + T_{\text{prop}} + \frac{s_i c_i}{f_{C,i}}
+\end{equation}
+where $T_{\text{prop}} \approx 2 \bar{d}_{\text{sat}} / c$ represents the satellite round-trip propagation delay by using the average of the distance between the UAV and the satellite while associated. The total latency for task $i$ is thus:
+\begin{equation}
+T_i = x_i T_{i, \text{Drone}} + (1 - x_i) T_{i, \text{Cloud}}
+\end{equation}
+
+\subsection{Energy Consumption Model}
+The transmission energy consumed by robot $i$ is:
+\begin{equation}
+E^{\text{tx}}_i = P_i \frac{s_i}{R^{\text{G2A}}_i}
+\end{equation}\hl{confirm that this needs to be fixed for 3D placement}
+The energy expended by the Drone-AP encompasses local computation and relaying transmissions. Let $\kappa_D$ denote the \hl{effective switched capacitance} of the drone's computing architecture\hl{is this well known and widely used? how about GOP?}. The drone energy cost for task $i$ is:
+\begin{equation}
+E_{\text{Drone}, i} = x_i \kappa_D (f_{D,i})^2 s_i c_i + (1 - x_i) P_D \frac{s_i}{R^{\text{A2S}}_i}
+\end{equation}

@@ -1,0 +1,25 @@
+\section{Introduction}
+\begin{itemize}
+    \item Digital Twins: The study in~\cite{dt_resource} proposes a method to utilize digital twins (DTs) for multi-domain resource management of SAGIN networks for ISAC purposes. This study also considers mapping errors of DTs due to imperfect sensing.   
+    \item SAGIN 
+    \item Ray-tracing
+    \item Outage analysis: The studies in~\cite{o_altitude,o_cfmimo,o_fso} provide outage analysis under a variety of system settings from CF-MIMO to FSO connectivity for SAGIN, where UAV is used either as a relay or access point. However, none of these articles take advantage of DTs.
+    The study in \cite{o_fso} models satellite-UAV links as FSO and UAV-UE as RF links with MISO and Nakagami-m fading. This article provides analytical outage analysis under several practical constraints, such as outdated CSI and misalignment of FSO transcievers. The study in~\cite{o_altitude} investigates the affects of UAV position in the outage probability, which could be useful to analyze the affect of incorrect position estimation. The study in~\cite{o_cfmimo} provides uplink analysis and provides a method to optimize ground users' power transmit levels, which can be useful.
+\end{itemize}
+
+
+
+% BEGIN PANAMA ADDITIONS: algorithmic scope
+\begin{panamaaddition}
+This work extends PANAMA's centralized training with decentralized execution
+framework~\cite{panama} to distinguish communication delay from physical robot
+motion. During mission execution, delayed guidance and peer reports change the
+information available to a robot, while its local sensing and previously
+deployed policy remain available. During learning, delayed experience uploads
+restrict the learner's received data, and delayed model deployments cause
+robots to act with different versions of the shared policy. We formulate these
+effects through message timestamps, receiver caches, and model versions. The
+transport supplies the corresponding delays; their LEO-specific derivation is
+separate from the algorithm developed here.
+\end{panamaaddition}
+% END PANAMA ADDITIONS: algorithmic scope

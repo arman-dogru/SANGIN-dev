@@ -1,0 +1,3187 @@
+{
+  "status": "passed",
+  "episodes": 33,
+  "elapsed_seconds": 18.843000000342727,
+  "perfect_repeat_identical": true,
+  "previous_32_case_outcomes_identical": true,
+  "former_stalled_case_completed": true,
+  "selected_input_isolation_passed": true,
+  "preflight_only": true,
+  "rows": [
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/perfect",
+      "stage": 1,
+      "mission_route": "uav",
+      "communication_profile": "perfect",
+      "stale_information": [],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/perfect",
+      "stage": 2,
+      "mission_route": "uav",
+      "communication_profile": "perfect",
+      "stale_information": [],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/perfect",
+      "stage": 3,
+      "mission_route": "uav",
+      "communication_profile": "perfect",
+      "stale_information": [],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/perfect",
+      "stage": 4,
+      "mission_route": "uav",
+      "communication_profile": "perfect",
+      "stale_information": [],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.9629629629629629,
+      "mean_intentions_age_seconds": 0.9629629629629629,
+      "mean_priorities_age_seconds": 0.9629629629629629,
+      "condition": "preflight/orbital_cloud_all",
+      "stage": 1,
+      "mission_route": "cloud",
+      "communication_profile": "physical",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 1.0,
+      "p95_task_age_seconds": 1.0,
+      "maximum_intentions_age_seconds": 1.0,
+      "p95_intentions_age_seconds": 1.0,
+      "maximum_priorities_age_seconds": 1.0,
+      "p95_priorities_age_seconds": 1.0,
+      "actual_stale_agents": 2,
+      "maximum_queue_bytes": 2614
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 250,
+      "success": false,
+      "successful_makespan": null,
+      "par2": 500,
+      "completion_fraction": 0.25,
+      "ever_completion_fraction": 0.25,
+      "collision_attempts": 0,
+      "uav_travel_m": 72.4526531839298,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.9960159362549801,
+      "mean_intentions_age_seconds": 0.9960159362549801,
+      "mean_priorities_age_seconds": 0.9960159362549801,
+      "condition": "preflight/orbital_cloud_all",
+      "stage": 2,
+      "mission_route": "cloud",
+      "communication_profile": "physical",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 1.0,
+      "p95_task_age_seconds": 1.0,
+      "maximum_intentions_age_seconds": 1.0,
+      "p95_intentions_age_seconds": 1.0,
+      "maximum_priorities_age_seconds": 1.0,
+      "p95_priorities_age_seconds": 1.0,
+      "actual_stale_agents": 4,
+      "maximum_queue_bytes": 5388
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 250,
+      "success": false,
+      "successful_makespan": null,
+      "par2": 500,
+      "completion_fraction": 0.3333333333333333,
+      "ever_completion_fraction": 0.3333333333333333,
+      "collision_attempts": 0,
+      "uav_travel_m": 72.24407762751613,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.9960159362549801,
+      "mean_intentions_age_seconds": 0.9960159362549801,
+      "mean_priorities_age_seconds": 0.9960159362549801,
+      "condition": "preflight/orbital_cloud_all",
+      "stage": 3,
+      "mission_route": "cloud",
+      "communication_profile": "physical",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 1.0,
+      "p95_task_age_seconds": 1.0,
+      "maximum_intentions_age_seconds": 1.0,
+      "p95_intentions_age_seconds": 1.0,
+      "maximum_priorities_age_seconds": 1.0,
+      "p95_priorities_age_seconds": 1.0,
+      "actual_stale_agents": 6,
+      "maximum_queue_bytes": 6722
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 250,
+      "success": false,
+      "successful_makespan": null,
+      "par2": 500,
+      "completion_fraction": 0.25,
+      "ever_completion_fraction": 0.5,
+      "collision_attempts": 0,
+      "uav_travel_m": 249.94668911675998,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.9960159362549801,
+      "mean_intentions_age_seconds": 0.9960159362549801,
+      "mean_priorities_age_seconds": 0.9960159362549801,
+      "condition": "preflight/orbital_cloud_all",
+      "stage": 4,
+      "mission_route": "cloud",
+      "communication_profile": "physical",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 1.0,
+      "p95_task_age_seconds": 1.0,
+      "maximum_intentions_age_seconds": 1.0,
+      "p95_intentions_age_seconds": 1.0,
+      "maximum_priorities_age_seconds": 1.0,
+      "p95_priorities_age_seconds": 1.0,
+      "actual_stale_agents": 8,
+      "maximum_queue_bytes": 11616
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.9629629629629629,
+      "mean_intentions_age_seconds": 0.9629629629629629,
+      "mean_priorities_age_seconds": 0.9629629629629629,
+      "condition": "preflight/orbital_uav_all",
+      "stage": 1,
+      "mission_route": "uav",
+      "communication_profile": "physical",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 1.0,
+      "p95_task_age_seconds": 1.0,
+      "maximum_intentions_age_seconds": 1.0,
+      "p95_intentions_age_seconds": 1.0,
+      "maximum_priorities_age_seconds": 1.0,
+      "p95_priorities_age_seconds": 1.0,
+      "actual_stale_agents": 2,
+      "maximum_queue_bytes": 2614
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 250,
+      "success": false,
+      "successful_makespan": null,
+      "par2": 500,
+      "completion_fraction": 0.25,
+      "ever_completion_fraction": 0.25,
+      "collision_attempts": 0,
+      "uav_travel_m": 72.4526531839298,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.9960159362549801,
+      "mean_intentions_age_seconds": 0.9960159362549801,
+      "mean_priorities_age_seconds": 0.9960159362549801,
+      "condition": "preflight/orbital_uav_all",
+      "stage": 2,
+      "mission_route": "uav",
+      "communication_profile": "physical",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 1.0,
+      "p95_task_age_seconds": 1.0,
+      "maximum_intentions_age_seconds": 1.0,
+      "p95_intentions_age_seconds": 1.0,
+      "maximum_priorities_age_seconds": 1.0,
+      "p95_priorities_age_seconds": 1.0,
+      "actual_stale_agents": 4,
+      "maximum_queue_bytes": 5388
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 250,
+      "success": false,
+      "successful_makespan": null,
+      "par2": 500,
+      "completion_fraction": 0.3333333333333333,
+      "ever_completion_fraction": 0.3333333333333333,
+      "collision_attempts": 0,
+      "uav_travel_m": 72.24407762751613,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.9960159362549801,
+      "mean_intentions_age_seconds": 0.9960159362549801,
+      "mean_priorities_age_seconds": 0.9960159362549801,
+      "condition": "preflight/orbital_uav_all",
+      "stage": 3,
+      "mission_route": "uav",
+      "communication_profile": "physical",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 1.0,
+      "p95_task_age_seconds": 1.0,
+      "maximum_intentions_age_seconds": 1.0,
+      "p95_intentions_age_seconds": 1.0,
+      "maximum_priorities_age_seconds": 1.0,
+      "p95_priorities_age_seconds": 1.0,
+      "actual_stale_agents": 6,
+      "maximum_queue_bytes": 6722
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 250,
+      "success": false,
+      "successful_makespan": null,
+      "par2": 500,
+      "completion_fraction": 0.25,
+      "ever_completion_fraction": 0.5,
+      "collision_attempts": 0,
+      "uav_travel_m": 249.94668911675998,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.9960159362549801,
+      "mean_intentions_age_seconds": 0.9960159362549801,
+      "mean_priorities_age_seconds": 0.9960159362549801,
+      "condition": "preflight/orbital_uav_all",
+      "stage": 4,
+      "mission_route": "uav",
+      "communication_profile": "physical",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 1.0,
+      "p95_task_age_seconds": 1.0,
+      "maximum_intentions_age_seconds": 1.0,
+      "p95_intentions_age_seconds": 1.0,
+      "maximum_priorities_age_seconds": 1.0,
+      "p95_priorities_age_seconds": 1.0,
+      "actual_stale_agents": 8,
+      "maximum_queue_bytes": 11616
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_task_20",
+      "stage": 1,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "task"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 57,
+      "success": true,
+      "successful_makespan": 57,
+      "par2": 57,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 57.0,
+      "exposed_messages": 8,
+      "exposed_agents": 3,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 2,
+        "2": 4,
+        "3": 2
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 1
+      },
+      "mean_task_age_seconds": 1.5344827586206897,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_task_20",
+      "stage": 2,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "task"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 20.0,
+      "p95_task_age_seconds": 12.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 3,
+      "maximum_queue_bytes": 6570
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 48,
+      "success": true,
+      "successful_makespan": 48,
+      "par2": 48,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 48.0,
+      "exposed_messages": 6,
+      "exposed_agents": 3,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 2,
+        "2": 2,
+        "3": 2,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 2.2108843537414966,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_task_20",
+      "stage": 3,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "task"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 20.0,
+      "p95_task_age_seconds": 16.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 3,
+      "maximum_queue_bytes": 11329
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 250,
+      "success": false,
+      "successful_makespan": null,
+      "par2": 500,
+      "completion_fraction": 0.875,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 75.69002509121708,
+      "exposed_messages": 26,
+      "exposed_agents": 8,
+      "exposure_by_agent": {
+        "0": 2,
+        "1": 2,
+        "2": 4,
+        "3": 2,
+        "4": 4,
+        "5": 4,
+        "6": 4,
+        "7": 4
+      },
+      "realized_windows_by_agent": {
+        "0": 1,
+        "1": 1,
+        "2": 2,
+        "3": 1,
+        "4": 2,
+        "5": 2,
+        "6": 2,
+        "7": 2
+      },
+      "mean_task_age_seconds": 1.467629482071713,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_task_20",
+      "stage": 4,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "task"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 20.0,
+      "p95_task_age_seconds": 14.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 8,
+      "maximum_queue_bytes": 9248
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_intentions_20",
+      "stage": 1,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "intentions"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 2,
+      "exposed_agents": 1,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 2,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 1.4375,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_intentions_20",
+      "stage": 2,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "intentions"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 20.0,
+      "p95_intentions_age_seconds": 13.049999999999983,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 1,
+      "maximum_queue_bytes": 6940
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 4,
+      "exposed_agents": 2,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 2,
+        "2": 0,
+        "3": 2,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.3275862068965517,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_intentions_20",
+      "stage": 3,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "intentions"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 8.0,
+      "p95_intentions_age_seconds": 3.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 2,
+      "maximum_queue_bytes": 5618
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 8,
+      "exposed_agents": 4,
+      "exposure_by_agent": {
+        "0": 2,
+        "1": 0,
+        "2": 2,
+        "3": 0,
+        "4": 2,
+        "5": 0,
+        "6": 2,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 1,
+        "1": 0,
+        "2": 1,
+        "3": 0,
+        "4": 1,
+        "5": 0,
+        "6": 1,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 1.6754807692307692,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_intentions_20",
+      "stage": 4,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "intentions"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 20.0,
+      "p95_intentions_age_seconds": 13.25,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 4,
+      "maximum_queue_bytes": 21891
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_priorities_20",
+      "stage": 1,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "priorities"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 2,
+      "exposed_agents": 1,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 2,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 1.4375,
+      "condition": "preflight/controlled_cloud_priorities_20",
+      "stage": 2,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "priorities"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 20.0,
+      "p95_priorities_age_seconds": 13.049999999999983,
+      "actual_stale_agents": 1,
+      "maximum_queue_bytes": 4260
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 4,
+      "exposed_agents": 2,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 2,
+        "2": 0,
+        "3": 2,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.3275862068965517,
+      "condition": "preflight/controlled_cloud_priorities_20",
+      "stage": 3,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "priorities"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 8.0,
+      "p95_priorities_age_seconds": 3.0,
+      "actual_stale_agents": 2,
+      "maximum_queue_bytes": 3598
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 8,
+      "exposed_agents": 4,
+      "exposure_by_agent": {
+        "0": 2,
+        "1": 0,
+        "2": 2,
+        "3": 0,
+        "4": 2,
+        "5": 0,
+        "6": 2,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 1,
+        "1": 0,
+        "2": 1,
+        "3": 0,
+        "4": 1,
+        "5": 0,
+        "6": 1,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 1.6754807692307692,
+      "condition": "preflight/controlled_cloud_priorities_20",
+      "stage": 4,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "priorities"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 20.0,
+      "p95_priorities_age_seconds": 13.25,
+      "actual_stale_agents": 4,
+      "maximum_queue_bytes": 11739
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/controlled_cloud_all_20",
+      "stage": 1,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 55,
+      "success": true,
+      "successful_makespan": 55,
+      "par2": 55,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 55.0,
+      "exposed_messages": 21,
+      "exposed_agents": 3,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 6,
+        "2": 9,
+        "3": 6
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 1
+      },
+      "mean_task_age_seconds": 1.4196428571428572,
+      "mean_intentions_age_seconds": 1.4196428571428572,
+      "mean_priorities_age_seconds": 1.4196428571428572,
+      "condition": "preflight/controlled_cloud_all_20",
+      "stage": 2,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 20.0,
+      "p95_task_age_seconds": 11.0,
+      "maximum_intentions_age_seconds": 20.0,
+      "p95_intentions_age_seconds": 11.0,
+      "maximum_priorities_age_seconds": 20.0,
+      "p95_priorities_age_seconds": 11.0,
+      "actual_stale_agents": 3,
+      "maximum_queue_bytes": 17710
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 48,
+      "success": true,
+      "successful_makespan": 48,
+      "par2": 48,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 48.0,
+      "exposed_messages": 18,
+      "exposed_agents": 3,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 6,
+        "2": 6,
+        "3": 6,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 2.2108843537414966,
+      "mean_intentions_age_seconds": 2.2108843537414966,
+      "mean_priorities_age_seconds": 2.2108843537414966,
+      "condition": "preflight/controlled_cloud_all_20",
+      "stage": 3,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 20.0,
+      "p95_task_age_seconds": 16.0,
+      "maximum_intentions_age_seconds": 20.0,
+      "p95_intentions_age_seconds": 16.0,
+      "maximum_priorities_age_seconds": 20.0,
+      "p95_priorities_age_seconds": 16.0,
+      "actual_stale_agents": 3,
+      "maximum_queue_bytes": 44869
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 250,
+      "success": false,
+      "successful_makespan": null,
+      "par2": 500,
+      "completion_fraction": 0.875,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 75.68082337399152,
+      "exposed_messages": 78,
+      "exposed_agents": 8,
+      "exposure_by_agent": {
+        "0": 6,
+        "1": 6,
+        "2": 12,
+        "3": 6,
+        "4": 12,
+        "5": 12,
+        "6": 12,
+        "7": 12
+      },
+      "realized_windows_by_agent": {
+        "0": 1,
+        "1": 1,
+        "2": 2,
+        "3": 1,
+        "4": 2,
+        "5": 2,
+        "6": 2,
+        "7": 2
+      },
+      "mean_task_age_seconds": 1.467629482071713,
+      "mean_intentions_age_seconds": 1.467629482071713,
+      "mean_priorities_age_seconds": 1.467629482071713,
+      "condition": "preflight/controlled_cloud_all_20",
+      "stage": 4,
+      "mission_route": "cloud",
+      "communication_profile": "controlled",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 20,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 20.0,
+      "p95_task_age_seconds": 14.0,
+      "maximum_intentions_age_seconds": 20.0,
+      "p95_intentions_age_seconds": 14.0,
+      "maximum_priorities_age_seconds": 20.0,
+      "p95_priorities_age_seconds": 14.0,
+      "actual_stale_agents": 8,
+      "maximum_queue_bytes": 43406
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/perfect_repeat",
+      "stage": 1,
+      "mission_route": "uav",
+      "communication_profile": "perfect",
+      "stale_information": [],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/perfect_repeat",
+      "stage": 2,
+      "mission_route": "uav",
+      "communication_profile": "perfect",
+      "stale_information": [],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/perfect_repeat",
+      "stage": 3,
+      "mission_route": "uav",
+      "communication_profile": "perfect",
+      "stale_information": [],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "preflight/perfect_repeat",
+      "stage": 4,
+      "mission_route": "uav",
+      "communication_profile": "perfect",
+      "stale_information": [],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 0.0,
+      "p95_task_age_seconds": 0.0,
+      "maximum_intentions_age_seconds": 0.0,
+      "p95_intentions_age_seconds": 0.0,
+      "maximum_priorities_age_seconds": 0.0,
+      "p95_priorities_age_seconds": 0.0,
+      "actual_stale_agents": 0,
+      "maximum_queue_bytes": 0
+    },
+    {
+      "case_id": "agents-8-case-038",
+      "case": 38,
+      "num_agents": 8,
+      "seed": 50080038,
+      "starts": [
+        [
+          23,
+          21
+        ],
+        [
+          1,
+          20
+        ],
+        [
+          27,
+          28
+        ],
+        [
+          21,
+          5
+        ],
+        [
+          14,
+          12
+        ],
+        [
+          17,
+          2
+        ],
+        [
+          21,
+          9
+        ],
+        [
+          28,
+          5
+        ]
+      ],
+      "goals": [
+        [
+          1,
+          20
+        ],
+        [
+          23,
+          21
+        ],
+        [
+          21,
+          5
+        ],
+        [
+          27,
+          28
+        ],
+        [
+          17,
+          2
+        ],
+        [
+          14,
+          12
+        ],
+        [
+          28,
+          5
+        ],
+        [
+          21,
+          9
+        ]
+      ],
+      "steps": 250,
+      "success": false,
+      "successful_makespan": null,
+      "par2": 500,
+      "completion_fraction": 0.625,
+      "ever_completion_fraction": 0.625,
+      "collision_attempts": 0,
+      "uav_travel_m": 72.14015374673126,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.9960159362549801,
+      "mean_intentions_age_seconds": 0.9960159362549801,
+      "mean_priorities_age_seconds": 0.9960159362549801,
+      "condition": "preflight/orbital_cloud_all",
+      "stage": 4,
+      "mission_route": "cloud",
+      "communication_profile": "physical",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "delay_steps": 0,
+      "diagnostic": false,
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "maximum_task_age_seconds": 1.0,
+      "p95_task_age_seconds": 1.0,
+      "maximum_intentions_age_seconds": 1.0,
+      "p95_intentions_age_seconds": 1.0,
+      "maximum_priorities_age_seconds": 1.0,
+      "p95_priorities_age_seconds": 1.0,
+      "actual_stale_agents": 8,
+      "maximum_queue_bytes": 9336
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+extends = "panama_reproduction.toml"
+
+# Weekend partial training / proof of concept. Three policies, one seed.
+# 3 x 15.5 hours = 46.5 hours, leaving 1.5 hours of a 48-hour weekend
+# for preflight, process teardown and final saves. Cooperative time limits.
+[training]
+diagnostic_run = true
+max_wall_seconds = 55800.0
+target_environment_steps = 10000000
+num_actors = 2
+replay_capacity = 200000
+replay_checkpoint_size = 20000
+epsilon_decay_steps = 500000
+per_beta_steps = 8000000
+checkpoint_interval_steps = 50000
+validation_interval_episodes = 500
+validation_episodes = 50
+force_graduate_on_max_episodes = false
+
+[evaluation]
+training_seeds = [42]

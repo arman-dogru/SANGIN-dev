@@ -1,0 +1,20 @@
+[
+  {
+    "profile": "native",
+    "blocked_fraction": 0.003333333333306504,
+    "maximum_continuous_gap_seconds": 0.0500000000001819,
+    "source_sha256": "c24a66247cbf13e0b08a285e918b4b4e6115fe29d268e862cd5d5bd71efe187f"
+  },
+  {
+    "profile": "stress10",
+    "blocked_fraction": 0.37000925925924655,
+    "maximum_continuous_gap_seconds": 10.0,
+    "source_sha256": "c24a66247cbf13e0b08a285e918b4b4e6115fe29d268e862cd5d5bd71efe187f"
+  },
+  {
+    "profile": "stress20",
+    "blocked_fraction": 0.655331018518514,
+    "maximum_continuous_gap_seconds": 140.0,
+    "source_sha256": "c24a66247cbf13e0b08a285e918b4b4e6115fe29d268e862cd5d5bd71efe187f"
+  }
+]

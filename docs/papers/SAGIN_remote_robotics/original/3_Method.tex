@@ -1,0 +1,22 @@
+\section{Optimization Problem Formulation}
+
+We formulate a Mixed-Integer Non-Linear Programming (MINLP) problem to jointly optimize the routing decisions, transmit powers, and computational resource allocations. The objective is to minimize a weighted sum of the robots' transmission energy, the system latency, and the drone's energy load. Let $\omega_1, \omega_2, \omega_3$ be user-defined weighting coefficients such that $\omega_1 + \omega_2 + \omega_3 = 1$.
+
+
+The problem is mathematically formulated as:
+\begin{equation}
+\min_{\mathbf{x}, \mathbf{P}, \mathbf{f}_D, \mathbf{f}_C} \sum_{i=1}^N \left[ \omega_1 E^{\text{tx}}_i + \omega_2 T_i + \omega_3 E_{\text{Drone}, i} \right]
+\end{equation}
+
+\textbf{Subject to:}
+\begin{align}
+& T_i \le \tau_i, \quad \forall i \in \mathcal{N} \label{eq:c1} \\
+& 0 \le P_i \le P^{\text{max}}_{\text{robot}}, \quad \forall i \in \mathcal{N} \label{eq:c2} \\
+& \sum_{i=1}^N x_i f_{D,i} \le F^{\text{max}}_{\text{Drone}} \label{eq:c3} \\
+& \sum_{i=1}^N (1 - x_i) f_{C,i} \le F^{\text{max}}_{\text{Cloud}} \label{eq:c4} \\
+& f_{D,i} \ge 0, \quad f_{C,i} \ge 0, \quad \forall i \in \mathcal{N} \label{eq:c5} \\
+& x_i \in \{0, 1\}, \quad \forall i \in \mathcal{N} \label{eq:c6}
+\end{align}
+
+Constraint \eqref{eq:c1} ensures that tasks are processed within their maximum tolerable latency limit. Constraint \eqref{eq:c2} bounds the ground robots' transmit power. Constraints \eqref{eq:c3} and \eqref{eq:c4} ensure that the total allocated CPU frequencies do not exceed the respective maximum capacities of the Drone-AP and the Cloud server. Finally, constraints \eqref{eq:c5} and \eqref{eq:c6} define the bounds and domains of the continuous and binary variables, respectively.
+

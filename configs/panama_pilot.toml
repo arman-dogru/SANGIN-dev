@@ -1,0 +1,20 @@
+extends = "panama_reproduction.toml"
+
+# Diagnostic learning experiment, not a completed PANAMA reproduction.
+# Use train-mapf first: one policy, one seed, at most 100,000 joint steps.
+[training]
+diagnostic_run = true
+max_wall_seconds = 3600.0
+target_environment_steps = 100000
+num_actors = 2
+replay_capacity = 50000
+replay_checkpoint_size = 5000
+epsilon_decay_steps = 20000
+per_beta_steps = 100000
+checkpoint_interval_steps = 10000
+validation_interval_episodes = 100
+validation_episodes = 20
+force_graduate_on_max_episodes = false
+
+[evaluation]
+training_seeds = [42]

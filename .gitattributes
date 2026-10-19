@@ -1,0 +1,7 @@
+# Matplotlib SVG path formatting contains valid trailing whitespace.
+output/results/leo-learning-20261019-01/*.svg -whitespace
+# Preserve published output bytes so their SHA-256 checksums survive checkout.
+output/results/leo-inference-20261019-02/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+output/results/leo-inference-20261019-02/*.svg -whitespace
+output/results/deadline-handover-20261019-01/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+output/results/deadline-handover-20261019-01/*.svg -whitespace

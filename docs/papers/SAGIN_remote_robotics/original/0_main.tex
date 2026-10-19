@@ -1,0 +1,78 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+% Core math and fonts
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{textcomp}
+\usepackage{xcolor}
+
+% Algorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Graphics
+\usepackage{graphicx}
+\graphicspath{{Images/}}
+\DeclareGraphicsExtensions{.eps,.jpeg,.png}
+
+% Float and caption handling
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subfig}   % replaces subfigure
+
+% References and URLs
+\usepackage{cite}
+\usepackage{url}
+
+% Hyphenation
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+
+% Optional: highlights
+\usepackage{soul}
+
+\begin{document}
+
+\title{Joint SAGIN Resource Allocation and MAPF for Digital Twin Supported Remote Robotic Applications}
+
+\author{
+    \IEEEauthorblockN{Irem~Bor-Yaliniz\IEEEauthorrefmark{1}, 
+                      Arman~Dogru\IEEEauthorrefmark{2}, and 
+                      Georges~Kaddoum\IEEEauthorrefmark{1}}
+    \IEEEauthorblockA{\IEEEauthorrefmark{1}Department of Electrical Engineering, 
+                      École de Technologie Supérieure (U. du Québec), Montréal, Canada\\
+                      \{remziye-irem.bor-yaliniz, Georges.Kaddoum\}@etsmtl.ca}
+    \IEEEauthorblockA{\IEEEauthorrefmark{2}Computer Science Department, 
+                      University of Ottawa, Ottawa, Canada\\
+                      adogr056@uottawa.ca}
+}
+
+\maketitle
+
+\begin{abstract}
+%%% BASIC
+%Many automation scenarios, such as search \& rescue, defense and mining, operate in remote locations with unstable connectivity. In these scenarios, ubiquitous communications become a bottleneck for safe and efficient operations, where space-air-ground integrated networks (SAGIN) emerge as a critical enabler. However, the resulting system presents a complex resource allocation scenario involving SAGIN, optical inter-satellite links, and distributed computation to enable continuous digital twin (DT) verification. Specifically, this study investigates the co-design of DT resource distribution, optical backhaul and aerial RAN by proposing a semantic X-haul framework. We design a multi-agent path finding algorithm that is suitable for complex environments and utilize DTs to proactively control the operation. One aspect we test is emboided AI vs. cloud-based intelligence where the cost of unit robot and communications, as well as the reliability, latency and battery usage impacts are investigated. By investigating distributed vs. centralized DT and processing, we investigated delay, accuracy and energy cost. Finally, by feeding DT predictions into the trajectory planning for a low-altitude aerial access point, we demonstrate how the proposed intention sharing method can improve overall energy expenditure. 
+%%% LONG
+%In many automation scenarios, such as search and rescue, defense, and mining—operations are conducted in remote locations where network connectivity is often unstable. This lack of reliable communication becomes a bottleneck for safe and efficient operations. Space–air–ground integrated networks (SAGIN) have emerged as a key enabler in such environments. However, the resulting system introduces complex resource allocation challenges involving SAGIN, optical inter-satellite links, and distributed computation, particularly when continuous verification via digital twins (DTs) is required. This study investigates the co-design of DT resource distribution, optical backhaul, and aerial radio access networks (RAN) by proposing a semantic X-haul framework. We develop a multi-agent pathfinding algorithm suitable for complex environments and use DTs to proactively control system operation. A key comparison is drawn between embodied AI and cloud-based intelligence, evaluating trade-offs in unit robot and communication costs, reliability, latency, and battery usage. Furthermore, we analyze distributed versus centralized DT and processing architectures in terms of delay, accuracy, and energy cost. Finally, by feeding DT predictions into the trajectory planning of a low‑altitude aerial access point, we demonstrate that the proposed intention‑sharing method can significantly improve overall energy efficiency.
+%%% 200 WORDS
+Automation scenarios such as search and rescue, defense, and mining often operate in remote locations with unstable connectivity, making reliable communication a bottleneck for safe and efficient operations. Space–air–ground integrated networks (SAGIN) are a critical enabler, yet they introduce complex resource allocation challenges involving optical inter-satellite links and distributed computation for continuous digital twin (DT) verification. This study proposes a semantic X‑haul framework for the co‑design of DT resource distribution, optical backhaul, and aerial radio access networks. A multi‑agent pathfinding algorithm suitable for complex environments is developed, using DTs for proactive control. We compare embodied AI versus cloud‑based intelligence, evaluating trade‑offs in unit cost, reliability, latency, and battery usage. Additionally, distributed and centralized DT architectures are analyzed in terms of delay, accuracy, and energy cost. Finally, by feeding DT predictions into the trajectory planning of a low‑altitude aerial access point, we demonstrate that an intention‑sharing method can improve overall energy expenditure. The results highlight the benefits of jointly designing computation and communications from algorithm design to resource allocation and exemplifies the unavoidable convergence between them.
+
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+Satellite communications, robotics, cyber-physical systems, space-air-ground integrated networks, multi-agent path finding, 6G.
+\end{IEEEkeywords}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{image.png}
+    \caption{System model including SAGIN elements and cyber-physical systems operation in a remote location}
+    \label{fig:placeholder}
+\end{figure}
+
+\input{1_Intro.tex}
+\input{2_System}
+\input{3_Method.tex}
+\input{4_Simulations.tex}
+\bibliography{library.bib}
+\bibliographystyle{IEEEtran}
+\end{document}

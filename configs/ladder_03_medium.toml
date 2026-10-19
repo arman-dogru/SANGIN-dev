@@ -1,0 +1,89 @@
+extends = "base.toml"
+
+# First from-scratch rung. It adds room and maze geometry, doubles the actor
+# count, and tests generalization beyond the maximum trained agent count.
+[training]
+target_environment_steps = 1000000
+replay_capacity = 500000
+replay_checkpoint_size = 10000
+epsilon_decay_steps = 750000
+per_beta_steps = 750000
+num_actors = 8
+checkpoint_interval_steps = 50000
+validation_interval_episodes = 250
+validation_episodes = 50
+
+[curriculum]
+[[curriculum.stages]]
+name = "medium-random-32-10-2"
+map_path = "maps/random-32-32-10.map"
+num_agents = 2
+max_episode_steps = 200
+min_episodes = 1000
+max_episodes = 3000
+graduation_success_rate = 0.85
+
+[[curriculum.stages]]
+name = "medium-random-32-10-4"
+map_path = "maps/random-32-32-10.map"
+num_agents = 4
+max_episode_steps = 200
+min_episodes = 1000
+max_episodes = 4000
+graduation_success_rate = 0.75
+
+[[curriculum.stages]]
+name = "medium-random-32-20-4"
+map_path = "maps/random-32-32-20.map"
+num_agents = 4
+max_episode_steps = 200
+min_episodes = 1000
+max_episodes = 4000
+graduation_success_rate = 0.70
+
+[[curriculum.stages]]
+name = "medium-random-32-20-8"
+map_path = "maps/random-32-32-20.map"
+num_agents = 8
+max_episode_steps = 200
+min_episodes = 2000
+max_episodes = 8000
+graduation_success_rate = 0.60
+
+[[curriculum.stages]]
+name = "medium-room-32-4"
+map_path = "maps/room-32-32-4.map"
+num_agents = 4
+max_episode_steps = 300
+min_episodes = 1000
+max_episodes = 4000
+graduation_success_rate = 0.70
+
+[[curriculum.stages]]
+name = "medium-room-32-8"
+map_path = "maps/room-32-32-4.map"
+num_agents = 8
+max_episode_steps = 300
+min_episodes = 2000
+max_episodes = 8000
+graduation_success_rate = 0.60
+
+[[curriculum.stages]]
+name = "medium-maze-32-8"
+map_path = "maps/maze-32-32-2.map"
+num_agents = 8
+max_episode_steps = 300
+min_episodes = 2000
+max_episodes = 8000
+graduation_success_rate = 0.55
+
+[evaluation]
+agent_counts = [4, 8, 16]
+scenario_directories = [
+  "scens/scen-random-32-32-10",
+  "scens/room-32-32-4",
+]
+training_seeds = [42]
+bootstrap_samples = 1000
+save_step_telemetry = true
+failure_trace_limit = 30

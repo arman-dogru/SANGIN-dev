@@ -1,0 +1,27 @@
+extends = "panama_weekend.toml"
+
+# One-seed, four-setup comparison run. The three independently trained policies
+# retain a combined 46.5-hour wall-time ceiling. Setup 3 reuses setup 1 exactly.
+# Evaluation is limited to trained agent counts and keeps full scalar episode
+# records while saving detailed traces only for failures.
+
+[reward]
+# Setup 4 alone receives this shared cost, normalized by the UAV's maximum
+# movement per step. It makes lower UAV travel an explicit learned objective.
+uav_movement_penalty = -0.02
+
+[training]
+target_environment_steps = 12000000
+replay_capacity = 300000
+replay_checkpoint_size = 30000
+epsilon_decay_steps = 3000000
+per_beta_steps = 10000000
+validation_interval_episodes = 500
+validation_episodes = 100
+
+[evaluation]
+agent_counts = [4, 8, 12]
+training_seeds = [42]
+save_step_telemetry = false
+failure_trace_limit = 20
+allow_partial_models = true

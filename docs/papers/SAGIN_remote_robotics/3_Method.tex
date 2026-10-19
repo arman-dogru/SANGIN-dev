@@ -1,0 +1,272 @@
+\section{Optimization Problem Formulation}
+
+We formulate a Mixed-Integer Non-Linear Programming (MINLP) problem to jointly optimize the routing decisions, transmit powers, and computational resource allocations. The objective is to minimize a weighted sum of the robots' transmission energy, the system latency, and the drone's energy load. Let $\omega_1, \omega_2, \omega_3$ be user-defined weighting coefficients such that $\omega_1 + \omega_2 + \omega_3 = 1$.
+
+
+The problem is mathematically formulated as:
+\begin{equation}
+\min_{\mathbf{x}, \mathbf{P}, \mathbf{f}_D, \mathbf{f}_C} \sum_{i=1}^N \left[ \omega_1 E^{\text{tx}}_i + \omega_2 T_i + \omega_3 E_{\text{Drone}, i} \right]
+\end{equation}
+
+\textbf{Subject to:}
+\begin{align}
+& T_i \le \tau_i, \quad \forall i \in \mathcal{N} \label{eq:c1} \\
+& 0 \le P_i \le P^{\text{max}}_{\text{robot}}, \quad \forall i \in \mathcal{N} \label{eq:c2} \\
+& \sum_{i=1}^N x_i f_{D,i} \le F^{\text{max}}_{\text{Drone}} \label{eq:c3} \\
+& \sum_{i=1}^N (1 - x_i) f_{C,i} \le F^{\text{max}}_{\text{Cloud}} \label{eq:c4} \\
+& f_{D,i} \ge 0, \quad f_{C,i} \ge 0, \quad \forall i \in \mathcal{N} \label{eq:c5} \\
+& x_i \in \{0, 1\}, \quad \forall i \in \mathcal{N} \label{eq:c6}
+\end{align}
+
+Constraint \eqref{eq:c1} ensures that tasks are processed within their maximum tolerable latency limit. Constraint \eqref{eq:c2} bounds the ground robots' transmit power. Constraints \eqref{eq:c3} and \eqref{eq:c4} ensure that the total allocated CPU frequencies do not exceed the respective maximum capacities of the Drone-AP and the Cloud server. Finally, constraints \eqref{eq:c5} and \eqref{eq:c6} define the bounds and domains of the continuous and binary variables, respectively.
+
+
+% BEGIN PANAMA ADDITIONS: PANAMA under communication delay
+\begin{panamaaddition}
+\subsection{PANAMA Policy with Cached Mission Information}
+We use PANAMA's shared dual-stream action-value network, Double DQN learner,
+prioritized experience replay (PER), task reward, and exploration mechanism~\cite{panama}.
+Nominal learning parameters follow Table~III of PANAMA, including discount
+$\gamma=0.99$, AdamW learning rate $10^{-4}$, minibatch size $M=64$, replay
+capacity $2\times10^6$, and target mixing coefficient $\eta_{\rm tar}=0.005$.
+The communication mechanism introduces no additional reward, imitation policy,
+or recovery action. We consider the task-policy channels for obstacles,
+visible robots, and communicated intentions, with UAV-mediated transport.
+Terrestrial radio maps and additional SNR-based shaping are outside this
+algorithmic extension.
+
+An accepted guidance payload contains an absolute A* route
+$\mathcal{P}_i=(\mathbf{w}_{i,0},\ldots,\mathbf{w}_{i,L})$ and reported
+distance $\widehat{d}_i$. The processor computes the route from the position
+in the generating report to $\mathbf{g}_i$, using the static obstacle map.
+While awaiting another guidance message, robot $i$ consumes waypoints it has
+already reached and retains the remaining absolute route. On late delivery,
+it also removes waypoints reached since that route's source timestamp.
+It neither recomputes A* locally nor translates old relative offsets as if
+they referred to its current position. The reported distance remains the
+received value until another guidance update arrives.
+
+Let $\widehat{\mathbf{w}}_{i,k}(n)$ denote the $k$th remaining waypoint.
+The waypoint features use current self-position,
+\begin{equation}
+ \widehat{\mathbf{u}}_{i,k}(n)=
+ \operatorname{clip}_{[-1,1]}
+ \!\left(\frac{\widehat{\mathbf{w}}_{i,k}(n)-\mathbf{q}_i(n)}{h}\right),
+ \label{eq:panama-waypoint}
+\end{equation}
+where clipping is componentwise, $h=7$ is the PANAMA field-of-view radius,
+and $k\in\{1,\ldots,K\}$ with $K=5$. Unavailable waypoints contribute zero
+features. The retained task vector concatenates normalized reported distance,
+the local ever-reached-goal flag $f_i^g(n)$, and these waypoint pairs:
+\begin{equation}
+ \widehat{\mathbf{v}}_i(n)=
+ (\widehat{d}_i/d_i^0,\ f_i^g(n),\
+  \widehat{\mathbf{u}}_{i,1},\ldots,\widehat{\mathbf{u}}_{i,K}),
+ \label{eq:panama-vector}
+\end{equation}
+with distance clipped to $[0,1]$ and the initial briefing distance $d_i^0$
+as normalizer. A nonpositive or nonfinite normalizer uses the map's larger
+dimension, as in the retained task implementation. The goal remains known
+even when the route or its reported distance is stale.
+
+Let $\widehat{\mathcal{I}}_{j\rightarrow i}(n)$ be the last received absolute
+path segment of peer $j$, and let $\widehat{\rho}_{j\rightarrow i}(n)$ be its
+received priority, with smaller values indicating higher priority. Robot $i$
+forms the intention channel from peers whose received priority precedes its
+own received priority, subject to PANAMA's communication range, local
+field of view, and received completion flag. A cached path cell
+$\mathbf{w}$ is placed relative to the current $\mathbf{q}_i(n)$.
+Writing $\mathcal{R}_i(n)$ for the eligible peers within PANAMA's communication
+range and $\widehat{f}_{j\rightarrow i}^{g}$ for their received completion
+flags, the contributing set is
+\begin{equation}
+ \mathcal{H}_i(n)=\left\{j\in\mathcal{R}_i(n)\setminus\{i\}:
+ \begin{array}{l}
+  \widehat{\rho}_{j\rightarrow i}<\widehat{\rho}_{i\rightarrow i},\\
+  \widehat{f}_{j\rightarrow i}^{g}=0
+ \end{array}\right\}.
+ \label{eq:panama-peer-set}
+\end{equation}
+For a relative field-of-view cell $\mathbf{z}$, the intention-channel value is
+\begin{equation}
+ \widehat{O}_i^I(\mathbf{z},n)=\mathbf{1}\!\left\{
+ \mathbf{q}_i(n)+\mathbf{z}\in
+ \bigcup_{j\in\mathcal{H}_i(n)}\widehat{\mathcal{I}}_{j\rightarrow i}(n)
+ \right\}.
+ \label{eq:panama-intention-mask}
+\end{equation}
+Communication loss therefore leaves the peer's old segment in the observation,
+while local sensing can still reveal its actual nearby position. Denoting
+fresh obstacle and robot channels by $O_i^{\rm obs}(n)$ and
+$O_i^{\rm rob}(n)$, the policy input is
+\begin{equation}
+ \widehat{o}_i(n)=
+ \big([O_i^{\rm obs},O_i^{\rm rob},\widehat{O}_i^I],
+       \widehat{\mathbf{v}}_i\big).
+ \label{eq:panama-observation}
+\end{equation}
+Each robot continues choosing among north, south, east, west, and wait using
+this available input. Communication unavailability does not itself mandate
+waiting or insert an external collision-recovery controller.
+
+\subsection{Received Experiences and Continued Learner Operation}
+After joint action $n$, robot $i$ produces the complete transition
+\begin{equation}
+ \zeta_i(n)=
+ (\widehat{o}_i(n),a_i(n),r_i(n+1),
+  \widehat{o}_i(n+1),z(n+1)),
+ \label{eq:panama-transition}
+\end{equation}
+where $z$ is the task simulator's terminal flag. The tuple is captured at
+$t_{n+1}$ together with robot, episode, joint-step, and deployed-version
+identifiers. Upload delay changes only its arrival time,
+\begin{equation}
+ b_i^E(n)=t_{n+1}+\delta_i^E(n).
+ \label{eq:panama-upload}
+\end{equation}
+The transition's observations, action, reward, and terminal flag remain tied
+to their generating step, regardless of later robot motion or weight updates.
+
+At learner time $t$, the received subset of the $N$ expected transitions
+from joint action $n$ is
+\begin{equation}
+ \mathcal{U}_n(t)=\{i\in\mathcal{N}:b_i^E(n)\leq t\}.
+ \label{eq:panama-subset}
+\end{equation}
+The replay buffer contains only fully received transitions, subject to its
+capacity and curriculum-phase retention rule. In particular,
+\begin{equation}
+ \mathcal{B}(t)\subseteq
+ \bigcup_{n:\,t_{n+1}\leq t}
+ \{\zeta_i(n):i\in\mathcal{U}_n(t)\}.
+ \label{eq:panama-replay}
+\end{equation}
+The set on the right ranges over all generated joint actions. The learner
+does not require $\mathcal{U}_n(t)=\mathcal{N}$ before learning. It can use
+received experiences from unaffected robots and previously delivered replay
+samples while other uploads remain pending. If all current uploads are
+delayed, existing replay still supports updates. A learning opportunity is
+skipped only when insufficient replay data are available. Late experiences
+from a completed curriculum phase are excluded from the new phase's replay.
+
+For each sampled transition $\zeta=(o,a,r,o',z)$, the retained Double DQN
+target and weighted Huber loss are
+\begin{align}
+ a_\zeta^*&=\operatorname*{arg\,max}_{a'}Q_\theta(o',a'),\\
+ y_\zeta&=r+\gamma(1-z)Q_{\theta^-}(o',a_\zeta^*),\\
+ \mathcal{L}(\theta)&=\frac{1}{M}
+       \sum_{\zeta\in\mathcal{J}(t)}
+       w_\zeta\,\ell_{\rm H}\big(Q_\theta(o,a)-y_\zeta\big),
+ \label{eq:panama-loss}
+\end{align}
+where $\mathcal{J}(t)$ is a PER minibatch from $\mathcal{B}(t)$ and
+$w_\zeta$ is its importance-sampling weight. AdamW updates $\theta$ and the
+target follows
+$\theta^-\leftarrow(1-\eta_{\rm tar})\theta^-+\eta_{\rm tar}\theta$.
+The delayed upload can change data availability and replay age, but does not
+replace the learning rule with an update based on incomplete tuples.
+The learner is off-policy: an experience collected with an older deployed
+version remains a complete training sample, and the learner evaluates its
+target with the current policy and target networks. Recording the generating
+version permits analysis of this mismatch without requiring every robot to
+hold the latest model before a learner update.
+
+\subsection{Complete Model Deployment and Per-Robot Staleness}
+Let $\Theta^\ell$ be the immutable complete model snapshot published at time
+$u_\ell$, with increasing publication version $\ell$. For robot $i$, its
+completed downlink arrival is
+\begin{equation}
+ b_i^W(\ell)=u_\ell+\delta_i^W(\ell).
+ \label{eq:panama-download}
+\end{equation}
+Immediately before action $n$, robot $i$ uses
+\begin{align}
+ v_i(n)&=\max\{\ell:b_i^W(\ell)\leq t_n\},\\
+ \widetilde{\theta}_i(n)&=\Theta^{v_i(n)},
+ \label{eq:panama-deployed}
+\end{align}
+with a complete initial model available at $t_0$. A receiver installs a newer
+snapshot atomically after full reception, before its next action. It never
+mixes layers, partially received parameters, or components of two versions.
+A late snapshot with $\ell\leq v_i(n)$ cannot roll the deployed model back.
+
+The action is selected by the standard epsilon-greedy rule,
+\begin{align}
+ a_i^*(n)&=\operatorname*{arg\,max}_{a\in\mathcal{A}}
+     Q_{\widetilde{\theta}_i(n)}(\widehat{o}_i(n),a),\\
+ \pi_i(a\mid\widehat{o}_i;n)&=\frac{\epsilon_n}{|\mathcal{A}|}
+       +(1-\epsilon_n)\mathbf{1}\{a=a_i^*(n)\}.
+ \label{eq:panama-action}
+\end{align}
+Exploration retains PANAMA's schedule and depends on generated environment
+steps, not on delivered experience counts. A missing downlink update leaves
+$\widetilde{\theta}_i(n)$ unchanged while the robot continues acting.
+Other robots can install newer snapshots independently, and the centralized
+learner can continue optimizing its current model. Publications occur every
+$H$ generated joint actions, with the same $H$ in all learning conditions.
+
+Let $\ell_{\rm pub}(t_n)$ be the latest published version. We separately
+measure model-version lag and model age,
+\begin{align}
+ L_i^W(n)&=\ell_{\rm pub}(t_n)-v_i(n),\\
+ A_i^W(n)&=t_n-u_{v_i(n)}.
+ \label{eq:panama-model-age}
+\end{align}
+Experience delivery age is $b_i^E(n)-t_{n+1}$; replay age at sampling time
+$t$ is $t-t_{n+1}$. These quantities distinguish old policy execution from
+old learning data without treating either as a halted mission.
+
+\subsection{Operation and Separation of Communication Effects}
+Algorithm~\ref{alg:panama-delay} summarizes the event-driven execution.
+The flag $\chi_L$ equals one when learning is enabled and zero during
+frozen-policy inference.
+One learning opportunity follows each generated joint action. Generated
+steps, delivered experiences, completed learner updates, and published models
+are counted independently. Delayed uploads cannot redefine the step counter
+or prevent other robots from contributing experiences. The simulator advances
+its communication clock with robot actions and processes arrivals at their
+timestamps, without a wall-clock sleep representing communication delay.
+
+\begin{algorithm}[t]
+\color{panamaaddition}
+\captionsetup{font={color=panamaaddition},labelfont={color=panamaaddition}}
+\caption{PANAMA with timestamped information and learning transport}
+\label{alg:panama-delay}
+\begin{algorithmic}[1]
+\Require Initial caches, model $\Theta^0$, replay $\mathcal{B}$, $\chi_L$
+\For{each generated joint action $n$}
+  \State Process completed arrivals up to decision time $t_n$
+  \State Accept newer information and complete model versions
+  \For{each robot $i\in\mathcal{N}$}
+    \State Sense locally and consume reached cached waypoints
+    \State Construct $\widehat{o}_i(n)$ and act with $\Theta^{v_i(n)}$
+  \EndFor
+  \State Apply joint action using the true physical transition
+  \State Advance event time and process completed arrivals
+  \For{each robot $i\in\mathcal{N}$}
+    \State Submit timestamped mission reports to the transport
+    \State Capture and queue the complete $\zeta_i(n)$
+  \EndFor
+  \State Insert newly received eligible experiences into $\mathcal{B}$
+  \If{$\chi_L=1$ and $|\mathcal{B}|\geq M$}
+    \State Perform one standard PER/Double DQN update
+  \EndIf
+  \If{$\chi_L=1$ and $n+1$ is a multiple of $H$}
+    \State Publish and queue complete snapshot $\Theta^{\ell+1}$
+  \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+For frozen-policy mission analysis, all robots use one fixed snapshot and
+learning is disabled. The transport changes only the selected guidance,
+intention, or priority streams; unselected inputs remain current. For
+learning-transport analysis, mission information remains current and we
+compare immediate upload and deployment with delayed upload, delayed
+deployment, and their combination. The same initialization and nominal PANAMA
+parameters apply to those learning conditions. This separation attributes
+mission effects to stale communicated information and learning effects to
+received-data or deployed-model staleness. It makes no assumption that a
+communication delay necessarily reduces success.
+\end{panamaaddition}
+% END PANAMA ADDITIONS: PANAMA under communication delay

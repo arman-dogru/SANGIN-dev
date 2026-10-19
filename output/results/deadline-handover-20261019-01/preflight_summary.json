@@ -1,0 +1,4107 @@
+{
+  "status": "passed",
+  "diagnostic_episodes": 37,
+  "elapsed_seconds": 16.093999998643994,
+  "phase_and_input_isolation_verified": true,
+  "perfect_matches_previous": true,
+  "uav_edge_matches_perfect": true,
+  "rows": [
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "perfect",
+      "stage": 1,
+      "group": "perfect",
+      "fields": "perfect",
+      "mission_route": "uav",
+      "stale_information": [],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 0,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.0,
+      "information_deliveries": 0,
+      "information_delivery_p95_seconds": null,
+      "information_delivery_max_seconds": null,
+      "maximum_queue_bytes": 0,
+      "satellite_changes_observed": 0,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "perfect",
+      "stage": 2,
+      "group": "perfect",
+      "fields": "perfect",
+      "mission_route": "uav",
+      "stale_information": [],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 0,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.0,
+      "information_deliveries": 0,
+      "information_delivery_p95_seconds": null,
+      "information_delivery_max_seconds": null,
+      "maximum_queue_bytes": 0,
+      "satellite_changes_observed": 0,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "perfect",
+      "stage": 3,
+      "group": "perfect",
+      "fields": "perfect",
+      "mission_route": "uav",
+      "stale_information": [],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 0,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.0,
+      "information_deliveries": 0,
+      "information_delivery_p95_seconds": null,
+      "information_delivery_max_seconds": null,
+      "maximum_queue_bytes": 0,
+      "satellite_changes_observed": 0,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "perfect",
+      "stage": 4,
+      "group": "perfect",
+      "fields": "perfect",
+      "mission_route": "uav",
+      "stale_information": [],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 0,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.0,
+      "information_deliveries": 0,
+      "information_delivery_p95_seconds": null,
+      "information_delivery_max_seconds": null,
+      "maximum_queue_bytes": 0,
+      "satellite_changes_observed": 0,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.13333333333333372,
+      "mean_intentions_age_seconds": 0.13333333333333372,
+      "mean_priorities_age_seconds": 0.13333333333333372,
+      "condition": "edge_control_all",
+      "stage": 1,
+      "group": "edge_control",
+      "fields": "all",
+      "mission_route": "uav",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 150,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.09999999999990905,
+      "decision_mean_task_age_seconds": 0.1000000000000004,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.1000000000000004,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.1000000000000004,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000041,
+      "information_deliveries": 150,
+      "information_delivery_p95_seconds": 0.00046671999999894345,
+      "information_delivery_max_seconds": 0.0005143999999996929,
+      "maximum_queue_bytes": 1606,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 2
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.12250000000000072,
+      "mean_intentions_age_seconds": 0.12250000000000072,
+      "mean_priorities_age_seconds": 0.12250000000000072,
+      "condition": "edge_control_all",
+      "stage": 2,
+      "group": "edge_control",
+      "fields": "all",
+      "mission_route": "uav",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 456,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.14999999999986358,
+      "decision_mean_task_age_seconds": 0.10000000000000074,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.10000000000000074,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.10000000000000074,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000075,
+      "information_deliveries": 456,
+      "information_delivery_p95_seconds": 0.0009038399999992119,
+      "information_delivery_max_seconds": 0.0010267199999998144,
+      "maximum_queue_bytes": 3212,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 3
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.13103448275862115,
+      "mean_intentions_age_seconds": 0.13103448275862115,
+      "mean_priorities_age_seconds": 0.13103448275862115,
+      "condition": "edge_control_all",
+      "stage": 3,
+      "group": "edge_control",
+      "fields": "all",
+      "mission_route": "uav",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 486,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.09999999999990905,
+      "decision_mean_task_age_seconds": 0.10000000000000046,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.10000000000000046,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.10000000000000046,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000049,
+      "information_deliveries": 486,
+      "information_delivery_p95_seconds": 0.001364080000001544,
+      "information_delivery_max_seconds": 0.0015184000000001419,
+      "maximum_queue_bytes": 4818,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 2
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.1173076923076932,
+      "mean_intentions_age_seconds": 0.1173076923076932,
+      "mean_priorities_age_seconds": 0.1173076923076932,
+      "condition": "edge_control_all",
+      "stage": 4,
+      "group": "edge_control",
+      "fields": "all",
+      "mission_route": "uav",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 1200,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.1999999999998181,
+      "decision_mean_task_age_seconds": 0.1000000000000009,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.1000000000000009,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.1000000000000009,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000091,
+      "information_deliveries": 1200,
+      "information_delivery_p95_seconds": 0.0021894240000038144,
+      "information_delivery_max_seconds": 0.0024593600000000215,
+      "maximum_queue_bytes": 6424,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 3
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.13333333333333372,
+      "mean_intentions_age_seconds": 0.13333333333333372,
+      "mean_priorities_age_seconds": 0.13333333333333372,
+      "condition": "handover_off_all",
+      "stage": 1,
+      "group": "handover_off",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 150,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.1000000000000004,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.1000000000000004,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.1000000000000004,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000041,
+      "information_deliveries": 150,
+      "information_delivery_p95_seconds": 0.029280731595506992,
+      "information_delivery_max_seconds": 0.029555733034241083,
+      "maximum_queue_bytes": 1606,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.12250000000000072,
+      "mean_intentions_age_seconds": 0.12250000000000072,
+      "mean_priorities_age_seconds": 0.12250000000000072,
+      "condition": "handover_off_all",
+      "stage": 2,
+      "group": "handover_off",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 456,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.10000000000000074,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.10000000000000074,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.10000000000000074,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000075,
+      "information_deliveries": 456,
+      "information_delivery_p95_seconds": 0.03537916036755273,
+      "information_delivery_max_seconds": 0.03760929098093668,
+      "maximum_queue_bytes": 3212,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.13103448275862115,
+      "mean_intentions_age_seconds": 0.13103448275862115,
+      "mean_priorities_age_seconds": 0.13103448275862115,
+      "condition": "handover_off_all",
+      "stage": 3,
+      "group": "handover_off",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 486,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.10000000000000046,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.10000000000000046,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.10000000000000046,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000049,
+      "information_deliveries": 486,
+      "information_delivery_p95_seconds": 0.04167027605757134,
+      "information_delivery_max_seconds": 0.0452212489267918,
+      "maximum_queue_bytes": 4818,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.1173076923076932,
+      "mean_intentions_age_seconds": 0.1173076923076932,
+      "mean_priorities_age_seconds": 0.1173076923076932,
+      "condition": "handover_off_all",
+      "stage": 4,
+      "group": "handover_off",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 1200,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.049999999999954525,
+      "decision_mean_task_age_seconds": 0.1000000000000009,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.1000000000000009,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.1000000000000009,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000091,
+      "information_deliveries": 1200,
+      "information_delivery_p95_seconds": 0.06469823780285075,
+      "information_delivery_max_seconds": 0.09738479564911984,
+      "maximum_queue_bytes": 6424,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.13333333333333372,
+      "mean_intentions_age_seconds": 0.13333333333333372,
+      "mean_priorities_age_seconds": 0.13333333333333372,
+      "condition": "handover_on_all",
+      "stage": 1,
+      "group": "handover_on",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 150,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.09999999999990905,
+      "decision_mean_task_age_seconds": 0.1000000000000004,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.1000000000000004,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.1000000000000004,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000041,
+      "information_deliveries": 150,
+      "information_delivery_p95_seconds": 0.0774947625567068,
+      "information_delivery_max_seconds": 0.07933863673005526,
+      "maximum_queue_bytes": 1606,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 2
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.12250000000000072,
+      "mean_intentions_age_seconds": 0.12250000000000072,
+      "mean_priorities_age_seconds": 0.12250000000000072,
+      "condition": "handover_on_all",
+      "stage": 2,
+      "group": "handover_on",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 456,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.14999999999986358,
+      "decision_mean_task_age_seconds": 0.10000000000000074,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.10000000000000074,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.10000000000000074,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000075,
+      "information_deliveries": 456,
+      "information_delivery_p95_seconds": 0.0796475529114371,
+      "information_delivery_max_seconds": 0.08768846096354643,
+      "maximum_queue_bytes": 3212,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 3
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.13103448275862115,
+      "mean_intentions_age_seconds": 0.13103448275862115,
+      "mean_priorities_age_seconds": 0.13103448275862115,
+      "condition": "handover_on_all",
+      "stage": 3,
+      "group": "handover_on",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 486,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.09999999999990905,
+      "decision_mean_task_age_seconds": 0.10000000000000046,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.10000000000000046,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.10000000000000046,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000049,
+      "information_deliveries": 486,
+      "information_delivery_p95_seconds": 0.0814206207049093,
+      "information_delivery_max_seconds": 0.09457748519713327,
+      "maximum_queue_bytes": 4818,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 2
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.1173076923076932,
+      "mean_intentions_age_seconds": 0.1269230769230778,
+      "mean_priorities_age_seconds": 0.15576923076923166,
+      "condition": "handover_on_all",
+      "stage": 4,
+      "group": "handover_on",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 1200,
+      "deadline_misses": 20,
+      "deadline_miss_fraction": 0.016666666666666666,
+      "previous_cycle_sources": 20,
+      "source_stale_fraction": 0.016666666666666666,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.1999999999998181,
+      "decision_mean_task_age_seconds": 0.1000000000000009,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.10980392156862835,
+      "decision_max_intentions_age_seconds": 1.0999999999999996,
+      "decision_mean_priorities_age_seconds": 0.1392156862745107,
+      "decision_max_priorities_age_seconds": 1.1000000000000014,
+      "selected_input_mean_age_seconds": 0.11666666666666757,
+      "information_deliveries": 1200,
+      "information_delivery_p95_seconds": 0.08805094690443424,
+      "information_delivery_max_seconds": 0.12087930943031999,
+      "maximum_queue_bytes": 14117,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 3
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 32,
+      "success": true,
+      "successful_makespan": 32,
+      "par2": 32,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 32.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 3.460606060606061,
+      "mean_intentions_age_seconds": 3.460606060606061,
+      "mean_priorities_age_seconds": 3.460606060606061,
+      "condition": "stress_10s_all",
+      "stage": 1,
+      "group": "stress_10s",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 186,
+      "deadline_misses": 120,
+      "deadline_miss_fraction": 0.6451612903225806,
+      "previous_cycle_sources": 120,
+      "source_stale_fraction": 0.6451612903225806,
+      "artificial_handover_seconds": 10,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 20.0,
+      "decision_mean_task_age_seconds": 3.5375000000000005,
+      "decision_max_task_age_seconds": 10.100000000000001,
+      "decision_mean_intentions_age_seconds": 3.5375000000000005,
+      "decision_max_intentions_age_seconds": 10.100000000000001,
+      "decision_mean_priorities_age_seconds": 3.5375000000000005,
+      "decision_max_priorities_age_seconds": 10.100000000000001,
+      "selected_input_mean_age_seconds": 3.6483870967741945,
+      "information_deliveries": 186,
+      "information_delivery_p95_seconds": 10.027213848905216,
+      "information_delivery_max_seconds": 10.029249986948768,
+      "maximum_queue_bytes": 31200,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 2
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 54,
+      "success": true,
+      "successful_makespan": 54,
+      "par2": 54,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 54.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 3.2254545454545465,
+      "mean_intentions_age_seconds": 3.243636363636365,
+      "mean_priorities_age_seconds": 3.2481818181818194,
+      "condition": "stress_10s_all",
+      "stage": 2,
+      "group": "stress_10s",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 636,
+      "deadline_misses": 394,
+      "deadline_miss_fraction": 0.6194968553459119,
+      "previous_cycle_sources": 394,
+      "source_stale_fraction": 0.6194968553459119,
+      "artificial_handover_seconds": 10,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 30.049999999999955,
+      "decision_mean_task_age_seconds": 3.266666666666668,
+      "decision_max_task_age_seconds": 10.100000000000001,
+      "decision_mean_intentions_age_seconds": 3.2851851851851865,
+      "decision_max_intentions_age_seconds": 10.100000000000001,
+      "decision_mean_priorities_age_seconds": 3.289814814814816,
+      "decision_max_priorities_age_seconds": 10.100000000000001,
+      "selected_input_mean_age_seconds": 3.3405660377358504,
+      "information_deliveries": 636,
+      "information_delivery_p95_seconds": 10.027767258763514,
+      "information_delivery_max_seconds": 10.036599678432209,
+      "maximum_queue_bytes": 113340,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 3
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 60,
+      "success": true,
+      "successful_makespan": 60,
+      "par2": 60,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 60.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 3.1010928961748645,
+      "mean_intentions_age_seconds": 3.1202185792349737,
+      "mean_priorities_age_seconds": 3.1311475409836076,
+      "condition": "stress_10s_all",
+      "stage": 3,
+      "group": "stress_10s",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 1062,
+      "deadline_misses": 594,
+      "deadline_miss_fraction": 0.559322033898305,
+      "previous_cycle_sources": 594,
+      "source_stale_fraction": 0.559322033898305,
+      "artificial_handover_seconds": 10,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 30.049999999999955,
+      "decision_mean_task_age_seconds": 3.1361111111111124,
+      "decision_max_task_age_seconds": 10.100000000000001,
+      "decision_mean_intentions_age_seconds": 3.155555555555557,
+      "decision_max_intentions_age_seconds": 10.100000000000001,
+      "decision_mean_priorities_age_seconds": 3.166666666666668,
+      "decision_max_priorities_age_seconds": 10.100000000000001,
+      "selected_input_mean_age_seconds": 3.2045197740113003,
+      "information_deliveries": 1062,
+      "information_delivery_p95_seconds": 9.978886022859479,
+      "information_delivery_max_seconds": 10.043488569915722,
+      "maximum_queue_bytes": 193626,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 3
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 76,
+      "success": true,
+      "successful_makespan": 76,
+      "par2": 76,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 2,
+      "uav_travel_m": 76.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 3.3941558441558444,
+      "mean_intentions_age_seconds": 3.4055194805194806,
+      "mean_priorities_age_seconds": 3.4331168831168832,
+      "condition": "stress_10s_all",
+      "stage": 4,
+      "group": "stress_10s",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 1800,
+      "deadline_misses": 1056,
+      "deadline_miss_fraction": 0.5866666666666667,
+      "previous_cycle_sources": 1056,
+      "source_stale_fraction": 0.5866666666666667,
+      "artificial_handover_seconds": 10,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 40.049999999999955,
+      "decision_mean_task_age_seconds": 3.4256578947368426,
+      "decision_max_task_age_seconds": 10.100000000000001,
+      "decision_mean_intentions_age_seconds": 3.4371710526315793,
+      "decision_max_intentions_age_seconds": 10.100000000000001,
+      "decision_mean_priorities_age_seconds": 3.4651315789473687,
+      "decision_max_priorities_age_seconds": 10.100000000000001,
+      "selected_input_mean_age_seconds": 3.4872222222222216,
+      "information_deliveries": 1800,
+      "information_delivery_p95_seconds": 10.028214552539465,
+      "information_delivery_max_seconds": 10.070790261398924,
+      "maximum_queue_bytes": 480720,
+      "satellite_changes_observed": 4,
+      "satellite_interruption_events_applied": 4
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 72,
+      "success": true,
+      "successful_makespan": 72,
+      "par2": 72,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 72.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 21.31780821917808,
+      "mean_intentions_age_seconds": 21.31780821917808,
+      "mean_priorities_age_seconds": 21.331506849315065,
+      "condition": "stress_20s_all",
+      "stage": 1,
+      "group": "stress_20s",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 426,
+      "deadline_misses": 372,
+      "deadline_miss_fraction": 0.8732394366197183,
+      "previous_cycle_sources": 372,
+      "source_stale_fraction": 0.8732394366197183,
+      "artificial_handover_seconds": 20,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 62.0,
+      "decision_mean_task_age_seconds": 21.502777777777776,
+      "decision_max_task_age_seconds": 54.1,
+      "decision_mean_intentions_age_seconds": 21.502777777777776,
+      "decision_max_intentions_age_seconds": 54.1,
+      "decision_mean_priorities_age_seconds": 21.516666666666666,
+      "decision_max_priorities_age_seconds": 54.1,
+      "selected_input_mean_age_seconds": 21.80892018779343,
+      "information_deliveries": 384,
+      "information_delivery_p95_seconds": 51.038054306832734,
+      "information_delivery_max_seconds": 54.02963067377274,
+      "maximum_queue_bytes": 152484,
+      "satellite_changes_observed": 4,
+      "satellite_interruption_events_applied": 4
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 135,
+      "success": true,
+      "successful_makespan": 135,
+      "par2": 135,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 135.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 21.533088235294116,
+      "mean_intentions_age_seconds": 21.534926470588236,
+      "mean_priorities_age_seconds": 21.547794117647058,
+      "condition": "stress_20s_all",
+      "stage": 2,
+      "group": "stress_20s",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 1608,
+      "deadline_misses": 1392,
+      "deadline_miss_fraction": 0.8656716417910447,
+      "previous_cycle_sources": 1392,
+      "source_stale_fraction": 0.8656716417910447,
+      "artificial_handover_seconds": 20,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 115.0,
+      "decision_mean_task_age_seconds": 21.611111111111107,
+      "decision_max_task_age_seconds": 54.1,
+      "decision_mean_intentions_age_seconds": 21.61296296296296,
+      "decision_max_intentions_age_seconds": 54.1,
+      "decision_mean_priorities_age_seconds": 21.625925925925923,
+      "decision_max_priorities_age_seconds": 54.1,
+      "selected_input_mean_age_seconds": 21.77723880597015,
+      "information_deliveries": 1488,
+      "information_delivery_p95_seconds": 49.091156725225495,
+      "information_delivery_max_seconds": 54.03755656522556,
+      "maximum_queue_bytes": 583824,
+      "satellite_changes_observed": 7,
+      "satellite_interruption_events_applied": 7
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 150,
+      "success": true,
+      "successful_makespan": 150,
+      "par2": 150,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 3.0,
+      "uav_travel_m": 148.19952013861027,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 20.511037527593817,
+      "mean_intentions_age_seconds": 20.516556291390728,
+      "mean_priorities_age_seconds": 20.52317880794702,
+      "condition": "stress_20s_all",
+      "stage": 3,
+      "group": "stress_20s",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 2682,
+      "deadline_misses": 2286,
+      "deadline_miss_fraction": 0.8523489932885906,
+      "previous_cycle_sources": 2286,
+      "source_stale_fraction": 0.8523489932885906,
+      "artificial_handover_seconds": 20,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 125.0,
+      "decision_mean_task_age_seconds": 20.641111111111112,
+      "decision_max_task_age_seconds": 54.1,
+      "decision_mean_intentions_age_seconds": 20.64666666666667,
+      "decision_max_intentions_age_seconds": 54.1,
+      "decision_mean_priorities_age_seconds": 20.653333333333332,
+      "decision_max_priorities_age_seconds": 54.1,
+      "selected_input_mean_age_seconds": 20.784936614466815,
+      "information_deliveries": 2682,
+      "information_delivery_p95_seconds": 49.04881941031597,
+      "information_delivery_max_seconds": 54.04511765667547,
+      "maximum_queue_bytes": 1060830,
+      "satellite_changes_observed": 7,
+      "satellite_interruption_events_applied": 7
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 191,
+      "success": true,
+      "successful_makespan": 191,
+      "par2": 191,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 131.3969940226081,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 19.85143229166667,
+      "mean_intentions_age_seconds": 19.87096354166667,
+      "mean_priorities_age_seconds": 19.8859375,
+      "condition": "stress_20s_all",
+      "stage": 4,
+      "group": "stress_20s",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 4560,
+      "deadline_misses": 3984,
+      "deadline_miss_fraction": 0.8736842105263158,
+      "previous_cycle_sources": 3984,
+      "source_stale_fraction": 0.8736842105263158,
+      "artificial_handover_seconds": 20,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 160.0,
+      "decision_mean_task_age_seconds": 19.950130890052357,
+      "decision_max_task_age_seconds": 54.1,
+      "decision_mean_intentions_age_seconds": 19.96976439790576,
+      "decision_max_intentions_age_seconds": 54.1,
+      "decision_mean_priorities_age_seconds": 19.9848167539267,
+      "decision_max_priorities_age_seconds": 54.1,
+      "selected_input_mean_age_seconds": 20.072807017543855,
+      "information_deliveries": 4560,
+      "information_delivery_p95_seconds": 48.09800754965514,
+      "information_delivery_max_seconds": 54.07405154812936,
+      "maximum_queue_bytes": 2359320,
+      "satellite_changes_observed": 9,
+      "satellite_interruption_events_applied": 9
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.13333333333333372,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "handover_off_task",
+      "stage": 1,
+      "group": "handover_off",
+      "fields": "task",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 50,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.1000000000000004,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.10000000000000041,
+      "information_deliveries": 50,
+      "information_delivery_p95_seconds": 0.02754508819637217,
+      "information_delivery_max_seconds": 0.0276128571414036,
+      "maximum_queue_bytes": 758,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.12250000000000072,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "handover_off_task",
+      "stage": 2,
+      "group": "handover_off",
+      "fields": "task",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 152,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.10000000000000074,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.10000000000000075,
+      "information_deliveries": 152,
+      "information_delivery_p95_seconds": 0.029861819118876465,
+      "information_delivery_max_seconds": 0.030288897386713032,
+      "maximum_queue_bytes": 1516,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.13103448275862115,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "handover_off_task",
+      "stage": 3,
+      "group": "handover_off",
+      "fields": "task",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 162,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.10000000000000046,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.10000000000000048,
+      "information_deliveries": 162,
+      "information_delivery_p95_seconds": 0.03184481820042197,
+      "information_delivery_max_seconds": 0.03328790048814412,
+      "maximum_queue_bytes": 2274,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.1173076923076932,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "handover_off_task",
+      "stage": 4,
+      "group": "handover_off",
+      "fields": "task",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 400,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.049999999999954525,
+      "decision_mean_task_age_seconds": 0.1000000000000009,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.10000000000000092,
+      "information_deliveries": 400,
+      "information_delivery_p95_seconds": 0.039754446145242504,
+      "information_delivery_max_seconds": 0.08309376716992745,
+      "maximum_queue_bytes": 3032,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.13333333333333372,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "handover_off_intentions",
+      "stage": 1,
+      "group": "handover_off",
+      "fields": "intentions",
+      "mission_route": "cloud",
+      "stale_information": [
+        "intentions"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 50,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.1000000000000004,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.10000000000000041,
+      "information_deliveries": 50,
+      "information_delivery_p95_seconds": 0.027535054634591917,
+      "information_delivery_max_seconds": 0.027603786298556088,
+      "maximum_queue_bytes": 770,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.12250000000000072,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "handover_off_intentions",
+      "stage": 2,
+      "group": "handover_off",
+      "fields": "intentions",
+      "mission_route": "cloud",
+      "stale_information": [
+        "intentions"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 152,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.10000000000000074,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.10000000000000075,
+      "information_deliveries": 152,
+      "information_delivery_p95_seconds": 0.029931121133062177,
+      "information_delivery_max_seconds": 0.03034491530668748,
+      "maximum_queue_bytes": 1540,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.13103448275862115,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "handover_off_intentions",
+      "stage": 3,
+      "group": "handover_off",
+      "fields": "intentions",
+      "mission_route": "cloud",
+      "stale_information": [
+        "intentions"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 162,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.10000000000000046,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.10000000000000048,
+      "information_deliveries": 162,
+      "information_delivery_p95_seconds": 0.03196359937472548,
+      "information_delivery_max_seconds": 0.03337974478781813,
+      "maximum_queue_bytes": 2310,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.1173076923076932,
+      "mean_priorities_age_seconds": 0.0,
+      "condition": "handover_off_intentions",
+      "stage": 4,
+      "group": "handover_off",
+      "fields": "intentions",
+      "mission_route": "cloud",
+      "stale_information": [
+        "intentions"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 400,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.049999999999954525,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.1000000000000009,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.0,
+      "decision_max_priorities_age_seconds": 0.0,
+      "selected_input_mean_age_seconds": 0.10000000000000092,
+      "information_deliveries": 400,
+      "information_delivery_p95_seconds": 0.03986351640417496,
+      "information_delivery_max_seconds": 0.08322004065976785,
+      "maximum_queue_bytes": 3080,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-2-case-000",
+      "case": 0,
+      "num_agents": 2,
+      "seed": 50020000,
+      "starts": [
+        [
+          14,
+          27
+        ],
+        [
+          26,
+          13
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          14,
+          27
+        ]
+      ],
+      "steps": 26,
+      "success": true,
+      "successful_makespan": 26,
+      "par2": 26,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 26.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.13333333333333372,
+      "condition": "handover_off_priorities",
+      "stage": 1,
+      "group": "handover_off",
+      "fields": "priorities",
+      "mission_route": "cloud",
+      "stale_information": [
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 50,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.1000000000000004,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000041,
+      "information_deliveries": 50,
+      "information_delivery_p95_seconds": 0.027503582635521794,
+      "information_delivery_max_seconds": 0.027572236730035726,
+      "maximum_queue_bytes": 770,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-4-case-000",
+      "case": 0,
+      "num_agents": 4,
+      "seed": 50040000,
+      "starts": [
+        [
+          5,
+          31
+        ],
+        [
+          26,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          22,
+          18
+        ]
+      ],
+      "goals": [
+        [
+          26,
+          13
+        ],
+        [
+          5,
+          31
+        ],
+        [
+          22,
+          18
+        ],
+        [
+          9,
+          14
+        ]
+      ],
+      "steps": 39,
+      "success": true,
+      "successful_makespan": 39,
+      "par2": 39,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 39.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.12250000000000072,
+      "condition": "handover_off_priorities",
+      "stage": 2,
+      "group": "handover_off",
+      "fields": "priorities",
+      "mission_route": "cloud",
+      "stale_information": [
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 152,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.10000000000000074,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000075,
+      "information_deliveries": 152,
+      "information_delivery_p95_seconds": 0.029868274670168303,
+      "information_delivery_max_seconds": 0.030282250980759207,
+      "maximum_queue_bytes": 1540,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-6-case-000",
+      "case": 0,
+      "num_agents": 6,
+      "seed": 50060000,
+      "starts": [
+        [
+          18,
+          19
+        ],
+        [
+          31,
+          4
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          11,
+          17
+        ],
+        [
+          5,
+          25
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          4
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          7,
+          0
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          11,
+          17
+        ]
+      ],
+      "steps": 28,
+      "success": true,
+      "successful_makespan": 28,
+      "par2": 28,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 28.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.13103448275862115,
+      "condition": "handover_off_priorities",
+      "stage": 3,
+      "group": "handover_off",
+      "fields": "priorities",
+      "mission_route": "cloud",
+      "stale_information": [
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 162,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.10000000000000046,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000048,
+      "information_deliveries": 162,
+      "information_delivery_p95_seconds": 0.031881318796159165,
+      "information_delivery_max_seconds": 0.033288601589729794,
+      "maximum_queue_bytes": 2310,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-8-case-000",
+      "case": 0,
+      "num_agents": 8,
+      "seed": 50080000,
+      "starts": [
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          7
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          29,
+          0
+        ],
+        [
+          2,
+          24
+        ]
+      ],
+      "goals": [
+        [
+          31,
+          7
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          31,
+          5
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          2,
+          24
+        ],
+        [
+          29,
+          0
+        ]
+      ],
+      "steps": 51,
+      "success": true,
+      "successful_makespan": 51,
+      "par2": 51,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 51.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.0,
+      "mean_intentions_age_seconds": 0.0,
+      "mean_priorities_age_seconds": 0.1173076923076932,
+      "condition": "handover_off_priorities",
+      "stage": 4,
+      "group": "handover_off",
+      "fields": "priorities",
+      "mission_route": "cloud",
+      "stale_information": [
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 400,
+      "deadline_misses": 0,
+      "deadline_miss_fraction": 0.0,
+      "previous_cycle_sources": 0,
+      "source_stale_fraction": 0.0,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": false,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.049999999999954525,
+      "decision_mean_task_age_seconds": 0.0,
+      "decision_max_task_age_seconds": 0.0,
+      "decision_mean_intentions_age_seconds": 0.0,
+      "decision_max_intentions_age_seconds": 0.0,
+      "decision_mean_priorities_age_seconds": 0.1000000000000009,
+      "decision_max_priorities_age_seconds": 0.10000000000000142,
+      "selected_input_mean_age_seconds": 0.10000000000000092,
+      "information_deliveries": 400,
+      "information_delivery_p95_seconds": 0.03973784044105848,
+      "information_delivery_max_seconds": 0.08316239565014882,
+      "maximum_queue_bytes": 3080,
+      "satellite_changes_observed": 3,
+      "satellite_interruption_events_applied": 0
+    },
+    {
+      "case_id": "agents-8-case-038",
+      "case": 38,
+      "num_agents": 8,
+      "seed": 50080038,
+      "starts": [
+        [
+          23,
+          21
+        ],
+        [
+          1,
+          20
+        ],
+        [
+          27,
+          28
+        ],
+        [
+          21,
+          5
+        ],
+        [
+          14,
+          12
+        ],
+        [
+          17,
+          2
+        ],
+        [
+          21,
+          9
+        ],
+        [
+          28,
+          5
+        ]
+      ],
+      "goals": [
+        [
+          1,
+          20
+        ],
+        [
+          23,
+          21
+        ],
+        [
+          21,
+          5
+        ],
+        [
+          27,
+          28
+        ],
+        [
+          17,
+          2
+        ],
+        [
+          14,
+          12
+        ],
+        [
+          28,
+          5
+        ],
+        [
+          21,
+          9
+        ]
+      ],
+      "steps": 29,
+      "success": true,
+      "successful_makespan": 29,
+      "par2": 29,
+      "completion_fraction": 1.0,
+      "ever_completion_fraction": 1.0,
+      "collision_attempts": 0,
+      "uav_travel_m": 29.0,
+      "exposed_messages": 0,
+      "exposed_agents": 0,
+      "exposure_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "realized_windows_by_agent": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0,
+        "7": 0
+      },
+      "mean_task_age_seconds": 0.13000000000000048,
+      "mean_intentions_age_seconds": 0.13000000000000048,
+      "mean_priorities_age_seconds": 0.16333333333333383,
+      "condition": "handover_on_all",
+      "stage": 4,
+      "group": "handover_on",
+      "fields": "all",
+      "mission_route": "cloud",
+      "stale_information": [
+        "task",
+        "intentions",
+        "priorities"
+      ],
+      "policy_model_sha256": "be085bec93c4b8603629b0e964b10f7b5a99220386e9c968ac17f960759ffc0f",
+      "decision_deadline_seconds": 0.1,
+      "response_opportunities": 672,
+      "deadline_misses": 8,
+      "deadline_miss_fraction": 0.011904761904761904,
+      "previous_cycle_sources": 8,
+      "source_stale_fraction": 0.011904761904761904,
+      "artificial_handover_seconds": 0,
+      "handover_enabled": true,
+      "diagnostic": true,
+      "interruption_seconds_realized": 0.09999999999990905,
+      "decision_mean_task_age_seconds": 0.1000000000000005,
+      "decision_max_task_age_seconds": 0.10000000000000142,
+      "decision_mean_intentions_age_seconds": 0.1000000000000005,
+      "decision_max_intentions_age_seconds": 0.10000000000000142,
+      "decision_mean_priorities_age_seconds": 0.13448275862069015,
+      "decision_max_priorities_age_seconds": 1.1000000000000014,
+      "selected_input_mean_age_seconds": 0.11190476190476242,
+      "information_deliveries": 672,
+      "information_delivery_p95_seconds": 0.08467097897716855,
+      "information_delivery_max_seconds": 0.1099353094306661,
+      "maximum_queue_bytes": 6424,
+      "satellite_changes_observed": 2,
+      "satellite_interruption_events_applied": 2
+    }
+  ]
+}

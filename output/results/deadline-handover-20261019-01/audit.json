@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "episodes": 4200,
+  "conditions": 21,
+  "cases_per_stage": 50,
+  "identical_seeds_starts_goals": true,
+  "frozen_policy": true,
+  "decision_phase_verified": true,
+  "model_map_timeline_and_script_hashes_verified": true,
+  "geometry_and_rates_preserved": true,
+  "handover_toggle_isolated": true,
+  "unselected_inputs_fresh": true,
+  "summary_values_recomputed": true,
+  "perfect_matches_previous_run": true,
+  "uav_edge_matches_perfect_robot_outcomes": true
+}

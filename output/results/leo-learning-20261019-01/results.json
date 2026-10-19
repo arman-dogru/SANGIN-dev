@@ -1,0 +1,486 @@
+{
+  "source_root": "D:\\Projects\\PANAMA+UAV\\panama_uav\\output\\leo-learning\\leo-learning-20261009-01-recovery-03",
+  "seed": 42,
+  "replicated_seeds": 1,
+  "source_files_per_arm": [
+    "training.jsonl",
+    "validation.jsonl",
+    "validation_cases.jsonl",
+    "learning_steps.jsonl",
+    "transport.jsonl",
+    "status.json"
+  ],
+  "smoothing": "Trailing 100 observed training episodes",
+  "synthetic_results": false,
+  "extrapolation": false,
+  "success_axes": [
+    0,
+    100
+  ],
+  "common_generated_step_range": [
+    0,
+    502968
+  ],
+  "stage_labels": "Stage 1\u20134; no map names or agent counts in figures",
+  "audit": {
+    "clean": {
+      "training_episodes": 8500,
+      "training_steps": 502968,
+      "complete_validation_batches": 30,
+      "validation_cases": 6000,
+      "all_four_phases_qualified": true,
+      "max_episode_steps": 250
+    },
+    "combined": {
+      "training_episodes": 10000,
+      "training_steps": 559456,
+      "complete_validation_batches": 36,
+      "validation_cases": 7200,
+      "all_four_phases_qualified": true,
+      "max_episode_steps": 250
+    },
+    "paired_validation_seeds": true,
+    "matching_initial_weights_and_configuration": true
+  },
+  "step_log_audit": {
+    "clean": {
+      "sha256": "8f8b531ddc47356d08a8a73df4607432601591f0046c5a4c9bbf0db1cc00f756",
+      "rows": 502968,
+      "sampled_rows": 2996,
+      "sampling": "Seed-42 stratified observations",
+      "stratum_width": 168,
+      "plotted_smoothing_observations": 50
+    },
+    "combined": {
+      "sha256": "35f3f40eda413707a301ee2586a063047a77ff539c40dbbac6e9c7e037b6fc1e",
+      "rows": 559456,
+      "sampled_rows": 2995,
+      "sampling": "Seed-42 stratified observations",
+      "stratum_width": 187,
+      "plotted_smoothing_observations": 50
+    }
+  },
+  "transport_log_audit": {
+    "clean": {
+      "sha256": "048e59c66aa6a5c8c840d83d2e55fc961f341b2cb6cc50b6812e2a7164efeb58",
+      "delivered_experiences_audited": 3428992
+    },
+    "combined": {
+      "sha256": "cc45e2cd499fa74568ec48bcefc8ced09a01251fac62d063c89214adeec9beb0",
+      "delivered_experiences_audited": 3777302
+    }
+  },
+  "figures": [
+    "success_episodes",
+    "success_environment_steps",
+    "success_training_time",
+    "training_cost_by_stage",
+    "qualifying_validation_outcomes",
+    "curriculum_progress",
+    "makespan_learning",
+    "failure_aware_learning",
+    "uav_travel_learning",
+    "learning_transport_telemetry",
+    "complete_message_delays"
+  ],
+  "stage_results": [
+    {
+      "condition": "clean",
+      "stage": 1,
+      "training_episodes": 750,
+      "environment_steps": 55639,
+      "recorded_hours": 0.2804775000001407,
+      "cumulative_environment_steps": 55639,
+      "cumulative_recorded_hours": 0.2804775000001407,
+      "training_success_pct": 90.13333333333333,
+      "qualifying_validation_success_pct": 97.0,
+      "qualifying_validation_cases": 200,
+      "validation_successful_makespan": 23.788659793814432,
+      "validation_mean_episode_steps": 30.575,
+      "validation_par2": 38.075,
+      "validation_completion_fraction": 0.975,
+      "validation_collision_attempts": 2.415,
+      "validation_uav_travel_m": 27.02577347283345
+    },
+    {
+      "condition": "clean",
+      "stage": 2,
+      "training_episodes": 500,
+      "environment_steps": 30017,
+      "recorded_hours": 0.20678388888895927,
+      "cumulative_environment_steps": 85656,
+      "cumulative_recorded_hours": 0.4872613888891,
+      "training_success_pct": 97.39999999999999,
+      "qualifying_validation_success_pct": 96.0,
+      "qualifying_validation_cases": 200,
+      "validation_successful_makespan": 28.578125,
+      "validation_mean_episode_steps": 37.435,
+      "validation_par2": 47.435,
+      "validation_completion_fraction": 0.99,
+      "validation_collision_attempts": 0.31,
+      "validation_uav_travel_m": 31.34533116016929
+    },
+    {
+      "condition": "clean",
+      "stage": 3,
+      "training_episodes": 1250,
+      "environment_steps": 70425,
+      "recorded_hours": 0.7059461111109704,
+      "cumulative_environment_steps": 156081,
+      "cumulative_recorded_hours": 1.1932075000000704,
+      "training_success_pct": 98.64,
+      "qualifying_validation_success_pct": 95.5,
+      "qualifying_validation_cases": 200,
+      "validation_successful_makespan": 32.675392670157066,
+      "validation_mean_episode_steps": 42.455,
+      "validation_par2": 53.705,
+      "validation_completion_fraction": 0.9908333333333335,
+      "validation_collision_attempts": 10.135,
+      "validation_uav_travel_m": 35.336154625348115
+    },
+    {
+      "condition": "clean",
+      "stage": 4,
+      "training_episodes": 6000,
+      "environment_steps": 346887,
+      "recorded_hours": 4.391145833333334,
+      "cumulative_environment_steps": 502968,
+      "cumulative_recorded_hours": 5.584353333333404,
+      "training_success_pct": 98.31666666666666,
+      "qualifying_validation_success_pct": 95.0,
+      "qualifying_validation_cases": 200,
+      "validation_successful_makespan": 36.410526315789475,
+      "validation_mean_episode_steps": 47.09,
+      "validation_par2": 59.59,
+      "validation_completion_fraction": 0.990625,
+      "validation_collision_attempts": 4.245,
+      "validation_uav_travel_m": 39.09010117354351
+    },
+    {
+      "condition": "combined",
+      "stage": 1,
+      "training_episodes": 500,
+      "environment_steps": 42620,
+      "recorded_hours": 0.29493916666678466,
+      "cumulative_environment_steps": 42620,
+      "cumulative_recorded_hours": 0.29493916666678466,
+      "training_success_pct": 88.4,
+      "qualifying_validation_success_pct": 96.0,
+      "qualifying_validation_cases": 200,
+      "validation_successful_makespan": 24.708333333333332,
+      "validation_mean_episode_steps": 33.72,
+      "validation_par2": 43.72,
+      "validation_completion_fraction": 0.9725,
+      "validation_collision_attempts": 2.495,
+      "validation_uav_travel_m": 27.532807711914167
+    },
+    {
+      "condition": "combined",
+      "stage": 2,
+      "training_episodes": 750,
+      "environment_steps": 42130,
+      "recorded_hours": 0.48467027777780053,
+      "cumulative_environment_steps": 84750,
+      "cumulative_recorded_hours": 0.7796094444445851,
+      "training_success_pct": 98.13333333333333,
+      "qualifying_validation_success_pct": 97.0,
+      "qualifying_validation_cases": 200,
+      "validation_successful_makespan": 28.79381443298969,
+      "validation_mean_episode_steps": 35.43,
+      "validation_par2": 42.93,
+      "validation_completion_fraction": 0.99125,
+      "validation_collision_attempts": 0.305,
+      "validation_uav_travel_m": 30.112746603187812
+    },
+    {
+      "condition": "combined",
+      "stage": 3,
+      "training_episodes": 2500,
+      "environment_steps": 137049,
+      "recorded_hours": 2.2770397222223173,
+      "cumulative_environment_steps": 221799,
+      "cumulative_recorded_hours": 3.0566491666669027,
+      "training_success_pct": 98.48,
+      "qualifying_validation_success_pct": 95.5,
+      "qualifying_validation_cases": 200,
+      "validation_successful_makespan": 31.921465968586386,
+      "validation_mean_episode_steps": 41.735,
+      "validation_par2": 52.985,
+      "validation_completion_fraction": 0.9916666666666666,
+      "validation_collision_attempts": 2.52,
+      "validation_uav_travel_m": 36.4123919624043
+    },
+    {
+      "condition": "combined",
+      "stage": 4,
+      "training_episodes": 6250,
+      "environment_steps": 337657,
+      "recorded_hours": 7.841132777777707,
+      "cumulative_environment_steps": 559456,
+      "cumulative_recorded_hours": 10.89778194444461,
+      "training_success_pct": 99.072,
+      "qualifying_validation_success_pct": 95.0,
+      "qualifying_validation_cases": 200,
+      "validation_successful_makespan": 36.54736842105263,
+      "validation_mean_episode_steps": 47.22,
+      "validation_par2": 59.72,
+      "validation_completion_fraction": 0.993125,
+      "validation_collision_attempts": 0.605,
+      "validation_uav_travel_m": 39.22362945708283
+    }
+  ],
+  "totals": [
+    {
+      "condition": "clean",
+      "episodes": 8500,
+      "generated_joint_steps": 502968,
+      "wall_seconds": 20104.610000000335,
+      "delivered_experiences": 3428992,
+      "learner_updates": 502905,
+      "pending_messages": 0
+    },
+    {
+      "condition": "combined",
+      "episodes": 10000,
+      "generated_joint_steps": 559456,
+      "wall_seconds": 39233.31200000085,
+      "delivered_experiences": 3777302,
+      "learner_updates": 559389,
+      "pending_messages": 9
+    }
+  ],
+  "message_delivery_summary": [
+    {
+      "condition": "clean",
+      "stage": 1,
+      "message_kind": "experience",
+      "delivered_messages": 111278,
+      "mean_seconds": 0.0,
+      "p50_seconds": 0.0,
+      "p95_seconds": 0.0,
+      "max_seconds": 0.0
+    },
+    {
+      "condition": "clean",
+      "stage": 1,
+      "message_kind": "model",
+      "delivered_messages": 6954,
+      "mean_seconds": 0.0,
+      "p50_seconds": 0.0,
+      "p95_seconds": 0.0,
+      "max_seconds": 0.0
+    },
+    {
+      "condition": "clean",
+      "stage": 2,
+      "message_kind": "experience",
+      "delivered_messages": 120068,
+      "mean_seconds": 0.0,
+      "p50_seconds": 0.0,
+      "p95_seconds": 0.0,
+      "max_seconds": 0.0
+    },
+    {
+      "condition": "clean",
+      "stage": 2,
+      "message_kind": "model",
+      "delivered_messages": 7504,
+      "mean_seconds": 0.0,
+      "p50_seconds": 0.0,
+      "p95_seconds": 0.0,
+      "max_seconds": 0.0
+    },
+    {
+      "condition": "clean",
+      "stage": 3,
+      "message_kind": "experience",
+      "delivered_messages": 422550,
+      "mean_seconds": 0.0,
+      "p50_seconds": 0.0,
+      "p95_seconds": 0.0,
+      "max_seconds": 0.0
+    },
+    {
+      "condition": "clean",
+      "stage": 3,
+      "message_kind": "model",
+      "delivered_messages": 26412,
+      "mean_seconds": 0.0,
+      "p50_seconds": 0.0,
+      "p95_seconds": 0.0,
+      "max_seconds": 0.0
+    },
+    {
+      "condition": "clean",
+      "stage": 4,
+      "message_kind": "experience",
+      "delivered_messages": 2775096,
+      "mean_seconds": 0.0,
+      "p50_seconds": 0.0,
+      "p95_seconds": 0.0,
+      "max_seconds": 0.0
+    },
+    {
+      "condition": "clean",
+      "stage": 4,
+      "message_kind": "model",
+      "delivered_messages": 173440,
+      "mean_seconds": 0.0,
+      "p50_seconds": 0.0,
+      "p95_seconds": 0.0,
+      "max_seconds": 0.0
+    },
+    {
+      "condition": "combined",
+      "stage": 1,
+      "message_kind": "experience",
+      "delivered_messages": 85240,
+      "mean_seconds": 0.02533387135503622,
+      "p50_seconds": 0.024315067019415437,
+      "p95_seconds": 0.06834061994049989,
+      "max_seconds": 0.07585180918249534
+    },
+    {
+      "condition": "combined",
+      "stage": 1,
+      "message_kind": "model",
+      "delivered_messages": 5326,
+      "mean_seconds": 3.6173715090709644,
+      "p50_seconds": 3.591305487650061,
+      "p95_seconds": 3.8143791152351696,
+      "max_seconds": 4.132303831287572
+    },
+    {
+      "condition": "combined",
+      "stage": 2,
+      "message_kind": "experience",
+      "delivered_messages": 168520,
+      "mean_seconds": 0.030668295462543814,
+      "p50_seconds": 0.02942526426704717,
+      "p95_seconds": 0.06969846286010489,
+      "max_seconds": 0.08601660918066045
+    },
+    {
+      "condition": "combined",
+      "stage": 2,
+      "message_kind": "model",
+      "delivered_messages": 10532,
+      "mean_seconds": 5.788286942182072,
+      "p50_seconds": 5.762274690288905,
+      "p95_seconds": 5.986460379617347,
+      "max_seconds": 6.309083429456223
+    },
+    {
+      "condition": "combined",
+      "stage": 3,
+      "message_kind": "experience",
+      "delivered_messages": 822294,
+      "mean_seconds": 0.036003023509704545,
+      "p50_seconds": 0.03553586403722875,
+      "p95_seconds": 0.07442465785425156,
+      "max_seconds": 0.09718940916354768
+    },
+    {
+      "condition": "combined",
+      "stage": 3,
+      "message_kind": "model",
+      "delivered_messages": 51396,
+      "mean_seconds": 7.958400362264609,
+      "p50_seconds": 7.932810364611214,
+      "p95_seconds": 8.156002894218545,
+      "max_seconds": 8.485864994785516
+    },
+    {
+      "condition": "combined",
+      "stage": 4,
+      "message_kind": "experience",
+      "delivered_messages": 2701248,
+      "mean_seconds": 0.04133690106599207,
+      "p50_seconds": 0.04063785364269279,
+      "p95_seconds": 0.07585660921176895,
+      "max_seconds": 0.10735580965410918
+    },
+    {
+      "condition": "combined",
+      "stage": 4,
+      "message_kind": "model",
+      "delivered_messages": 168824,
+      "mean_seconds": 10.129122415511095,
+      "p50_seconds": 10.103225407132413,
+      "p95_seconds": 10.327787102782167,
+      "max_seconds": 10.662649129459169
+    }
+  ],
+  "interpretation": [
+    "One matched seed; no across-seed uncertainty is established.",
+    "Validation always uses fresh mission information and the current learner greedily.",
+    "Qualifying results are selected curriculum checkpoints, not independent mission-inference tests.",
+    "Recorded run time includes computation, transport simulation and validation; infrastructure hangs and recovery downtime are excluded.",
+    "Deployed-model age includes snapshot publication interval; it is distinct from complete-message delivery latency.",
+    "Delivery latency statistics use every completed robot-bound model message and every completed experience message, including old model messages if delivered.",
+    "Stage assignment for delivery statistics uses message generation time.",
+    "The final LEO run retains pending messages at qualification; they are not counted as delivered."
+  ],
+  "recovery": {
+    "source_root": "D:\\Projects\\PANAMA+UAV\\panama_uav\\output\\leo-learning\\leo-learning-20261009-01-recovery-02",
+    "source_run_id": "leo-learning-20261009-01-recovery-02",
+    "run_id": "leo-learning-20261009-01-recovery-03",
+    "created_utc": "2026-10-13T16:37:02.263723+00:00",
+    "reason": "Numerical scheduler boundary recovery; replayed interruption end previously rounded back to the same absolute cursor",
+    "source_checkpoint_sha256": "70a169298d3e0213fccbf204ff28dfe51f79752350354a34215192399aab86bb",
+    "checkpoint_steps": 125000,
+    "checkpoint_episodes": 1928,
+    "checkpoint_elapsed_seconds": 4973.062000000849,
+    "checkpoint_log_offsets": {
+      "learning_steps.jsonl": 332068163,
+      "transport.jsonl": 540689704,
+      "training.jsonl": 847221,
+      "validation_cases.jsonl": 172545,
+      "validation.jsonl": 909
+    },
+    "code_changes": {
+      "leo.py": {
+        "before": "61888768bba59ad5b798422d9d777acb3a31930e34f3c6885d84aa4f1cf9e408",
+        "after": "7a410f3a05b6270b57570614ef8fcd1bbbca4e468535d772ca4ae9c19d2492cf"
+      }
+    },
+    "checkpoint_migration": "Only session.run_id changes; models, optimizer, replay, pending messages, clocks, counters and saved RNG states are retained",
+    "original_artifacts": "Retained; post-checkpoint rows are not appended a second time to the continuation",
+    "clean_reference": "Previously qualified measured Clean arm, copied unchanged; not retrained",
+    "budget": "Original 12h allocation minus checkpoint elapsed time; infrastructure hang and recovery work excluded and reported separately",
+    "scientific_parameters_changed": false,
+    "parent_recovery": {
+      "source_root": "D:\\Projects\\PANAMA+UAV\\panama_uav\\output\\leo-learning\\leo-learning-20261009-01",
+      "source_run_id": "leo-learning-20261009-01",
+      "run_id": "leo-learning-20261009-01-recovery-02",
+      "created_utc": "2026-10-10T03:18:51.700467+00:00",
+      "reason": "Floating-point frame guard failed to advance at 32775.06 simulated seconds",
+      "source_checkpoint_sha256": "8650533b6cf198a076bac6061e9740fd61408081d0b432ccc96629c928cece0e",
+      "checkpoint_steps": 25000,
+      "checkpoint_episodes": 172,
+      "checkpoint_elapsed_seconds": 590.203000000678,
+      "checkpoint_log_offsets": {
+        "learning_steps.jsonl": 63279316,
+        "transport.jsonl": 56727876,
+        "training.jsonl": 76378
+      },
+      "code_changes": {
+        "training.py": {
+          "before": "a653b0b790ff3a88431cf99736fba773a2a0f2a230829984639a2aa87fc661c4",
+          "after": "e7a7a6ec443d6c399d79202a2091cfd833350e9a4acc58745d75735a9b6b1a3c"
+        },
+        "leo.py": {
+          "before": "5c24f26a80c06c1c631d69bdb20ed4ad55b613edaff33d66471570c36ba760f9",
+          "after": "61888768bba59ad5b798422d9d777acb3a31930e34f3c6885d84aa4f1cf9e408"
+        }
+      },
+      "checkpoint_migration": "Only session.run_id changes; models, optimizer, replay, pending messages, clocks, counters and saved RNG states are retained",
+      "original_artifacts": "Retained; post-checkpoint rows are not appended a second time to the continuation",
+      "clean_reference": "Previously qualified measured Clean arm, copied unchanged; not retrained",
+      "budget": "Original 12h allocation minus checkpoint elapsed time; infrastructure hang and recovery work excluded and reported separately",
+      "scientific_parameters_changed": false,
+      "continuation_checkpoint_sha256": "c4bfa34859eb3a3329a0636cd0e4bec7fe4c23b9be9869195f6115fb7053e04c"
+    },
+    "continuation_checkpoint_sha256": "5eb2ef9900fd1498055b9cc7abac675028a6775d2feb7830a3b20bb3749c9da9"
+  }
+}

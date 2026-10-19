@@ -1,0 +1,4 @@
+extends = "base.toml"
+
+# Named final rung. The resolved configuration is the complete experiment in
+# base.toml; this wrapper makes the ladder command and run manifests explicit.

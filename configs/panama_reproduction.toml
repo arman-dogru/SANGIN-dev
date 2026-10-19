@@ -1,0 +1,152 @@
+extends = "base.toml"
+
+# From-scratch PANAMA reproduction on the four requested MovingAI random maps.
+# `initial_model_path` is intentionally absent: every trained policy starts from
+# newly initialized weights. The curriculum follows the intended stage names in
+# the retained legacy configuration while correcting its stale map_index values.
+
+[map]
+# MovingAI grid cells represent ten metres in the calibrated radio geometry.
+meters_per_cell = 10.0
+
+[training]
+target_environment_steps = 80000000
+gamma = 0.99
+tau = 0.005
+learning_rate = 0.0001
+batch_size = 64
+replay_capacity = 2000000
+replay_checkpoint_size = 20000
+epsilon_start = 1.0
+epsilon_end = 0.1
+epsilon_decay_steps = 5000000
+per_alpha = 0.6
+per_beta_start = 0.4
+per_beta_steps = 60000000
+per_epsilon = 0.00001
+num_actors = 16
+model_broadcast_steps = 256
+gradient_updates_per_collection = 1
+checkpoint_interval_steps = 100000
+validation_interval_episodes = 1000
+validation_episodes = 200
+validation_epsilon = 0.0
+# Do not silently advance a failed stage at its episode ceiling. The run pauses
+# and retains a diagnostic checkpoint instead of contaminating later stages.
+force_graduate_on_max_episodes = false
+
+[reward]
+goal = 2.0
+time_step = -0.01
+collision_agent = -1.0
+collision_obstacle = -1.0
+distance_improvement = 0.23
+path_conflict = -1.0
+hold = 0.05
+active_yield = 0.0
+network_penalty = -0.4
+uav_movement_penalty = 0.0
+
+[static_radio]
+# A first-tier seven-site/21-sector cluster plus an outer-tier interference
+# reserve creates weak-service regions while retaining PANAMA's published link
+# budget and -8.47 dB blackout threshold.
+site_layout = "hex7"
+site_ring_radius_factor = 0.65
+interference_margin_db = 9.0
+
+[uav]
+# Retained AERIAL prototype assumptions. This footprint covers each 32x32 map
+# from the centre, but only part of either 64x64 map, making placement material.
+environment = "suburban"
+max_path_loss_db = 90.0
+speed_m_per_step = 20.0
+minimum_altitude_m = 20.0
+blackout_threshold_db = -8.47
+
+[curriculum]
+
+[[curriculum.stages]]
+name = "panama-random-32-32-10-2"
+map_path = "maps/random-32-32-10.map"
+num_agents = 2
+max_episode_steps = 200
+min_episodes = 5000
+max_episodes = 200000
+graduation_success_rate = 0.90
+
+[[curriculum.stages]]
+name = "panama-random-32-32-10-4"
+map_path = "maps/random-32-32-10.map"
+num_agents = 4
+max_episode_steps = 200
+min_episodes = 5000
+max_episodes = 200000
+graduation_success_rate = 0.90
+
+[[curriculum.stages]]
+name = "panama-random-32-32-10-6"
+map_path = "maps/random-32-32-10.map"
+num_agents = 6
+max_episode_steps = 200
+min_episodes = 5000
+max_episodes = 200000
+graduation_success_rate = 0.90
+
+[[curriculum.stages]]
+name = "panama-random-32-32-20-6"
+map_path = "maps/random-32-32-20.map"
+num_agents = 6
+max_episode_steps = 200
+min_episodes = 5000
+max_episodes = 200000
+graduation_success_rate = 0.90
+
+[[curriculum.stages]]
+name = "panama-random-32-32-20-8"
+map_path = "maps/random-32-32-20.map"
+num_agents = 8
+max_episode_steps = 200
+min_episodes = 5000
+max_episodes = 200000
+graduation_success_rate = 0.90
+
+[[curriculum.stages]]
+name = "panama-random-64-64-10-8"
+map_path = "maps/random-64-64-10.map"
+num_agents = 8
+max_episode_steps = 400
+min_episodes = 5000
+max_episodes = 200000
+graduation_success_rate = 0.90
+
+[[curriculum.stages]]
+name = "panama-random-64-64-10-12"
+map_path = "maps/random-64-64-10.map"
+num_agents = 12
+max_episode_steps = 400
+min_episodes = 5000
+max_episodes = 200000
+graduation_success_rate = 0.90
+
+[[curriculum.stages]]
+name = "panama-random-64-64-20-12"
+map_path = "maps/random-64-64-20.map"
+num_agents = 12
+max_episode_steps = 400
+min_episodes = 5000
+max_episodes = 200000
+graduation_success_rate = 1.00
+
+[evaluation]
+agent_counts = [4, 8, 16, 32, 64]
+scenario_directories = [
+  "scens/scen-random-32-32-10",
+  "scens/scen-random-32-32-20",
+  "scens/scen-random-64-64-10",
+  "scens/scen-random-64-64-20",
+]
+training_seeds = [42, 43, 44]
+bootstrap_samples = 2000
+save_step_telemetry = true
+failure_trace_limit = 50

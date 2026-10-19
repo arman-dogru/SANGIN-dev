@@ -1,0 +1,63 @@
+extends = "base.toml"
+
+# Warm-started one-seed pilot. This adds a second obstacle density and grows to
+# six agents without committing to a long from-scratch run.
+[training]
+target_environment_steps = 100000
+learning_rate = 0.00002
+replay_capacity = 100000
+replay_checkpoint_size = 5000
+epsilon_start = 0.20
+epsilon_end = 0.05
+epsilon_decay_steps = 75000
+num_actors = 4
+model_broadcast_steps = 256
+checkpoint_interval_steps = 10000
+validation_interval_episodes = 50
+validation_episodes = 25
+initial_model_path = "artifacts/legacy/2026-09-02/Models/saved_curriculum_model_v2/final_model.pth"
+
+[curriculum]
+[[curriculum.stages]]
+name = "pilot-random-32-10-2"
+map_path = "maps/random-32-32-10.map"
+num_agents = 2
+max_episode_steps = 200
+min_episodes = 100
+max_episodes = 250
+graduation_success_rate = 0.80
+
+[[curriculum.stages]]
+name = "pilot-random-32-10-4"
+map_path = "maps/random-32-32-10.map"
+num_agents = 4
+max_episode_steps = 200
+min_episodes = 150
+max_episodes = 400
+graduation_success_rate = 0.70
+
+[[curriculum.stages]]
+name = "pilot-random-32-20-4"
+map_path = "maps/random-32-32-20.map"
+num_agents = 4
+max_episode_steps = 200
+min_episodes = 150
+max_episodes = 400
+graduation_success_rate = 0.65
+
+[[curriculum.stages]]
+name = "pilot-random-32-20-6"
+map_path = "maps/random-32-32-20.map"
+num_agents = 6
+max_episode_steps = 200
+min_episodes = 250
+max_episodes = 750
+graduation_success_rate = 0.55
+
+[evaluation]
+agent_counts = [4, 6, 8]
+scenario_directories = ["scens/scen-random-32-32-10"]
+training_seeds = [42]
+bootstrap_samples = 500
+save_step_telemetry = true
+failure_trace_limit = 20

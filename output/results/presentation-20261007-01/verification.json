@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "figures": 13,
+  "metric_rows_checked": 64,
+  "source_hashes_checked": 28,
+  "visible_stage_identity_check": "passed",
+  "mean_lengths_success_and_PAR2_recomputed": "passed",
+  "final_stage_unqualified_preserved": true,
+  "plotting_script_sha256": "7ff8783804e3ebeb53ec8c461a46470bd1b2d8e24e936818216763a1a5b62917",
+  "final_export_reverified": true
+}
