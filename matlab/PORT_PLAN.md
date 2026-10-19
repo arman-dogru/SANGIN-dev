@@ -33,14 +33,17 @@ Coverage is measured, not assumed: `python matlab/tools/mutation_sweep.py`
 disables each rule in turn in a temporary copy of the tree and runs the
 relevant test file. It reports each mutant as killed (an assertion failed),
 ERRORED (a crash), TIMEOUT or SURVIVED, and counts only assertion kills.
-Measured on a fresh clone of commit 7b2516e: config 20/20, toml 29/29 and
-env 2/2 killed by assertions, with 0 errored, 0 timed out and 0 survived.
+Measured on a fresh clone of commit 84dba21: config 20/20, toml 29/29,
+env 2/2, encode 18/18, trace 6/6 and transport 29/29 killed by assertions,
+with 0 errored, 0 timed out and 0 survived. Mutants that cannot change a
+result, or whose only effect is an endless loop, are listed (with the
+reason) at the end of the sweep's MUTANTS table.
 `python matlab/tools/toml_corpus.py` compares toml_decode with tomllib on
 seeded random byte documents within the supported subset (including control
-characters and invalid UTF-8): at 7b2516e, 0 of 3,000 documents mismatched for
+characters and invalid UTF-8): at 84dba21, 0 of 3,000 documents mismatched for
 each of seeds 1, 2 and 3 (157, 166 and 132 of them rejected as invalid UTF-8);
 the decoder at feefd8f, given the same UTF-8 check, mismatched 444 of 3,000 on
-seed 1. Both tools write to `matlab/output/`
+seed 1 (measured at 7b2516e). Both tools write to `matlab/output/`
 (gitignored). Rerun them when a rule changes, add a mutant for a new rule,
 and update this paragraph with the commit you measured.
 
