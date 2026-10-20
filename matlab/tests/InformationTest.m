@@ -19,11 +19,16 @@ classdef InformationTest < matlab.unittest.TestCase
             tc.verifyEqual(c.value, 'fresh');
             tc.verifyEqual(c.age(5), 3);
         end
-        function testPhysicalProfileIsExplicitlyNotImplemented(tc)
-            c = panama_uav.config.defaults();
-            t = c.communication;
-            t.profile = 'physical';
-            tc.verifyError(@() panama_uav.transport.Transport(t), 'panama_uav:notImplemented');
+        function testPhysicalMissionPayloadsAreExplicitlyNotImplemented(tc)
+            % The physical profile itself is ported (TransportTest), but the
+            % mission payloads' pickle sizes (int-keyed dicts, Guidance, arrays
+            % standing for tuples) are milestone M1b-2, so the first UAV
+            % report fails loudly.
+            c = panama_uav.config.load_config(fullfile(repo_root(), 'configs', 'base.toml'));
+            c = panama_uav.config.with_communication(c, 'profile', 'physical');
+            env = panama_uav.environment.ExperimentEnvironment(c, 'maps/random-32-32-10.map', 2, 250, 1);
+            env.reset();
+            tc.verifyError(@() env.step(4 * ones(1, 2)), 'panama_uav:notImplemented');
         end
     end
 end
