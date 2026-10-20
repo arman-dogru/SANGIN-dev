@@ -32,6 +32,7 @@ up their counts. The summary is printed
 and written to matlab/output/mutation_sweep.txt, which is gitignored.
 Exit status is 0 only when the unmutated baseline passes and every mutant
 is killed by an assertion (ERRORED, TIMEOUT and SURVIVED all fail it).
+
 Needs octave-cli (override with $OCTAVE).
 """
 
@@ -66,6 +67,7 @@ MISSION = "matlab/+panama_uav/+information/MissionCommunication.m"
 IMPORT = "matlab/+panama_uav/+transport/import_trace.m"
 NPY_W = "matlab/+panama_uav/+util/npy_bytes.m"
 NPZ_W = "matlab/+panama_uav/+util/write_npz.m"
+CRC = "matlab/+panama_uav/+util/crc32.m"
 REPR = "matlab/+panama_uav/+util/py_float_repr.m"
 SHA = "matlab/+panama_uav/+util/sha256_bytes.m"
 
@@ -157,6 +159,19 @@ MUTANTS = [
     ("toml", "utf-8: continuation bytes", UTF8,
      swap("            if ~ok\n                fail(bytes, i, i + j - 1, 'invalid continuation byte');",
           "            if false\n                fail(bytes, i, i + j - 1, 'invalid continuation byte');")),
+    ("toml", "utf-8 fast check: continuation positions", UTF8,
+     swap("    ok = isequal(expected, b >= 128 & b <= 191);", "    ok = true;")),
+    ("toml", "utf-8 fast check: no stray bytes >= 0x80", UTF8,
+     swap("    ok = all(b < 128 | need > 0 | (b >= 128 & b <= 191)) && ", "    ok = ")),
+    ("toml", "utf-8 fast check: truncated sequence", UTF8,
+     swap(" && all(lead + need(lead) <= n);", ";")),
+    ("toml", "utf-8 fast check: E0/ED/F0/F4 second byte", UTF8,
+     swap("    ok = ~any((first == 224 & second < 160) | (first == 237 & second > 159) ...\n"
+          "        | (first == 240 & second < 144) | (first == 244 & second > 143));", "    ok = true;")),
+    ("toml", "escape \\b is a backspace", TOML,
+     swap("case 'b', out(end + 1) = char(8);", "case 'b', out(end + 1) = char(9);")),
+    ("toml", "escape \\f is a form feed", TOML,
+     swap("case 'f', out(end + 1) = char(12);", "case 'f', out(end + 1) = char(13);")),
     ("toml", "read_text validates UTF-8", READ,
      swap("    text = panama_uav.util.decode_utf8(bytes);", "    text = char(bytes);")),
     # encode: pickle protocol-5 size rules (EncodeTest)
@@ -278,15 +293,17 @@ MUTANTS = [
     ("trace_import", "first line ends at splitlines boundaries", IMPORT,
      swap("    breaks = [10 13 11 12 28 29 30 133 8232 8233];", "    breaks = [10 13];")),
     ("trace_import", "'#' starts a comment", IMPORT,
-     swap("        hash = find(line == 35, 1);", "        hash = [];")),
+     swap("    content = ~(cr | lf) & (hashes - before(line)) == 0;", "    content = ~(cr | lf);")),
     ("trace_import", "comma mode skips only empty rows", IMPORT,
-     swap("            if isempty(line)\n                continue;", "            if all(is_space(line))\n                continue;")),
+     swap("        used = accumarray(line(content)', 1, [nlines, 1])' > 0;",
+          "        used = accumarray(line(content & ~is_space(text))', 1, [nlines, 1])' > 0;")),
     ("trace_import", "whitespace is str.isspace", IMPORT,
      swap("(cp >= 28 & cp <= 32) | cp == 133 | cp == 160", "cp == 32 | cp == 133 | cp == 160")),
     ("trace_import", "consistent column count", IMPORT, drop("the number of columns changed")),
     ("trace_import", "three columns", IMPORT, drop("Expected sequence, transmit timestamp")),
     ("trace_import", "str width over the whole file", IMPORT,
-     swap("    width = max([1, cellfun(@numel, raw(:))']);", "    width = max([1, cellfun(@numel, raw(:, 1))']);")),
+     swap("    width = max([1, reshape(cellfun('length', raw), 1, [])]);",
+          "    width = max([1, reshape(cellfun('length', raw(:, 1)), 1, [])]);")),
     ("trace_import", "trailing NULs dropped on read-back", IMPORT,
      swap("    k = find(cp ~= 0, 1, 'last');", "    k = numel(cp);")),
     ("trace_import", "header row detected", IMPORT,
@@ -317,7 +334,7 @@ MUTANTS = [
     ("trace_import", "default origin is the first kept sample", IMPORT,
      swap("        origin = chosen(1);", "        origin = timestamps(1);")),
     ("trace_import", "unit scale applied by one multiplication", IMPORT,
-     swap("    timestamps = timestamps * scale;", "    timestamps = timestamps / (1 / scale);")),
+     swap("    timestamps = py_floats(value(:, 2)) * scale;", "    timestamps = py_floats(value(:, 2)) / (1 / scale);")),
     ("trace_import", ".npz appended to the output name", IMPORT,
      swap("        out = [out, '.npz'];", "        out = out;")),
     ("trace_import", "source sha256 in metadata", IMPORT,
@@ -332,8 +349,19 @@ MUTANTS = [
     ("trace_import", "npy: UTF-32 little-endian", NPY_W,
      swap("body = uint8(reshape([mod(w, 256); mod(floor(w / 256), 256); ...\n                mod(floor(w / 65536), 256); floor(w / 16777216)], 1, []));",
           "body = uint8(reshape([floor(w / 16777216); mod(floor(w / 65536), 256); ...\n                mod(floor(w / 256), 256); mod(w, 256)], 1, []));")),
-    ("trace_import", "zip: CRC-32 of each member", NPZ_W,
-     swap("    c = bitxor(c, 4294967295);", "    c = bitxor(c, 4294967294);")),
+    ("trace_import", "zip: CRC-32 of each member", CRC,
+     swap("    c = bitxor(from_bits(xor(acc, init)), 4294967295);", "    c = bitxor(from_bits(xor(acc, init)), 4294967294);")),
+    ("trace_import", "crc32: blocks chained through L zero bytes", CRC,
+     swap("        acc = xor(mod(step * acc, 2), bits(:, b));", "        acc = xor(acc, bits(:, b));")),
+    ("trace_import", "crc32: initial register carried through n bytes", CRC,
+     swap("    init = mod(zero_bytes(n, table) * ones(32, 1), 2);", "    init = ones(32, 1);")),
+    ("trace_import", "float fast path keeps the sign", IMPORT,
+     swap("        x(plain) = (1 - 2 * negative) .* str2double(", "        x(plain) = str2double(")),
+    ("trace_import", "float fast path only for plain decimals", IMPORT,
+     swap("'^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$'", "'^.*$'")),
+    ("trace_import", "metadata JSON writes NaN", IMPORT, swap("        s = 'NaN';", "        s = 'nan';")),
+    ("trace_import", "metadata JSON writes -Infinity", IMPORT, swap("        s = '-Infinity';", "        s = '-inf';")),
+    ("trace_import", "directory source is Errno 21", IMPORT, drop("[Errno 21] Is a directory")),
     # records: SHA-256 (RecordsTest)
     ("records", "sha256: padding starts with 0x80", SHA,
      swap("    m = [m, 128, zeros(1, pad), len];", "    m = [m, 1, zeros(1, pad), len];")),

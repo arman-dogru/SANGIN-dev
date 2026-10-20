@@ -24,7 +24,9 @@ function data = toml_decode(text)
 %   - On Octave, char is 8-bit, so strings hold their UTF-8 bytes ('é' is
 %     [195 169]); panama_uav.util.text_length counts code points and
 %     canonical uses it. On MATLAB, char is UTF-16 and 'é' is one char.
-%   - \uXXXX escapes, multiline strings and dates/times are not supported.
+%   - Basic strings take the escapes \b \t \n \f \r \" and \\; \uXXXX and
+%     \UXXXXXXXX escapes, multiline strings and dates/times are not
+%     supported (they raise an error).
 %
 %   Representation: tables are structs, arrays are cell row vectors (so a
 %   one-element array stays distinguishable from a scalar), integers are
@@ -250,6 +252,8 @@ function [value, p] = parse_string(p)
             q1.i = p.i + 1;
             e = peek(q1);
             switch e
+                case 'b', out(end + 1) = char(8); %#ok<AGROW>
+                case 'f', out(end + 1) = char(12); %#ok<AGROW>
                 case 'n', out(end + 1) = char(10); %#ok<AGROW>
                 case 't', out(end + 1) = char(9); %#ok<AGROW>
                 case 'r', out(end + 1) = char(13); %#ok<AGROW>

@@ -31,7 +31,7 @@ classdef TomlTest < matlab.unittest.TestCase
             % ones raise panama_uav:toml at tomllib's location.
             fx = load_fixture('toml');
             texts = as_cell(fx.texts);
-            tc.verifyEqual(numel(texts), 93);
+            tc.verifyEqual(numel(texts), 96);
             for k = 1:numel(texts)
                 t = texts{k};
                 label = sprintf('%s', strrep(t.text, char(10), '\n'));

@@ -1,5 +1,5 @@
 classdef ImportTraceTest < matlab.unittest.TestCase
-    % Parity: transport.import_trace vs Python's import_trace on 53 edge
+    % Parity: transport.import_trace vs Python's import_trace on 55 edge
     % cases and 80 seeded random trace files (make_fixtures.py:group_import_trace;
     % matlab/tools/trace_corpus.py runs the same comparison on thousands).
     % An error must have Python's message (panama_uav:trace; invalid UTF-8
@@ -11,12 +11,26 @@ classdef ImportTraceTest < matlab.unittest.TestCase
         function testImportMatchesPython(tc)
             fx = load_fixture('import_trace');
             cases = as_cell(fx.cases);
-            tc.verifyEqual(numel(cases), 133);
+            tc.verifyEqual(numel(cases), 135);
             ok = 0;
             for k = 1:numel(cases)
                 ok = ok + check_case(tc, cases{k}, sprintf('import case %d', k));
             end
-            tc.verifyEqual(ok, 67);
+            tc.verifyEqual(ok, 69);
+        end
+        function testMissingAndDirectorySources(tc)
+            % Python's Path.read_text(): FileNotFoundError (Errno 2) for a
+            % missing file, IsADirectoryError (Errno 21) for a directory.
+            folder = tempname();
+            mkdir(folder);
+            cleaner = onCleanup(@() rmdir(folder, 's'));
+            missing = fullfile(folder, 'none.txt');
+            verify_error_message(tc, @() panama_uav.transport.import_trace(missing, ...
+                fullfile(folder, 'out'), 'uplink'), 'panama_uav:trace', ...
+                sprintf('[Errno 2] No such file or directory: ''%s''', missing), 'missing');
+            verify_error_message(tc, @() panama_uav.transport.import_trace(folder, ...
+                fullfile(folder, 'out'), 'uplink'), 'panama_uav:trace', ...
+                sprintf('[Errno 21] Is a directory: ''%s''', folder), 'directory');
         end
         function testOutputLoadsAsDelayTrace(tc)
             % The stored (not deflated) archive reads back through the same

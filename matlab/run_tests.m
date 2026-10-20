@@ -7,7 +7,9 @@ function ok = run_tests(pattern)
 %   MATLAB (R2021b+): uses matlab.unittest (runtests) and needs no toolbox.
 %   GNU Octave (9.x): adds compat/octave, which provides a small
 %   matlab.unittest.TestCase shim, then runs every method whose name starts
-%   with 'test' in tests/*Test.m. Returns true when all tests pass.
+%   with 'test' in tests/*Test.m. Returns true when all tests pass, and
+%   false when the selection matches no test (so a mistyped pattern fails
+%   a CI job instead of passing it).
     if nargin < 1
         pattern = '';
     end
@@ -16,6 +18,7 @@ function ok = run_tests(pattern)
     addpath(fullfile(here, 'tests'));
     files = dir(fullfile(here, 'tests', '*Test.m'));
     names = sort(cellfun(@(n) n(1:end - 2), {files.name}, 'UniformOutput', false));
+    selection = pattern;
     method = '';
     slash = strfind(pattern, '/');
     if ~isempty(slash)
@@ -31,6 +34,11 @@ function ok = run_tests(pattern)
             suite = suite.selectIf('Name', ['*', pattern, '*/', method, '*']);
         elseif ~isempty(pattern)
             suite = suite.selectIf('Name', ['*', pattern, '*']);
+        end
+        if isempty(suite)
+            fprintf('No test matches ''%s''\n', selection);
+            ok = false;
+            return;
         end
         results = run(suite);
         disp(table(results));
@@ -68,6 +76,11 @@ function ok = run_tests(pattern)
                 end
             end
         end
+    end
+    if passed + numel(failed) == 0
+        fprintf('No test matches ''%s''\n', selection);
+        ok = false;
+        return;
     end
     fprintf('\n%d passed, %d failed\n', passed, numel(failed));
     ok = isempty(failed);

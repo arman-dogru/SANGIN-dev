@@ -25,7 +25,7 @@ function bytes = npy_bytes(kind, data, width)
             if scalar
                 data = {data};
             end
-            lengths = cellfun(@numel, data);
+            lengths = reshape(cellfun('length', data), 1, []);
             if nargin < 3
                 width = max([1, lengths]);
             end
@@ -33,10 +33,18 @@ function bytes = npy_bytes(kind, data, width)
                 error('panama_uav:npy', 'npy_bytes: a string is longer than the array width %d', width);
             end
             descr = sprintf('<U%d', width);
-            units = zeros(width, numel(data));
-            for k = 1:numel(data)
-                units(1:lengths(k), k) = data{k};
+            % Column k holds string k, NUL-padded: one indexed assignment.
+            if any(cellfun('isclass', data, 'char'))
+                data = cellfun(@double, data, 'UniformOutput', false);
             end
+            if any(cellfun('size', data, 1) > 1)
+                data = cellfun(@(c) reshape(c, 1, []), data, 'UniformOutput', false);
+            end
+            flat = double([data{:}]);
+            units = zeros(width, numel(data));
+            column = repelem(0:numel(data) - 1, lengths);
+            within = (1:sum(lengths)) - repelem(cumsum([0, lengths(1:end - 1)]), lengths);
+            units(column * width + within) = flat;
             w = units(:)';
             body = uint8(reshape([mod(w, 256); mod(floor(w / 256), 256); ...
                 mod(floor(w / 65536), 256); floor(w / 16777216)], 1, []));

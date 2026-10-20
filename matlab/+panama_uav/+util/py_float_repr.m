@@ -1,5 +1,6 @@
 function s = py_float_repr(x)
-%PY_FLOAT_REPR Python's repr(float(X)) (also what json.dumps writes).
+%PY_FLOAT_REPR Python's repr(float(X)) (also what json.dumps writes for
+%   finite X; json.dumps writes NaN, Infinity and -Infinity instead).
 %   The shortest decimal string that reads back as X (David Gay's
 %   algorithm in CPython, here found by trying 1 to 17 significant digits),
 %   in fixed notation when the decimal exponent is in [-4, 16) and in

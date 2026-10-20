@@ -71,11 +71,14 @@ function metadata = import_trace(source, output, direction, unit, start_s, end_s
     end
     scale = scales(u);
 
+    % Python's source.read_text(): IsADirectoryError for a directory (as on
+    % Linux and macOS; Windows raises PermissionError, Errno 13), else
+    % FileNotFoundError when it cannot be opened.
+    if exist(source, 'dir') == 7
+        error('panama_uav:trace', '[Errno 21] Is a directory: ''%s''', source);
+    end
     fid = fopen(source, 'r');
-    if fid < 0 || exist(source, 'dir')
-        if fid >= 0
-            fclose(fid);
-        end
+    if fid < 0
         error('panama_uav:trace', '[Errno 2] No such file or directory: ''%s''', source);
     end
     bytes = fread(fid, Inf, '*uint8')';
@@ -87,8 +90,12 @@ function metadata = import_trace(source, output, direction, unit, start_s, end_s
     if size(raw, 2) ~= 3
         error('panama_uav:trace', 'Expected sequence, transmit timestamp, one-way delay');
     end
-    width = max([1, cellfun(@numel, raw(:))']);
-    value = cellfun(@strip_nul, raw, 'UniformOutput', false);
+    width = max([1, reshape(cellfun('length', raw), 1, [])]);
+    if any(text == 0)
+        value = cellfun(@strip_nul, raw, 'UniformOutput', false);
+    else
+        value = raw;                                          % no NUL to drop
+    end
     column_names = [];
     if size(value, 1) >= 1 && is_text(value{1, 1}, 'seq_nr') ...
             && (is_text(value{1, 2}, 'ul_t0') || is_text(value{1, 2}, 'dl_t0')) ...
@@ -101,16 +108,8 @@ function metadata = import_trace(source, output, direction, unit, start_s, end_s
         error('panama_uav:trace', 'Empty trace file');
     end
     n = size(value, 1);
-    timestamps = zeros(n, 1);
-    for k = 1:n
-        timestamps(k) = py_float(value{k, 2});
-    end
-    timestamps = timestamps * scale;
-    delays = zeros(n, 1);
-    for k = 1:n
-        delays(k) = py_float(value{k, 3});
-    end
-    delays = delays * scale;
+    timestamps = py_floats(value(:, 2)) * scale;
+    delays = py_floats(value(:, 3)) * scale;
     if ~all(isfinite(timestamps)) || ~all(isfinite(delays)) || any(delays < 0)
         error('panama_uav:trace', 'Invalid trace values');
     end
@@ -176,72 +175,66 @@ end
 
 function raw = loadtxt_str(text)
 % np.loadtxt(dtype=str, delimiter=',' or None, ndmin=2) on code points TEXT.
+% Vectorised over the whole text: rows, comments and fields are found with
+% masks and cumulative sums, and the fields cut out with one mat2cell.
     if isempty(text)
         error('panama_uav:trace', 'list index out of range');   % Python: IndexError
     end
     breaks = [10 13 11 12 28 29 30 133 8232 8233];             % str.splitlines boundaries
     first = text(1:find([ismember(text, breaks), true], 1) - 1);
     comma = any(first == 44);
-    % Rows end at \n, \r\n or \r.
-    text = [text, 10];
-    ends = find(text == 10 | text == 13);
-    rows = {};
-    columns = -1;
-    pos = 1;
-    r = 0;
-    for e = ends
-        if e < pos
-            continue;                                       % the \n of a \r\n
-        end
-        line = text(pos:e - 1);
-        pos = e + 1;
-        if text(e) == 13 && e < numel(text) && text(e + 1) == 10
-            pos = e + 2;
-        end
-        hash = find(line == 35, 1);
-        if ~isempty(hash)
-            line = line(1:hash - 1);
-        end
-        if comma
-            if isempty(line)
-                continue;
-            end
-            cuts = [0, find(line == 44), numel(line) + 1];
-            fields = cell(1, numel(cuts) - 1);
-            for j = 1:numel(fields)
-                fields{j} = line(cuts(j) + 1:cuts(j + 1) - 1);
-            end
-        else
-            space = is_space(line);
-            starts = find(~space & [true, space(1:end - 1)]);
-            stops = find(~space & [space(2:end), true]);
-            if isempty(starts)
-                continue;
-            end
-            fields = cell(1, numel(starts));
-            for j = 1:numel(starts)
-                fields{j} = line(starts(j):stops(j));
-            end
-        end
-        r = r + 1;
-        if columns < 0
-            columns = numel(fields);
-        elseif numel(fields) ~= columns
-            error('panama_uav:trace', ['the number of columns changed from %d to %d at row %d; ', ...
-                'use `usecols` to select a subset and avoid this error'], columns, numel(fields), r);
-        end
-        rows{end + 1, 1} = fields; %#ok<AGROW>
-    end
-    if isempty(rows)
-        raw = cell(0, 1);
+    % Rows end at \n, \r\n or \r: every \r ends one, a \n ends one unless
+    % it follows a \r.
+    text = [reshape(text, 1, []), 10];
+    cr = text == 13;
+    lf = text == 10;
+    ends = find(cr | (lf & ~[false, cr(1:end - 1)]));
+    nlines = numel(ends);
+    starts = [1, ends(1:end - 1) + 1];
+    line = zeros(1, numel(text));
+    line(starts) = 1;
+    line = cumsum(line);                                     % row (line) index of each code point
+    % '#' starts a comment to the end of the row.
+    hashes = cumsum(text == 35);
+    before = [0, hashes(starts(2:end) - 1)];
+    content = ~(cr | lf) & (hashes - before(line)) == 0;
+    if comma
+        % Skip rows that are empty once the comment is cut; split the others
+        % at every ','.
+        used = accumarray(line(content)', 1, [nlines, 1])' > 0;
+        sep = content & text == 44;
+        event = zeros(1, numel(text));
+        event(starts(used)) = 1;
+        event = event + sep;
+        field = cumsum(event);
+        keep = content & ~sep;
+        count = accumarray(line(sep)', 1, [nlines, 1])' + 1;
+        count = count(used);
+        lengths = accumarray(field(keep)', 1, [sum(event), 1])';
     else
-        raw = vertcat(rows{:});
-        for j = 1:numel(raw)
-            if isempty(raw{j})
-                raw{j} = zeros(1, 0);
-            end
-        end
+        % Split at runs of whitespace; rows with no field are skipped.
+        keep = content & ~is_space(text);
+        open_ = keep & ~[false, keep(1:end - 1)];
+        close_ = keep & ~[keep(2:end), false];
+        lengths = find(close_) - find(open_) + 1;
+        count = accumarray(line(open_)', 1, [nlines, 1])';
+        count = count(count > 0);
     end
+    if isempty(count)
+        raw = cell(0, 1);
+        return;
+    end
+    columns = count(1);
+    r = find(count ~= columns, 1);
+    if ~isempty(r)
+        error('panama_uav:trace', ['the number of columns changed from %d to %d at row %d; ', ...
+            'use `usecols` to select a subset and avoid this error'], columns, count(r), r);
+    end
+    cells = mat2cell(text(keep), 1, lengths);
+    for j = find(lengths == 0)
+        cells{j} = zeros(1, 0);
+    end
+    raw = reshape(cells, columns, numel(count))';
 end
 
 function tf = is_space(cp)
@@ -261,6 +254,37 @@ end
 
 function tf = is_text(cp, s)
     tf = isequal(cp, double(s));
+end
+
+function x = py_floats(cells)
+% py_float of every cell, in order (so the first bad value is the one
+% reported). Plain ASCII decimals ([+-]digits[.digits][e[+-]digits], with
+% no whitespace or underscores) are converted together with one
+% str2double, the same conversion py_float applies to them; any other
+% value goes through py_float on its own.
+    n = numel(cells);
+    x = zeros(n, 1);
+    if n == 0
+        return;
+    end
+    lengths = reshape(cellfun('length', cells), 1, []);
+    flat = reshape([cells{:}], 1, []);
+    if any(flat > 127)
+        plain = false(n, 1);
+    else
+        strs = mat2cell(char(flat), 1, lengths);
+        plain = ~cellfun('isempty', regexp(strs, ...
+            '^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$', 'once'));
+        plain = reshape(plain, [], 1);
+    end
+    if any(plain)
+        p = reshape(strs(plain), [], 1);
+        negative = strncmp(p, '-', 1);
+        x(plain) = (1 - 2 * negative) .* str2double(regexprep(p, '^[+-]', ''));
+    end
+    for k = reshape(find(~plain), 1, [])
+        x(k) = py_float(cells{k});
+    end
 end
 
 function x = py_float(cp)
@@ -355,7 +379,7 @@ end
 
 function j = metadata_json(m, first_cp, last_cp, source_cp)
 % json.dumps(metadata): default separators, ensure_ascii, float repr.
-    f = @panama_uav.util.py_float_repr;
+    f = @json_float;
     if isempty(m.column_names)
         names = 'null';
     else
@@ -377,6 +401,19 @@ function j = metadata_json(m, first_cp, last_cp, source_cp)
         ', "replacement_scope": "entire satellite backhaul hop; access remains modeled"', ...
         ', "handover_identification": "not inferred from delay spikes"}'];
     j = double(j);
+end
+
+function s = json_float(x)
+% json.dumps of a float: repr, except NaN, Infinity and -Infinity.
+    if isnan(x)
+        s = 'NaN';
+    elseif isinf(x) && x > 0
+        s = 'Infinity';
+    elseif isinf(x)
+        s = '-Infinity';
+    else
+        s = panama_uav.util.py_float_repr(x);
+    end
 end
 
 function s = json_str(cp)

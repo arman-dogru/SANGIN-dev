@@ -16,6 +16,15 @@ classdef ScaffoldTest < matlab.unittest.TestCase
             tc.verifyError(@() panama_uav.transport.Transport(t), 'panama_uav:notImplemented');
             tc.verifyError(@() env.reset('start', [0 0]), 'panama_uav:options');
         end
+        function testRunTestsEmptySelectionFails(tc)
+            % A pattern or method prefix that selects nothing is a failure.
+            ok = true;
+            evalc('ok = run_tests(''NoSuchTestFile'');');
+            tc.verifyFalse(ok, 'no matching file');
+            ok = true;
+            evalc('ok = run_tests(''ScaffoldTest/testNoSuchMethod'');');
+            tc.verifyFalse(ok, 'no matching method');
+        end
         function testStubsRaiseNotImplemented(tc)
             here = fileparts(fileparts(mfilename('fullpath')));
             files = list_m(fullfile(here, '+panama_uav'));

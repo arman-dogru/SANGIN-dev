@@ -14,7 +14,7 @@ function write_npz(path, names, members)
     for k = 1:numel(names)
         name = uint8([names{k}, '.npy']);
         data = reshape(uint8(members{k}), 1, []);
-        crc = crc32(data);
+        crc = panama_uav.util.crc32(data);
         common = [le(20, 2), le(0, 2), le(0, 2), le(0, 2), le(33, 2), le(crc, 4), ...
             le(numel(data), 4), le(numel(data), 4), le(numel(name), 2), le(0, 2)];
         % version needed 2.0, no flags, stored, time 00:00, date 1980-01-01
@@ -38,34 +38,5 @@ function write_npz(path, names, members)
 end
 
 function b = le(x, n)
-    b = zeros(1, n, 'uint8');
-    x = double(x);
-    for k = 1:n
-        b(k) = mod(x, 256);
-        x = floor(x / 256);
-    end
-end
-
-function c = crc32(data)
-    persistent table
-    if isempty(table)
-        table = zeros(1, 256);
-        for i = 0:255
-            r = i;
-            for j = 1:8
-                if bitand(r, 1)
-                    r = bitxor(floor(r / 2), 3988292384);   % 0xEDB88320
-                else
-                    r = floor(r / 2);
-                end
-            end
-            table(i + 1) = r;
-        end
-    end
-    c = 4294967295;
-    d = double(data);
-    for k = 1:numel(d)
-        c = bitxor(table(bitand(bitxor(c, d(k)), 255) + 1), floor(c / 256));
-    end
-    c = bitxor(c, 4294967295);
+    b = uint8(mod(floor(double(x) ./ 256 .^ (0:n - 1)), 256));
 end

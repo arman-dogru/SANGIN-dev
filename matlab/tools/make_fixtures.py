@@ -136,6 +136,8 @@ TOML_TEXTS = [
     'k = "é"', 'k = "naïve ünïcödé"', "k = 'π≈3.14'", 'k = "x" # é',
     # end of input with and without a final newline
     "[training", "[training\n", "k = [1,\n2", "k = [1,\n2\n", "a = \"x", "a = {b = 1",
+    # basic-string escapes: \b and \f are valid (issue #7), \e is not (Python 3.13)
+    'a = "\\b"', 'a = "x\\fy"', 'a = "\\e"',
 ]
 
 
@@ -999,6 +1001,9 @@ IMPORT_TRACE_EDGE = [
     # Float repr thresholds in the metadata: 1e+16 and 5e-05.
     (b"1 1e16 3\n2 2e16 3\n", {"unit": "s"}), (b"1 0 3\n2 0.00005 3\n", {"unit": "s"}),
     (b"1 0 3\n2 0.0001 3\n3 1e15 3\n", {"unit": "s"}),
+    # A NaN or -inf origin passes the "not later" check; json.dumps writes
+    # NaN and -Infinity (not repr's nan and -inf).
+    (b"1 2 3\n", {"origin": float("nan")}), (b"1 2 3\n", {"origin": float("-inf")}),
 ]
 
 
