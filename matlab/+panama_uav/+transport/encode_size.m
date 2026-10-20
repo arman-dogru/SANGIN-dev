@@ -19,10 +19,23 @@ function n = encode_size(value)
 %     cell row or {}                    list
 %     panama_uav.transport.PyTuple(...) tuple
 %     scalar struct                     dict with str keys, in field order
-%   Not covered yet (milestone M1b-2, the mission payloads): dicts with
-%   int keys (reports and sources keyed by agent), dataclass instances
-%   (information.Guidance, pickled by class reference) and numeric arrays,
-%   whose Python type (tuple of ints, list, NumPy array) MATLAB cannot tell.
+%     panama_uav.transport.PyDict(K, V) dict with keys of any type (int-keyed
+%                                       mission dicts), in insertion order
+%     panama_uav.transport.PyTupleRows(M)  list of tuples of ints, one per
+%                                       row of M (A* paths)
+%     panama_uav.transport.PyInstance(MODULE, QUALNAME, STATE)  an instance
+%                                       of a plain class such as the
+%                                       information.Guidance dataclass
+%   Numeric arrays, struct arrays and column cells are refused: their
+%   Python type (tuple, list, NumPy array) would be a guess. The mission
+%   payloads are mapped onto these types by
+%   panama_uav.information.mission_wire.
+%
+%   An instance is saved as object.__reduce_ex__(5) gives it for a class
+%   without __slots__ or __getstate__ (copyreg.__newobj__, (cls,), __dict__):
+%   save(cls), which is save_global: save(MODULE), save(QUALNAME),
+%   STACK_GLOBAL; then save(()) (EMPTY_TUPLE) and NEWOBJ; then save(STATE)
+%   and BUILD. Fast mode has no memo, so nothing is fetched back by BINGET.
 %
 %   The frame accounting copies CPython 3.13 Modules/_pickle.c: the 2-byte
 %   PROTO header sits outside any frame; a frame is opened by the first
@@ -44,29 +57,8 @@ end
 
 function s = save(s, v)
     s = boundary(s);
-    if isa(v, 'panama_uav.transport.PyBytes')
-        if v.n <= 255
-            s = write_bytes(s, 2, v.n);          % SHORT_BINBYTES
-        else
-            s = write_bytes(s, 5, v.n);          % BINBYTES
-        end
-    elseif isa(v, 'panama_uav.transport.PyTuple')
-        items = v.items;
-        k = numel(items);
-        if k == 0
-            s = write(s, 1);                     % EMPTY_TUPLE
-        elseif k <= 3
-            for j = 1:k
-                s = save(s, items{j});
-            end
-            s = write(s, 1);                     % TUPLE1/2/3
-        else
-            s = write(s, 1);                     % MARK
-            for j = 1:k
-                s = save(s, items{j});
-            end
-            s = write(s, 1);                     % TUPLE
-        end
+    if isobject(v)
+        s = save_object(s, v);
     elseif ischar(v) && (isrow(v) || isequal(size(v), [0 0]))
         m = utf8_length(v);
         if m <= 255
@@ -105,36 +97,163 @@ function s = save(s, v)
             end
         end
     elseif isstruct(v) && isscalar(v)
-        s = write(s, 1);                         % EMPTY_DICT
         keys = fieldnames(v);
-        k = numel(keys);
-        if k == 1
-            s = save(s, keys{1});
-            s = save(s, v.(keys{1}));
-            s = write(s, 1);                     % SETITEM
-        elseif k > 1
-            pos = 0;
-            batch = 1000;
-            while batch == 1000
-                s = write(s, 1);                 % MARK
-                batch = 0;
-                while pos < k
-                    pos = pos + 1;
-                    s = save(s, keys{pos});
-                    s = save(s, v.(keys{pos}));
-                    batch = batch + 1;
-                    if batch == 1000
-                        break;
-                    end
-                end
-                s = write(s, 1);                 % SETITEMS
-            end
-        end
+        s = save_dict(s, keys, cellfun(@(f) v.(f), keys, 'UniformOutput', false));
     else
         error('panama_uav:notImplemented', ['encode_size: no Python type for a %s of size %s ', ...
-            '(mission payloads: int-keyed dicts, Guidance, arrays standing for tuples; milestone M1b-2). ', ...
+            '(use PyTuple, PyTupleRows, PyDict or PyInstance; mission payloads go through ', ...
+            'panama_uav.information.mission_wire). ', ...
             'See matlab/PORT_PLAN.md.'], ...
             class(v), mat2str(size(v)));
+    end
+end
+
+function s = save_object(s, v)
+    % The typed stand-ins for Python values (save() has passed the boundary).
+    if isa(v, 'panama_uav.transport.PyBytes')
+        if v.n <= 255
+            s = write_bytes(s, 2, v.n);          % SHORT_BINBYTES
+        else
+            s = write_bytes(s, 5, v.n);          % BINBYTES
+        end
+    elseif isa(v, 'panama_uav.transport.PyTuple')
+        items = v.items;
+        k = numel(items);
+        if k == 0
+            s = write(s, 1);                     % EMPTY_TUPLE
+        elseif k <= 3
+            for j = 1:k
+                s = save(s, items{j});
+            end
+            s = write(s, 1);                     % TUPLE1/2/3
+        else
+            s = write(s, 1);                     % MARK
+            for j = 1:k
+                s = save(s, items{j});
+            end
+            s = write(s, 1);                     % TUPLE
+        end
+    elseif isa(v, 'panama_uav.transport.PyDict')
+        s = save_dict(s, v.keys, v.values);
+    elseif isa(v, 'panama_uav.transport.PyTupleRows')
+        s = save_tuple_rows(s, v.rows);
+    elseif isa(v, 'panama_uav.transport.PyInstance')
+        s = boundary(s);                         % save(cls) -> save_global
+        s = save(s, v.module);
+        s = save(s, v.qualname);
+        s = write(s, 1);                         % STACK_GLOBAL
+        s = boundary(s);                         % save(())
+        s = write(s, 1);                         % EMPTY_TUPLE
+        s = write(s, 1);                         % NEWOBJ
+        s = save(s, v.state);
+        s = write(s, 1);                         % BUILD
+    else
+        error('panama_uav:notImplemented', 'encode_size: no Python type for a %s', class(v));
+    end
+end
+
+function s = save_dict(s, keys, values)
+    % save_dict: EMPTY_DICT, then batch_dict_exact.
+    s = write(s, 1);                             % EMPTY_DICT
+    k = numel(keys);
+    if k == 1
+        s = save(s, keys{1});
+        s = save(s, values{1});
+        s = write(s, 1);                         % SETITEM
+    elseif k > 1
+        pos = 0;
+        batch = 1000;
+        while batch == 1000
+            s = write(s, 1);                     % MARK
+            batch = 0;
+            while pos < k
+                pos = pos + 1;
+                s = save(s, keys{pos});
+                s = save(s, values{pos});
+                batch = batch + 1;
+                if batch == 1000
+                    break;
+                end
+            end
+            s = write(s, 1);                     % SETITEMS
+        end
+    end
+end
+
+function s = save_tuple_rows(s, m)
+    % A list of int tuples, sized as save_list over save_tuple(save_long ...)
+    % would size it. The list's own save() has already passed its opcode
+    % boundary. Every nested save() is an opcode boundary too, but none can
+    % commit the frame while the frame holds less than 64 KiB, so when the
+    % whole list fits in the open frame its size is added at once;
+    % otherwise each row's tuple and int goes through boundary().
+    [n, k] = size(m);
+    % save_long sizes, vectorized for signed 32-bit values (BININT1/2/BININT).
+    x = double(m);
+    sizes = 5 * ones(n, k);
+    sizes(x >= 0 & x <= 65535) = 3;
+    sizes(x >= 0 & x <= 255) = 2;
+    if isa(m, 'uint64')
+        wide = find(m > uint64(2147483647));
+    else
+        wide = find(int64(m) < int64(-2147483648) | int64(m) > int64(2147483647));
+    end
+    for j = reshape(wide, 1, [])
+        sizes(j) = int_size(int64_or_uint64(m(j)));      % LONG1
+    end
+    if k == 0
+        tuple_extra = 1;                         % EMPTY_TUPLE
+    elseif k <= 3
+        tuple_extra = 1;                         % TUPLE1/2/3
+    else
+        tuple_extra = 2;                         % MARK ... TUPLE
+    end
+    row_bytes = sum(sizes, 2) + tuple_extra;
+    if n == 0
+        list_extra = 1;                          % EMPTY_LIST
+    elseif n == 1
+        list_extra = 2;                          % EMPTY_LIST, APPEND
+    else
+        list_extra = 1 + 2 * ceil(n / 1000);     % EMPTY_LIST, MARK ... APPENDS per batch
+    end
+    total = sum(row_bytes) + list_extra;
+    held = 0;
+    if s.framing && s.fs >= 0
+        held = s.len - s.fs - 9;
+    end
+    if ~s.framing || held + total <= 65536
+        s = write(s, total);
+        return;
+    end
+    s = write(s, 1);                             % EMPTY_LIST
+    for j = 1:n
+        if n > 1 && mod(j - 1, 1000) == 0
+            s = write(s, 1);                     % MARK
+        end
+        s = boundary(s);                         % save(tuple)
+        if k > 3
+            s = write(s, 1);                     % MARK
+        end
+        for i = 1:k
+            s = boundary(s);                     % save(int)
+            s = write(s, sizes(j, i));
+        end
+        s = write(s, 1);                         % TUPLE*, EMPTY_TUPLE
+        if n == 1
+            s = write(s, 1);                     % APPEND
+        elseif mod(j, 1000) == 0 || j == n
+            s = write(s, 1);                     % APPENDS
+        end
+    end
+end
+
+function w = int64_or_uint64(x)
+    if isa(x, 'uint64') || isa(x, 'int64')
+        w = x;
+    elseif x > 9223372036854775807
+        w = uint64(x);
+    else
+        w = int64(x);
     end
 end
 
