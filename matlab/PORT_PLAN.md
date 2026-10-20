@@ -35,9 +35,9 @@ relevant test file. It reports each mutant as killed (an assertion failed),
 ERRORED (a crash), TIMEOUT or SURVIVED, and counts only assertion kills.
 Measured on fresh clones of matlab-m1b-fixes (67c6b0c for every group;
 npy rerun at 4348c03 after its test stopped erroring on a rejected valid
-file): config 20/20, toml 29/29, env 2/2, encode 19/19, npy 6/6, trace 6/6
+file): config 20/20, toml 29/29, env 2/2, npy 6/6, trace 6/6
 and transport 30/30 killed by assertions, with 0 errored, 0 timed out and
-0 survived. Mutants that cannot change a
+0 survived. Measured at @SWEEP_SHA@ (matlab-m1b2): @SWEEP_RESULT@. Mutants that cannot change a
 result, or whose only effect is an endless loop, are listed (with the
 reason) at the end of the sweep's MUTANTS table.
 `python matlab/tools/toml_corpus.py` compares toml_decode with tomllib on
@@ -46,7 +46,13 @@ characters and invalid UTF-8): at 84dba21, 0 of 3,000 documents mismatched for
 each of seeds 1, 2 and 3 (157, 166 and 132 of them rejected as invalid UTF-8);
 the decoder at feefd8f, given the same UTF-8 check, mismatched 444 of 3,000 on
 seed 1 (measured at 7b2516e). Both tools write to `matlab/output/`
-(gitignored). Rerun them when a rule changes, add a mutant for a new rule,
+(gitignored). `python matlab/tools/trace_corpus.py` compares `import_trace`
+with Python's on seeded random trace files (delimiters, comments, line
+breaks, Unicode spaces and digits, NULs, headers, bounds): every `.npz`
+member must match byte for byte, or both must reject the file with the same
+message. At 88ce80c, 1,000 files each for seeds 1, 2 and 3 (468, 469 and
+478 rejected by Python) gave 0 mismatches; 2, 1 and 0 of them hit the
+documented non-ASCII repr divergence (§8). Rerun them when a rule changes, add a mutant for a new rule,
 and update this paragraph with the commit you measured.
 
 Maps are MovingAI `.map` files in `maps/` (13 files) and scenarios are `.scen`
@@ -91,7 +97,8 @@ sub-package or class with the same responsibility.
 | NumPy `.npz` | delay traces | `+util/read_npz.m` (built-in `unzip`; on Octave the system `unzip` program) and `+util/read_npy.m` (format 1.0–3.0, little-endian numeric, bool, `<U` strings; object arrays refused as with `allow_pickle=False`) | — |
 | NumPy | arrays, RNG | Built-in arrays; `+util/Xorshift128.m` replaces `np.random.default_rng` (same distributions, different stream; see §5) | — |
 | SimPy 4.1.1 | event calendar | `EventCalendar.m`: binary heap keyed by (time, insertion id). It copies SimPy's timing arithmetic `now + max(0, at - now)`. | SimEvents (overkill) |
-| `pickle` | wire sizes | `+transport/encode_size.m`: byte-exact length of a protocol-5, fast-mode pickle (CPython's C pickler, including 64 KiB framing) for None, bool, int, float, str, bytes (`PyBytes`), list, tuple (`PyTuple`) and str-keyed dict; mission payloads follow in M1b-2 | — |
+| `pickle` | wire sizes | `+transport/encode_size.m`: byte-exact length of a protocol-5, fast-mode pickle (CPython's C pickler, including 64 KiB framing) for None, bool, int, float, str, bytes (`PyBytes`), list, tuple (`PyTuple`), str-keyed dict, any-keyed dict (`PyDict`), list of int tuples (`PyTupleRows`) and dataclass instances (`PyInstance`, pickled by class reference and `__dict__`); `+information/mission_wire.m` maps the four mission payloads onto those types | — |
+| `np.loadtxt`, `np.savez`, `hashlib` | `import_trace`, `sha256` | `+transport/import_trace.m` (loadtxt `dtype=str` rules, Python `float()` grammar), `+util/npy_bytes.m`, `+util/write_npz.m` (stored ZIP), `+util/py_float_repr.m`, `+util/sha256_bytes.m` (Octave `hash`, Java `MessageDigest`, or a portable implementation) | — |
 | PyTorch | DQN, Adam, Huber | `+nn/` hand-written forward and backward for Conv2d(3×3, pad 1), ReLU, MaxPool2d(2), Flatten, Linear; Huber loss; AdamW with AMSGrad; grad-norm clip; soft target update | **Deep Learning Toolbox** (`dlnetwork`, `dlgradient`, `adamupdate`). Keep the hand-written path as the parity reference. |
 | Torch checkpoints | weights | *Planned for M2, not written yet:* `matlab/tools/export_torch_weights.py` → `.mat` (v5 via SciPy) or JSON, read by `+models/load_weights.m` (currently a stub) | `importNetworkFromPyTorch` (Deep Learning Toolbox Converter for PyTorch) |
 | sgp4 2.27, Skyfield 1.55 | `scripts/build_leo_timeline.py`, `scripts/report_leo_full.py` | Port of Vallado SGP4 (OMM → `Satrec`, `sgp4`), plus only the Skyfield calls used (UTC→TT/UT1, TEME→ITRS, `wgs84.latlon`, `altaz`) | **Aerospace Toolbox / Satellite Communications Toolbox** (`satelliteScenario`, `propagateOrbit` with SGP4) |
@@ -108,9 +115,9 @@ sub-package or class with the same responsibility.
 | M0 | `matlab-port-v2` | This plan | done |
 | M1 | `matlab-port-v2-m1` | Scaffold of the whole package (stubs that raise `panama_uav:notImplemented`), TOML/config, maps/scenarios, A*, UAV geometry, environment step, information caches, `perfect` and `controlled` transport, event calendar, portable RNG, fixture generator, parity tests, Octave instructions, README_MATLAB | see checklist |
 | M1b-1 | `matlab-m1b` | `physical` profile without orbital timelines: link service (shared capacity, per-agent round robin, fragmentation and packet overhead, propagation), periodic satellite handover pauses and windows, `encode_size` for plain value types, delay traces (`.npz` reader, `DelayTrace`, trace replay), byte counters and occupancy | done |
-| M1b-2 | `matlab-m1b-2` | Wire sizes of the mission payloads (int-keyed dicts, `Guidance`, tuples of ints) so `MissionCommunication` runs on the physical profile, physical-profile environment rollouts in `EnvironmentParityTest`, `import_trace` (`np.loadtxt` parsing, `.npz` writer, `+records/sha256`) | next |
+| M1b-2 | `matlab-m1b2` | Wire sizes of the mission payloads (int-keyed dicts, `Guidance`, tuples of ints) so `MissionCommunication` runs on the physical profile, physical-profile environment rollouts in `EnvironmentParityTest`, `import_trace` (`np.loadtxt` parsing, `.npz` writer, `+records/sha256`) | done |
 | M2 | `matlab-port-v2-m2` | `+nn` layers and gradients, DQN, Huber, AdamW+AMSGrad, clipping, soft update, torch-weight exporter and loader; forward/backward/optimizer parity | |
-| M3 | `matlab-port-v2-m3` | SumTree/PER, Double DQN `learn`, `TrainingSession` with experience upload and snapshot downlink, validation and qualification, MAT-file checkpoints, `+records` (JSONL/CSV, sha256) | |
+| M3 | `matlab-port-v2-m3` | SumTree/PER, Double DQN `learn`, `TrainingSession` with experience upload and snapshot downlink, validation and qualification, MAT-file checkpoints, `+records` (JSONL/CSV) | |
 | M4 | `matlab-port-v2-m4` | Case bank, `run_episode`, treatments, decision deadline, paired bootstrap summary, `evaluate_suite` | |
 | M5 | `matlab-port-v2-m5` | `OrbitTimeline`, handshake model, SGP4 port and timeline builder, ITU-R port, `handover_study` | |
 | M6 | `matlab-port-v2-m6` | Reporting figures, HTML replay, `cli.m`, script equivalents | |
@@ -162,6 +169,7 @@ reproduced. There are two modes:
 | Rewards | abs 1e-12 (all rewards are sums of the same few constants in the same order) |
 | UAV position, target, radio SNR map | abs 1e-9 m / 1e-4 dB (libm `exp`/`log10`/`atan` may differ by an ulp; SNR is stored as float32) |
 | Event times, information ages, reservation windows | abs 1e-12 s |
+| `import_trace` output | byte-exact `.npy` members and metadata JSON (the ZIP container differs, §8) |
 | Wire sizes (`encode_size`) | exact bytes (an integer; one byte changes every service time) |
 | Physical transport: log times, durations, handover and queue seconds, occupancy, `finish_transmission` | bit-exact (0 ulp): the port performs the same IEEE-754 double operations in the same order (capacity·1e6, bytes·8/bps, floor/ceil, the same sums) and calls no libm function |
 | Delay traces: stored arrays, `DelayTrace.delay` | bit-exact: bytes are copied and lookups only compare |
@@ -236,42 +244,68 @@ in [README_MATLAB.md](../README_MATLAB.md).
       fragmentation, handover pauses and `handover_windows`), `encode_size`
       for plain value types, `DelayTrace` with the `.npz` reader and trace
       replay, byte counters, `occupancy` (`EncodeTest`, `NpyTest`, `TraceTest`, `TransportTest`)
+- [x] M1b-2: mission-payload wire sizes (`PyDict`, `PyTupleRows`,
+      `PyInstance`, `mission_wire`), so `MissionCommunication` runs on the
+      physical profile; 7 physical-profile rollouts in `EnvironmentParityTest`
+      (full transport log, counters and clock bit-exact); `import_trace`
+      with the `.npz` writer; `+records/sha256` (`EncodeTest`,
+      `InformationTest`, `EnvironmentParityTest`, `ImportTraceTest`, `RecordsTest`).
+      `ScaffoldTest` now counts 55 stubs
 
 **Next, in order:**
 1. [ ] Run `run_tests` on licensed MATLAB R2021b+ and fix any MATLAB/Octave differences
-2. [ ] M1b-2: wire sizes of the mission payloads. Python's report is a dict
-       of tuples of ints, a list of tuples, floats and a bool; the
-       mission_compute and information payloads add dicts keyed by agent id
-       and `Guidance` (a dataclass, pickled by class reference and state).
-       MATLAB's `MissionCommunication` must hand `encode_size` typed values
-       (`PyTuple` of int64, an int-keyed dict type, a Guidance mapping); then
-       add physical-profile cases to `EnvironmentParityTest` and fixtures of
-       `len(encode(payload))` for the report, mission and information
-       payloads. Port `import_trace` (np.loadtxt with `dtype=str`: `#`
-       comments, comma detection on the first line only; the `.npz` writer;
-       `+records/sha256`, now a stub)
-3. [ ] `MissionCommunication.prepare_decision` (decision deadline)
-4. [ ] M2: `+nn` and `DQN` with forward/backward/AdamW parity. Add
+2. [ ] `MissionCommunication.prepare_decision` (decision deadline)
+3. [ ] M2: `+nn` and `DQN` with forward/backward/AdamW parity. Add
        `export_torch_weights.py` and fixtures with `torch.manual_seed`.
        Consider Deep Learning Toolbox (`dlnetwork`, `dlgradient`, `adamupdate`)
        as the fast path, keeping the hand-written one as reference
-5. [ ] M3: PER, `learn`, `TrainingSession`, records
-6. [ ] M4: evaluation and bootstrap (`bootci` with Statistics Toolbox, if licensed)
-7. [ ] M5: LEO. Satellite Communications / Aerospace Toolbox (`satelliteScenario`,
+4. [ ] M3: PER, `learn`, `TrainingSession`, records
+5. [ ] M4: evaluation and bootstrap (`bootci` with Statistics Toolbox, if licensed)
+6. [ ] M5: LEO. Satellite Communications / Aerospace Toolbox (`satelliteScenario`,
        SGP4 propagator, `p618PropagationLosses`) can replace the hand ports;
        keep parity fixtures against `sgp4` 2.27 and ITU-Rpy 0.4.0 either way
-8. [ ] M6/M7: reporting, HTML replay, CLI, CI workflow, side-by-side figures.
-       Give the CI job a `timeout-minutes` (the suite takes about 2.5 min on
-       Octave, so 15 is ample): `astar_path` has no closed set, and the
+7. [ ] M6/M7: reporting, HTML replay, CLI, CI workflow, side-by-side figures.
+       Give the CI job a `timeout-minutes` (the suite takes about 11 min on
+       Octave, so 30 is ample): `astar_path` has no closed set, and the
        mutation `>=` → `>` at `astar_path.m:58` makes `MapsTest` loop forever
        instead of failing
 
 **Known gaps and ambiguities:**
 - MATLAB-native episodes for a seed are not NumPy's episodes for that seed (identical between MATLAB and Octave).
-- Payloads that `encode_size` does not map yet (the mission payloads,
-  M1b-2) make the physical profile raise `panama_uav:notImplemented`; the
-  other profiles, which never use sizes for timing, log NaN bytes and NaN
-  byte counters for them.
+- `encode_size` raises `panama_uav:encode` for a value it cannot map, and
+  `mission_wire` for an unknown payload kind or field, rather than guessing
+  a size.
+- **`import_trace` divergences (documented in `import_trace.m`):**
+  - The `.npz` is a stored (uncompressed) ZIP dated 1980-01-01, where
+    `np.savez` writes ZIP64 local headers with the current time. The
+    members (`timestamps_seconds.npy`, `delays_seconds.npy`,
+    `metadata.npy`) are byte-identical, so `np.load` and `read_npz` read
+    the same arrays; the container bytes differ.
+  - Python's error message quotes the bad field as `np.str_('…')`; for
+    non-ASCII text the port escapes it (`\xe9`) where Python prints the
+    character. Only the prefix of such messages is compared.
+  - `source` is the resolved absolute path (`Path.resolve`). MATLAB without
+    a JVM, unlike Octave (`canonicalize_file_name`), cannot resolve
+    symlinks and uses the absolute path as given.
+- **Python `import_trace` behaviour kept as is:**
+  - An empty file raises `IndexError: list index out of range`, not
+    "Empty trace file" (a header-only file gives the latter).
+  - The delimiter is a comma if the first `str.splitlines` line contains
+    one, even inside a `#` comment; a whitespace-separated file with such a
+    comment is then rejected. `splitlines` also breaks at `\v`, `\f`,
+    `\x1c`–`\x1e`, `\x85`, U+2028 and U+2029, while `loadtxt` rows end
+    only at `\n`, `\r\n` and `\r`.
+  - In comma mode only empty rows are skipped; a row of spaces is a row and
+    fails the column-count check.
+  - Trailing NUL characters of a field are dropped (NumPy `<U` strings);
+    the `<U` width is the longest field anywhere in the file, the header
+    included.
+  - The header row is dropped when it is `seq_nr`, then `ul_t0` or `dl_t0`;
+    the direction is not checked against it.
+  - Timestamps accept Unicode decimal digits, single underscores between
+    digits and non-ASCII spaces around the number (Python `float()`).
+  - `segment_start_seconds` is the origin, not the first kept sample.
+  - An output name without `.npz` gets `.npz` appended (`np.savez`).
 - **Python transport behaviour kept as is (documented in the code):**
   - `_finish_transmission` never returns with a zero (or sub-ulp)
     `handover_interruption_seconds` when `floor(window / interval)` rounds

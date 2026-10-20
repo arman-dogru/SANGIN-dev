@@ -30,7 +30,7 @@ classdef ScaffoldTest < matlab.unittest.TestCase
                 tc.verifyError(@() feval(name), 'panama_uav:notImplemented', name);
             end
             % Pinned: a stub that is ported must update this count and README_MATLAB.
-            tc.verifyEqual(stubs, 57, sprintf('%d stub files found', stubs));
+            tc.verifyEqual(stubs, 55, sprintf('%d stub files found', stubs));
         end
     end
 end

@@ -417,11 +417,17 @@ def _env_run(config, agents, seed, steps, policy_seed, cap=250):
         })
         if r.terminated or r.truncated:
             break
-    log = [e for e in env.communication.transport.log if e["event"] in
-           ("scheduled_reservation", "reservation_exposure", "buffered", "delivered")]
+    t = env.communication.transport
+    log = [e for e in t.log if e["event"] in
+           ("scheduled_reservation", "reservation_exposure", "buffered", "generated", "delivered")]
     log = [{k: e[k] for k in ("event", "time", "agent", "id", "kind", "release", "ready_at",
-                               "source_time", "version") if k in e} for e in log]
-    return {"agents": agents, "seed": seed, "cap": cap, "reset_observations": reset_obs,
+                               "source_time", "version", "bytes") if k in e} for e in log]
+    extra = {}
+    if config.communication.profile == "physical":
+        # Every log entry and counter, floats as hex bits (compared bit for bit).
+        extra = {"full_log": [tagged(e) for e in t.log], "full_counters": tagged(dict(t.counters)),
+                 "now": hexfloat(t.now)}
+    return {**extra, "agents": agents, "seed": seed, "cap": cap, "reset_observations": reset_obs,
             "starts": starts, "goals": goals,
             "windows": [windows.get(a, []) for a in range(agents)],
             "info0": info0, "frames": frames, "log": log,
@@ -450,6 +456,55 @@ ENV_CASES = [
     # Short cap so the episode truncates (cap is the 6th element).
     ("truncated_cap12", {"stale_information": ("task",), "delay_steps": 5.0}, 6, 17, 12, 12),
 ]
+
+
+PHYSICAL_ENV_CASES = [
+    # name, communication overrides, agents, seed, steps[, cap]. Physical
+    # profile: mission payloads are timed by their wire sizes (M1b-2).
+    ("physical_fresh_a4", {"profile": "physical"}, 4, 123, 40),
+    ("physical_stale_all_uav", {"profile": "physical",
+                                "stale_information": ("task", "intentions", "priorities")}, 4, 21, 60),
+    # Slow access links: messages queue, round robin and FIFO order matter.
+    ("physical_slow_access_a8", {"profile": "physical", "access_uplink_mbps": 0.05,
+                                 "access_downlink_mbps": 0.08,
+                                 "stale_information": ("task", "intentions", "priorities")}, 8, 5, 40),
+    # Cloud route over a slow satellite uplink with frequent long handovers.
+    ("physical_cloud_handover", {"profile": "physical", "mission_route": "cloud",
+                                 "satellite_uplink_mbps": 0.2, "satellite_downlink_mbps": 0.3,
+                                 "handover_interval_seconds": 2.5,
+                                 "handover_interruption_seconds": 0.4,
+                                 "cloud_processing_seconds": 0.25,
+                                 "stale_information": ("task", "intentions", "priorities")}, 6, 9, 50),
+    # Fragmentation with per-packet overhead, contention, reservation delay.
+    ("physical_fragmented", {"profile": "physical", "packet_payload_bytes": 300,
+                             "packet_overhead_bytes": 48, "access_uplink_mbps": 0.1,
+                             "delay_steps": 3.0, "windows_min": 2,
+                             "stale_information": ("task", "intentions")}, 6, 44, 50),
+    # Satellite hops replaced by the imported delay traces (cloud route).
+    ("physical_traces", {"profile": "physical", "mission_route": "cloud",
+                         "uplink_trace": "trace_uplink.npz", "downlink_trace": "trace_downlink.npz",
+                         "backhaul_time_offset_seconds": 2.0, "log_service_chunks": True,
+                         "stale_information": ("task", "intentions", "priorities")}, 4, 33, 30),
+    ("physical_truncated_cap10", {"profile": "physical", "access_uplink_mbps": 0.2,
+                                  "stale_information": ("task",)}, 6, 17, 10, 10),
+]
+
+
+def group_env_physical():
+    """Physical-profile rollouts: mission payload wire sizes drive link service."""
+    c = base_config()
+    out = {}
+    for name, changes, agents, seed, steps, *cap in PHYSICAL_ENV_CASES:
+        run = dict(changes)
+        for key in ("uplink_trace", "downlink_trace"):
+            if key in run:
+                run[key] = str(ROOT / TRACE_DIR / run[key])
+        case = _env_run(with_comm(c, **run), agents, seed, steps, policy_seed=seed + 1000,
+                        cap=cap[0] if cap else 250)
+        case["communication"] = {k: (list(v) if isinstance(v, tuple) else v)
+                                 for k, v in changes.items()}
+        out[name] = clean(case)
+    return out
 
 
 def group_env():
@@ -585,11 +640,28 @@ def py_spec(value):
     if isinstance(value, tuple):
         return {"t": "tuple", "items": [py_spec(v) for v in value]}
     if isinstance(value, list):
+        if len(value) > 1 and _int_rows(value):
+            # A list of int tuples of one length (A* paths): rows of a
+            # matrix, read as PyTupleRows and as a cell of PyTuple.
+            return {"t": "tuple_rows", "n": len(value), "k": len(value[0]), "rows": [list(r) for r in value]}
         return {"t": "list", "items": [py_spec(v) for v in value]}
+    if isinstance(value, Guidance):
+        # A dataclass instance: class by reference, then its __dict__ (BUILD).
+        state = vars(value)
+        return {"t": "object", "module": type(value).__module__,
+                "qualname": type(value).__qualname__, "state": py_spec(dict(state))}
     if isinstance(value, dict):
         return {"t": "dict", "keys": [py_spec(k) for k in value],
                 "values": [py_spec(v) for v in value.values()]}
     raise TypeError(type(value))
+
+
+def _int_rows(value):
+    """True for a list of equally long tuples of ints within +-2**53 (exact in JSON)."""
+    if not all(isinstance(r, tuple) for r in value):
+        return False
+    k = len(value[0])
+    return all(len(r) == k and all(type(x) is int and abs(x) <= 2**53 for x in r) for r in value)
 
 
 class Repeat:
@@ -676,7 +748,144 @@ def group_encode():
     cases += [{"spec": r.spec(), "size": len(encode(r.value()))} for r in repeats]
     cases += [{"spec": py_spec(v), "size": len(encode(v))}
               for v in (_random_value(rng) for _ in range(250))]
+    mission = _mission_edge_values()
+    mission += [_random_mission_value(rng) for _ in range(150)]
+    mission += _captured_mission_payloads()
+    cases += [{"spec": py_spec(v), "size": len(encode(v)), "mission": True} for v in mission]
     return {"cases": cases}
+
+
+def _mission_edge_values():
+    """Mission-payload types (M1b-2): Guidance, int-keyed dicts, int tuple rows,
+    including rows that straddle a 64 KiB frame commit."""
+    route = [(r, c) for r, c in zip(range(0, 600, 2), range(250, 550))]
+    return [
+        Guidance([], math.inf), Guidance([(0, 0)], 0.0), Guidance([(3, 4), (3, 5)], 1.0),
+        Guidance(route, 299.0), {"task": {"value": Guidance([(1, 2)], 0.0), "sources": {0: 1.5}}},
+        {0: 1.0}, {0: 1.0, 1: 2.0}, {-1: None}, {2**31: "x", -2**31 - 1: "y"}, {2**40: [], 255: ()},
+        {(1, 2): 3}, {None: 1, True: 2, 1.5: 3, "s": 4, (): 5},
+        {k: float(k) for k in range(999)}, {k: float(k) for k in range(1000)},
+        {k: k for k in range(1001)}, {k: [(k, k)] for k in range(2000)},
+        [(1,), (2,)], [(1, 2, 3)] * 5, [(1, 2, 3, 4)] * 5, [(), ()], [(255, 256), (65535, 65536)],
+        [(-1, -256), (2**31 - 1, 2**31), (-2**31, -2**31 - 1), (2**53, -2**53)],
+        [(1, 2)] * 1000, [(1, 2)] * 1001, [(1, 2)] * 2000, [(300, 70000)] * 10000,
+        [bytes(65000), [(1, 2)] * 100], [bytes(60000), [(1, 2)] * 2000],
+        [bytes(65530), [(1, 2), (3, 4)]], [bytes(65526), [(1, 2), (3, 4)]],
+        ["x" * 65000, {0: [(7, 7)] * 600}], [bytes(65520), Guidance([(1, 1)] * 50, 49.0)],
+        [bytes(65523), Guidance([(1, 1)], 0.0)], [bytes(65490), Guidance([(1, 1)], 0.0)],
+        # The frame commit falls between the two ints of a tuple: a commit
+        # checked only at tuple boundaries gives a different frame count.
+        ["", [(100000, 200000)] * 5957],
+    ]
+
+
+def _random_mission_value(rng, depth=0):
+    """Nested dicts with int and str keys, Guidance, tuple rows and floats."""
+    kind = int(rng.integers(6 if depth < 3 else 3))
+    if kind == 0:
+        return float(rng.normal() * 100)
+    if kind == 1:
+        n, k = int(rng.choice([0, 1, 2, 7, 40])), int(rng.choice([1, 2, 2, 3, 4]))
+        hi = int(rng.choice([10, 300, 70000, 2**33]))
+        return [tuple(int(v) for v in rng.integers(-hi, hi, k)) for _ in range(n)]
+    if kind == 2:
+        return bool(rng.integers(2))
+    if kind == 3:
+        n = int(rng.integers(0, 9))
+        return {int(rng.integers(-3, 300)) * (i + 1): _random_mission_value(rng, depth + 1)
+                for i in range(n)}
+    if kind == 4:
+        n = int(rng.integers(0, 60))
+        return Guidance([tuple(int(v) for v in rng.integers(0, 600, 2)) for _ in range(n)],
+                        float(n - 1) if n else math.inf)
+    return {"path": _random_mission_value(rng, 3), "completed": bool(rng.integers(2)),
+            "nested": _random_mission_value(rng, depth + 1)}
+
+
+def _captured_mission_payloads(per_kind=6):
+    """The first payloads of each mission kind from a physical-profile rollout,
+    as transport.encode received them (pickled and unpickled again, so later
+    mutation by MissionCommunication cannot change them)."""
+    import panama_uav.transport as transport
+    seen, original = {}, transport.encode
+
+    def capture(payload):
+        data = original(payload)
+        if isinstance(payload, dict) and set(payload) != {"agent", "kind", "timestamp", "version"}:
+            key = _mission_kind(payload)
+            if len(seen.setdefault(key, [])) < per_kind:
+                seen[key].append(pickle.loads(data))
+        return data
+
+    transport.encode = capture
+    try:
+        cfg = with_comm(base_config(), profile="physical", mission_route="cloud",
+                        stale_information=("task", "intentions", "priorities"))
+        _env_run(cfg, 6, 9, 12, policy_seed=1009)
+    finally:
+        transport.encode = original
+    return [v for key in sorted(seen) for v in seen[key]]
+
+
+def _mission_kind(payload):
+    if "position" in payload:
+        return "report"
+    if "report" in payload:
+        return "mission_request"
+    if "reports" in payload:
+        return "mission_compute"
+    return "information_" + next(iter(payload))
+
+
+def group_mission_wire():
+    """Wire sizes of hand-built mission payloads, shaped by information.py's
+    own _report and _value (information.mission_wire.m): coordinates past
+    255 and 65535 (larger maps than the 32x32 rollouts), empty paths with
+    infinite distances, infinite priorities and both completion flags."""
+    from panama_uav.environment import Agent
+    from panama_uav.information import MissionCommunication
+    from panama_uav.transport import encode
+    agents = [
+        {"id": 0, "position": (3, 4), "goal": (3, 9), "path": [(3, 4), (3, 5), (3, 6)],
+         "distance": 2.0, "priority": 2.0, "completed": False},
+        {"id": 1, "position": (300, 70000), "goal": (301, 70000), "path": [(300, 70000), (301, 70000)],
+         "distance": 1.0, "priority": 1.000001, "completed": True},
+        {"id": 2, "position": (0, 0), "goal": (5, 5), "path": [], "distance": math.inf,
+         "priority": math.inf, "completed": False},
+        {"id": 3, "position": (255, 256), "goal": (255, 256), "path": [(255, 256)],
+         "distance": 0.0, "priority": 1024.000003, "completed": True},
+        {"id": 4, "position": (7, 7), "goal": (7, 17),
+         "path": [(7, c) for c in range(7, 18)], "distance": 10.0, "priority": 10.000004,
+         "completed": False},
+    ]
+    objs = []
+    for a in agents:
+        agent = Agent(a["id"], a["position"], a["goal"])
+        agent.path = list(a["path"])
+        agent.distance_to_goal = a["distance"]
+        agent.priority = a["priority"]
+        agent.ever_reached_goal = a["completed"]
+        objs.append(agent)
+    report = MissionCommunication._report
+    value = MissionCommunication._value
+    reports = {a.id: report(None, a) for a in objs}
+    sources = {a.id: 0.5 * a.id + 0.25 for a in objs}
+    cases = []
+    for a in objs:
+        cases.append({"kind": "report", "agent": a.id, "size": len(encode(report(None, a)))})
+        for field in ("task", "intentions", "priorities"):
+            cases.append({"kind": "mission_request", "agent": a.id, "field": field,
+                          "size": len(encode({"field": field, "report": report(None, a)}))})
+    for field in ("task", "intentions", "priorities"):
+        cases.append({"kind": "mission_compute", "field": field, "size": len(encode(
+            {"field": field, "reports": reports, "sources": sources}))})
+        for a in objs:
+            src = {a.id: sources[a.id]} if field == "task" else sources
+            payload = {field: {"value": value(None, field, a.id, reports), "sources": src}}
+            cases.append({"kind": "information", "agent": a.id, "field": field,
+                          "size": len(encode(payload))})
+    return {"agents": clean([{**a, "path": [list(p) for p in a["path"]]} for a in agents]),
+            "sources": [sources[a.id] for a in objs], "cases": cases}
 
 
 def tagged(value):
@@ -760,6 +969,116 @@ def group_trace():
                      "delays": [hexfloat(v) for v in trace.delays],
                      "metadata": tagged(trace.metadata), "queries": results}
     return out
+
+
+IMPORT_TRACE_EDGE = [
+    # (text bytes, params): params are direction, unit, start, end, origin, output name
+    (b"", {}), (b"\n", {}), (b"seq_nr ul_t0 owd_t0_t1\n", {}), (b"# a,b\n1 2 3\n", {}),
+    (b"1 2 3\x0c4,5,6\n", {}), (b"5\x00 2 3\n6 3 4\x00\x00\n", {}), (b"1,2,3\n  \n4,5,6\n", {}),
+    (b"1,2,3\n\n# c\n4,5,6\n", {}), (b"seq_nr dl_t0 owd_t0_t1\n1 2 3\n", {}),
+    (b"seq_nr ul_t0 owd\n1 2 3\n", {}), (b"1 2 3\n2 x 4\n", {}), (b"1 2 3\n2 3 y\n", {}),
+    ("1 \u0663 3\n".encode(), {}), ("1\xa02\u20033\n2\u30003\x854\n".encode(), {}),
+    (b"1 2 -3\n", {}), (b"1 inf 3\n", {}), (b"1 2 nan\n", {}), (b"1 2 3\n2 1 3\n", {}),
+    (b"1 2 3\n2 2 3\n", {}), (b"1 10 3\n2 20 3\n", {"unit": "s", "start": 11.0, "end": 19.0}),
+    (b"1 10 3\n2 20 3\n", {"unit": "s", "start": 10.0, "end": 20.0}),
+    (b"1 10 3\n2 20 3\n", {"unit": "s", "origin": 10.5}),
+    (b"1 10 3\n2 20 3\n", {"unit": "s", "origin": 4.0}),
+    (b"1 10 3\n2 20 3\n", {"unit": "s", "start": 15.0, "origin": 12.0}),
+    (b"1 2 3\n", {"output": "plain.bin"}), (b"1 2 \xff\n", {}), (b"1 2 \xc3", {}),
+    (b"1 2 3\r4 5 6\r", {}), (b"1 2 3\r\n4 5 6", {}), (b"1 1_000 2.5e3\n2 1_0_0_1 .5\n", {"unit": "us"}),
+    (b" 1 , 2 , 3 \n4,5 ,6\n", {"unit": "ms"}), (b"1,2,3,\n", {}), (b"1,,3\n", {}),
+    (b"1 2 3\n", {"direction": "up"}), (b"1 2 3\n", {"unit": "min"}), (b"1 2 3 # x, y\n4 5 6\n", {}),
+    (b"1\x002 2 3\n", {}), (b"1 2\x003 3\n", {}), (b"\xef\xbb\xbf1 2 3\n", {}),
+    (b"1 1700000000123456789 25000000\n2 1700000000203456789 26000001\n", {"unit": "ns"}),
+    (b"1 2 3\n", {"direction": "downlink"}), (b"1 +INF 3\n", {}), (b"1 2 1e400\n", {}),
+    (b"1 2 3\n", {"unit": "ns", "origin": -0.0}), ("1 2 \u00e9\n".encode(), {}),
+    # float() details on comma fields: underscores only between digits,
+    # non-ASCII spaces stripped, ASCII whitespace only (not \x1c-\x1f).
+    (b"1,1__0,3\n", {}), (b"1,10_,3\n", {}), ("1,\xa02\u3000,3\n".encode(), {}),
+    (b"1,\t2\x0b,3\n", {}), (b"1,2\x1f,3\n", {}),
+    # Float repr thresholds in the metadata: 1e+16 and 5e-05.
+    (b"1 1e16 3\n2 2e16 3\n", {"unit": "s"}), (b"1 0 3\n2 0.00005 3\n", {"unit": "s"}),
+    (b"1 0 3\n2 0.0001 3\n3 1e15 3\n", {"unit": "s"}),
+]
+
+
+def _import_trace_case(raw, params):
+    """Run Python's import_trace on RAW and record its verdict for TraceTest."""
+    import hashlib
+    import tempfile
+    import zipfile
+    import zlib
+    from panama_uav.transport import import_trace
+    p = {"direction": "uplink", "unit": "ns", "start": None, "end": None, "origin": None,
+         "output": "out.npz", **params}
+    case = {"hex": raw.hex(), "direction": p["direction"], "unit": p["unit"],
+            "output": p["output"]}
+    for key in ("start", "end", "origin"):
+        case[key] = None if p[key] is None else hexfloat(p[key])
+    case["stop"] = case.pop("end")      # 'end' is a keyword in MATLAB
+    with tempfile.TemporaryDirectory() as tmp:
+        source = Path(tmp) / "trace.txt"
+        source.write_bytes(raw)
+        output = Path(tmp) / p["output"]
+        try:
+            meta = import_trace(source, output, p["direction"], p["unit"], start=p["start"],
+                                end=p["end"], origin_seconds=p["origin"])
+        except Exception as exc:  # noqa: BLE001 - IndexError and UnicodeDecodeError are verdicts too
+            case["error"] = str(exc)
+            case["error_type"] = type(exc).__name__
+            return case
+        written = output if output.suffix == ".npz" else output.with_name(output.name + ".npz")
+        case["written"] = written.name
+        with zipfile.ZipFile(written) as z:
+            data = {n: z.read(n + ".npy") for n in ("timestamps", "delays", "sequence",
+                                                    "source_timestamps", "metadata")}
+        quoted = json.dumps(str(source.resolve()))
+        text = json.loads(np.load(written)["metadata"].item()) and np.load(written)["metadata"].item()
+        assert text.count(quoted) == 1
+        case["members_sha256"] = {n: hashlib.sha256(b).hexdigest() for n, b in data.items()
+                                  if n != "metadata"}
+        case["members_crc32"] = {n: zlib.crc32(b) for n, b in data.items() if n != "metadata"}
+        # The source path differs between machines: it is replaced by @SOURCE@.
+        case["metadata_json_hex"] = text.replace(quoted, "@SOURCE@").encode("utf-8").hex()
+        meta.pop("source")
+        case["metadata"] = tagged(meta)
+    return case
+
+
+def group_import_trace():
+    """import_trace verdicts on edge-case texts and 80 random files from
+    trace_corpus.random_trace (seed 2026): errors with Python's messages, or
+    the .npy members' sha256 and the metadata JSON (source path elided)."""
+    import random
+    import warnings
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from trace_corpus import random_trace
+    rng = random.Random(2026)
+    cases = []
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")        # loadtxt: "input contained no data"
+        for raw, params in IMPORT_TRACE_EDGE:
+            cases.append(_import_trace_case(raw, params))
+        for _ in range(80):
+            raw, params = random_trace(rng)
+            params = {"direction": params["direction"], "unit": params["unit"],
+                      "start": params["start"], "end": params["stop"], "origin": params["origin"]}
+            cases.append(_import_trace_case(raw, params))
+    return {"cases": cases}
+
+
+def group_records():
+    """records.sha256 (hashlib) of repository files and of byte patterns
+    bytes((7 * i + 3) % 256 for i in range(n)) around the 55/56/64-byte
+    padding boundaries of SHA-256."""
+    import hashlib
+    from panama_uav.records import sha256
+    files = ["configs/base.toml", "maps/random-32-32-10.map", f"{TRACE_DIR}/trace_uplink.npz"]
+    lengths = [0, 1, 3, 55, 56, 57, 63, 64, 65, 119, 120, 128, 1000, 4097]
+    return {"files": [{"path": f, "sha256": sha256(ROOT / f)} for f in files],
+            "patterns": [{"n": n, "sha256": hashlib.sha256(bytes((7 * i + 3) % 256
+                                                               for i in range(n))).hexdigest()}
+                         for n in lengths]}
 
 
 NPY_CLASSES = {"f8": "double", "f4": "single", "i8": "int64", "i4": "int32", "i2": "int16",
@@ -1116,7 +1435,7 @@ def group_physical():
     return {"scenarios": scenarios, "finish": _finish_cases(np.random.default_rng(15))}
 
 
-COMPRESSED = {"env", "encode", "physical", "trace"}
+COMPRESSED = {"env", "env_physical", "encode", "physical", "trace"}
 GROUPS = {name[len("group_"):]: fn for name, fn in globals().items() if name.startswith("group_")}
 
 

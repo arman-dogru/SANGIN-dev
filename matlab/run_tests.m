@@ -2,6 +2,7 @@ function ok = run_tests(pattern)
 %RUN_TESTS Run the MATLAB port's parity and unit tests on MATLAB or Octave.
 %   ok = run_tests()            % all tests in matlab/tests
 %   ok = run_tests('Env')       % only test files whose name contains 'Env'
+%   ok = run_tests('EnvironmentParityTest/testPhysical')   % methods by prefix
 %
 %   MATLAB (R2021b+): uses matlab.unittest (runtests) and needs no toolbox.
 %   GNU Octave (9.x): adds compat/octave, which provides a small
@@ -15,12 +16,20 @@ function ok = run_tests(pattern)
     addpath(fullfile(here, 'tests'));
     files = dir(fullfile(here, 'tests', '*Test.m'));
     names = sort(cellfun(@(n) n(1:end - 2), {files.name}, 'UniformOutput', false));
+    method = '';
+    slash = strfind(pattern, '/');
+    if ~isempty(slash)
+        method = pattern(slash(1) + 1:end);
+        pattern = pattern(1:slash(1) - 1);
+    end
     if ~isempty(pattern)
         names = names(~cellfun(@isempty, strfind(names, pattern)));
     end
     if ~panama_uav.util.is_octave()
         suite = matlab.unittest.TestSuite.fromFolder(fullfile(here, 'tests'));
-        if ~isempty(pattern)
+        if ~isempty(method)
+            suite = suite.selectIf('Name', ['*', pattern, '*/', method, '*']);
+        elseif ~isempty(pattern)
             suite = suite.selectIf('Name', ['*', pattern, '*']);
         end
         results = run(suite);
@@ -34,6 +43,9 @@ function ok = run_tests(pattern)
     for f = 1:numel(names)
         methods_list = methods(names{f});
         tests = sort(methods_list(strncmp(methods_list, 'test', 4)));
+        if ~isempty(method)
+            tests = tests(strncmp(tests, method, numel(method)));
+        end
         for m = 1:numel(tests)
             label = [names{f}, '/', tests{m}];
             t0 = tic;

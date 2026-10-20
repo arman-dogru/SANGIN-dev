@@ -46,7 +46,7 @@ flowchart LR
         m_tr[+transport/Transport]:::partial
         m_cal[+transport/EventCalendar]:::done
         m_uav[+uav, +radio]:::done
-        m_rec[+records]:::stub
+        m_rec[+records]:::partial
         m_nn[+models, +nn, +learning]:::stub
         m_rep[+replay]:::stub
         m_train[+training]:::stub
@@ -82,10 +82,10 @@ means a stub that raises `panama_uav:notImplemented`.
 | `scenarios.py` | `+scenarios` | **parity-tested** | `MapsTest`: all 13 maps, 3 scenario files (exact) |
 | `environment.py` | `+environment` | **parity-tested** (`prepare_decision` is a stub, M4) | `MapsTest`: 62 A* paths plus 7 hand-made up/down and left/right tie cases (exact). `EnvironmentParityTest`: 10 rollouts, 2–8 agents, including one truncated at a 12-step cap; reset info and reset observations are checked too. `Golden01Test`: the frozen 0.1 trace on 3 routes. Positions, collisions, termination, truncation and observations are exact; rewards abs 1e-12; UAV abs 1e-12 m. `RngTest`: seedless and seeded episode generation, Marsaglia's published xor128 outputs, and the odd-agent free-cell guard (off by one in Python, inherited on purpose; see PORT_PLAN §8) |
 | `information.py` | `+information` | **parity-tested** (except `prepare_decision`, M4) | Per-step information ages, report ages and cached guidance, abs 1e-12 s; `InformationTest` |
-| `transport.py` | `+transport/` (`Transport`, `DelayTrace`, `encode_size`) | **partial**: `perfect`, `controlled` and `physical` (without orbital timelines, M5) are parity-tested; mission-payload wire sizes and `import_trace` are M1b-2 | `EnvironmentParityTest`: transport log (reservations, exposures, buffering, deliveries), abs 1e-12 s, message counters exact. `TransportTest`: 30 physical-profile replays (round robin, fragmentation and overhead, handover pauses, propagation, uplink/downlink delay traces with time offset, contention, occupancy, handover windows, Python's error messages; 16 of them seeded random) compare every log entry, counter, delivery and occupancy, with all times bit-exact, plus 306 direct `finish_transmission` cases. `EncodeTest`: 332 pickle sizes, exact (the reference is `transport.encode`, which pickles in fast mode with no memo, not `pickle.dumps`), plus the 29 nonnegative int sizes again as `uint64`. `NpyTest`: 23 `.npy` files written by NumPy (header versions 1.0–3.0, float64/float32/int/uint/bool/string, 0-d to 3-d, C and Fortran order), values exact; big-endian and truncated files are refused. `TraceTest`: the `.npz` arrays and metadata written by Python's `import_trace`, and 140 `DelayTrace.delay` queries, bit-exact |
+| `transport.py` | `+transport/` (`Transport`, `DelayTrace`, `encode_size`, `import_trace`) | **partial**: `perfect`, `controlled` and `physical` (without orbital timelines, M5) are parity-tested, mission runs on the physical profile included | `EnvironmentParityTest`: transport log (reservations, exposures, buffering, deliveries), abs 1e-12 s, message counters exact; 7 of its 17 rollouts use the physical profile (UAV and cloud missions, uplink/downlink traces, fragmentation, handover pauses, a 10-step cap) and compare the full transport log, byte counters and clock bit-exact. `TransportTest`: 30 physical-profile replays (round robin, fragmentation and overhead, handover pauses, propagation, uplink/downlink delay traces with time offset, contention, occupancy, handover windows, Python's error messages; 16 of them seeded random) compare every log entry, counter, delivery and occupancy, with all times bit-exact, plus 306 direct `finish_transmission` cases. `EncodeTest`: 553 pickle sizes, exact (the reference is `transport.encode`, which pickles in fast mode with no memo, not `pickle.dumps`), 221 of them mission-shaped values (int-keyed dicts, `Guidance` instances, lists of int tuples; edge cases, seeded random values and payloads captured from a physical rollout), plus the 29 nonnegative int sizes again as `uint64` and 124 cases with their int-tuple lists as `PyTupleRows` matrices, and 50 more tuple-list shapes (0 or 1 rows, 0 to 4 items, batch and int-width edges, lists spanning frames) against the per-object path. `InformationTest`: 38 mission payloads (report, mission request and compute, information) through `mission_wire`, sizes exact. `ImportTraceTest`: 133 trace files (53 edge cases and 80 seeded random; 67 accepted) give Python's error message or byte-identical `.npy` members (sha256 and CRC-32) and metadata; `matlab/tools/trace_corpus.py` adds a random-file comparison. `NpyTest`: 23 `.npy` files written by NumPy (header versions 1.0–3.0, float64/float32/int/uint/bool/string, 0-d to 3-d, C and Fortran order), values exact; big-endian and truncated files are refused. `TraceTest`: the `.npz` arrays and metadata written by Python's `import_trace`, and 140 `DelayTrace.delay` queries, bit-exact |
 | `event_calendar.py` (SimPy) | `+transport/EventCalendar.m` | **parity-tested** | `CalendarTest`: 60-op replay with ties and float offsets; times bit-exact |
 | `uav.py`, `radio.py` | `+uav`, `+radio` | **parity-tested** | `UavTest`: model constants rel 1e-12, 25-step trajectory and tracking error abs 1e-12 m, float32 SNR maps exact at single precision (per step at 5 cells and the sum, and the full map at the end) |
-| `records.py` | `+records` | stub (M3) | — |
+| `records.py` | `+records` | **partial**: `sha256` is parity-tested; JSONL/CSV are stubs (M3) | `RecordsTest`: hashlib digests of 3 repository files and 14 byte patterns (0 to 4,097 bytes, around the padding boundaries), each through the built-in and the portable implementation, plus two FIPS 180-4 examples |
 | `models.py`, `learning.py` | `+models`, `+nn`, `+learning` | stub (M2/M3) | — |
 | `replay.py` | `+replay` | stub (M3) | — |
 | `training.py` | `+training` | stub (M3) | — |
@@ -93,11 +93,10 @@ means a stub that raises `panama_uav:notImplemented`.
 | `leo.py`, `leo_radio.py`, `handover_study.py` | `+leo`, `+leo_radio`, `+itur`, `+handover_study` | stub (M5) | — |
 | `reporting.py`, `replay_viewer.py`, `cli.py` | `+reporting`, `+replay_viewer`, `cli.m` | stub (M6) | — |
 
-`ScaffoldTest` checks that exactly 57 stub files exist and that each raises
+`ScaffoldTest` checks that exactly 55 stub files exist and that each raises
 `panama_uav:notImplemented`. Unported methods on ported classes
-(`ExperimentEnvironment.prepare_decision`, `MissionCommunication.prepare_decision`,
-an orbital `leo_timeline` with the physical profile, and `encode_size` on a
-mission payload, so a physical-profile mission run) raise the same error.
+(`ExperimentEnvironment.prepare_decision`, `MissionCommunication.prepare_decision`
+and an orbital `leo_timeline` with the physical profile) raise the same error.
 
 **Random draws.** NumPy's random streams are not reproduced. The parity
 tests inject the NumPy draws (starts and goals, and reservation windows)
@@ -121,6 +120,7 @@ MATLAB R2021b or later, from the repository root:
 cd matlab
 ok = run_tests()          % matlab.unittest suite in matlab/tests
 ok = run_tests('Env')     % only test files whose name contains 'Env'
+ok = run_tests('EnvironmentParityTest/testPhysical')   % methods by prefix
 ```
 
 GNU Octave 9.x (Ubuntu: `sudo apt-get install -y octave unzip`, with no extra Octave packages; `unzip` reads the `.npz` delay traces):
@@ -130,7 +130,7 @@ cd matlab
 octave-cli --no-gui --eval "ok = run_tests(); exit(~ok)"
 ```
 
-The full suite (60 tests) takes about 2.5 minutes on Octave. On Octave, `run_tests`
+The full suite (73 tests) takes about 11 minutes on Octave (683 s measured). Every profile now sizes each mission payload with `encode_size`, as Python's transport does, so the long cloud-route rollouts (`Golden01Test/testCloudRouteZeroDelay`, 220 s) and the 7 physical rollouts (213 s together) take most of it. On Octave, `run_tests`
 adds `matlab/compat/octave`, which provides a small `matlab.unittest.TestCase`
 shim. Like `matlab.unittest`, the shim's `verifyEqual` is class-strict:
 `int64(1)` vs `1` and `single` vs `double` both fail. MATLAB never loads it.
@@ -153,6 +153,8 @@ python matlab/tools/make_fixtures.py env astar   # selected groups
 To add a group, write a `group_<name>()` function in `make_fixtures.py`.
 The `trace` group also writes `trace_uplink.npz` and `trace_downlink.npz`
 with Python's `import_trace` (metadata `source` made repository-relative);
+the `import_trace` group runs Python's `import_trace` on its edge and random
+files in a temporary directory and stores the member digests;
 every fixture, the `.npz` files included, regenerates byte-identically.
 
 ## Figure on demand
@@ -179,5 +181,5 @@ plumbing and not study results.
 - Python dicts keyed by agent id become cells or vectors indexed by `id+1`.
 - Name-value options reject unknown names, so a typo such as `'start'` errors.
 - Python `None` becomes `[]`, a Python tuple of strings becomes a cell row, and a tuple of numbers becomes a row vector.
-- For wire sizes (`encode_size`), types must be explicit: a double is a Python float, an integer class (`int64(3)`) an int, a cell row a list, `panama_uav.transport.PyTuple(...)` a tuple, `panama_uav.transport.PyBytes(n)` n bytes, and a scalar struct a str-keyed dict.
+- For wire sizes (`encode_size`), types must be explicit: a double is a Python float, an integer class (`int64(3)`) an int, a cell row a list, `panama_uav.transport.PyTuple(...)` a tuple, `panama_uav.transport.PyBytes(n)` n bytes, a scalar struct a str-keyed dict, `PyDict(keys, values)` a dict with any keys, `PyTupleRows(M)` a list of int tuples (one per row) and `PyInstance(module, qualname, state)` a dataclass instance. `mission_wire(kind, payload)` builds these for the mission payloads.
 - Octave-specific workarounds are commented in the code. `until` is a keyword in Octave. Use `[a, b] = obj.f()` instead of `[a, ~] = obj.f()` inside classdef methods. JSON fixtures that need bit-exact doubles carry hex bits, because Octave's `jsondecode` is not correctly rounded. On Octave, `char` is 8-bit, so non-ASCII text holds its UTF-8 bytes ('é' is 2 chars); use `panama_uav.util.text_length` for Python-style lengths.

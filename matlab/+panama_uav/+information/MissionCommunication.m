@@ -6,6 +6,9 @@ classdef MissionCommunication < handle
     %   position, goal, path, distance_to_goal, priority, ever_reached_goal).
     %   Python dicts keyed by agent id become cells indexed by id + 1.
     %   Field caches: caches{id+1}.task / .intentions / .priorities.
+    %   Payloads keep this MATLAB layout; their wire sizes are those of the
+    %   Python payloads (panama_uav.information.mission_wire), so the
+    %   physical profile times them as Python does.
     properties
         config
         transport
@@ -101,7 +104,7 @@ classdef MissionCommunication < handle
                     if strcmp(obj.config.mission_route, 'cloud')
                         route = {'satellite_up', sprintf('process:%.17g', obj.config.cloud_processing_seconds)};
                     end
-                    obj.transport.send(packet.agent, 'mission_compute', ...
+                    obj.send(packet.agent, 'mission_compute', ...
                         struct('field', payload.field, 'reports', {reports}, 'sources', sources), ...
                         'route', route, 'generated_at', packet.generated_at, ...
                         'version', packet.version, 'delayed', false);
@@ -127,7 +130,7 @@ classdef MissionCommunication < handle
                     end
                     item = struct('field', field, 'value', {obj.value(field, packet.agent, reports)}, ...
                         'source_ids', ids, 'source_times', times);
-                    obj.transport.send(packet.agent, 'information', item, 'route', route, ...
+                    obj.send(packet.agent, 'information', item, 'route', route, ...
                         'generated_at', packet.generated_at, 'version', packet.version, 'delayed', true);
                 case 'information'
                     cache = obj.caches{k}.(payload.field);
@@ -153,7 +156,7 @@ classdef MissionCommunication < handle
             end
             t.advance(now, receiver);
             for k = 1:numel(agents)
-                t.send(agents(k).id, 'report', obj.report(agents(k)), 'route', {'access_up'}, ...
+                obj.send(agents(k).id, 'report', obj.report(agents(k)), 'route', {'access_up'}, ...
                     'delayed', false, 'version', obj.sequence);
             end
             t.advance(now, receiver);
@@ -168,7 +171,7 @@ classdef MissionCommunication < handle
                             obj.sequence, ids, now * ones(size(ids)));
                         continue;
                     end
-                    t.send(agents(k).id, 'mission_request', ...
+                    obj.send(agents(k).id, 'mission_request', ...
                         struct('field', key, 'report', obj.report(agents(k))), ...
                         'route', {'access_up'}, 'version', obj.sequence, 'delayed', false);
                 end
@@ -182,6 +185,15 @@ classdef MissionCommunication < handle
         function prepare_decision(obj, agents, cycle_start, deadline_seconds) %#ok<INUSD>
             error('panama_uav:notImplemented', ...
                 'MissionCommunication.prepare_decision (information.py) is milestone M4 (decision deadline)');
+        end
+
+        function send(obj, agent, kind, payload, varargin)
+            %SEND Transport.send with the wire size of the payload that
+            %   Python sends (panama_uav.information.mission_wire), so that
+            %   every profile, the physical one included, logs and times
+            %   Python's byte counts.
+            bytes = panama_uav.transport.encode_size(panama_uav.information.mission_wire(kind, payload));
+            obj.transport.send(agent, kind, payload, varargin{:}, 'wire_bytes', bytes);
         end
 
         function [path, distance, intentions, priorities] = observation_values(obj, agent)

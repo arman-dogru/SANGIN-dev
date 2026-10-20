@@ -51,8 +51,10 @@ classdef TransportTest < matlab.unittest.TestCase
             c.profile = 'physical';
             c.leo_timeline = 'timeline.npz';
             tc.verifyError(@() panama_uav.transport.Transport(c), 'panama_uav:notImplemented');
-            % Mission payloads are not encodable yet: physical refuses them,
-            % the other profiles record unknown (NaN) sizes.
+            % A payload with no Python type (a numeric array: tuple, list or
+            % NumPy array?) is refused by the physical profile; the other
+            % profiles record unknown (NaN) sizes. Mission payloads are
+            % sized by MissionCommunication through mission_wire instead.
             t = transport_for(struct('profile', 'physical'));
             tc.verifyError(@() t.send(0, 'report', struct('position', [1 2])), 'panama_uav:notImplemented');
             t = transport_for(struct('profile', 'controlled'));
