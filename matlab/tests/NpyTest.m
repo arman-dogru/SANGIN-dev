@@ -28,8 +28,16 @@ classdef NpyTest < matlab.unittest.TestCase
                     verify_error_message(tc, @() panama_uav.util.read_npy(path), 'panama_uav:npy', ...
                         c.port_error, c.name);
                 else
+                    % A valid NumPy file that the reader rejects is a parity
+                    % failure, so an error here fails the check, not the run.
+                    try
+                        got = panama_uav.util.read_npy(path);
+                    catch err
+                        tc.verifyTrue(false, sprintf('%s: %s', c.name, err.message));
+                        continue;
+                    end
                     loaded = loaded + 1;
-                    tc.verifyEqual(panama_uav.util.read_npy(path), expected(c), c.name);
+                    tc.verifyEqual(got, expected(c), c.name);
                 end
             end
             tc.verifyEqual(loaded, 16);
