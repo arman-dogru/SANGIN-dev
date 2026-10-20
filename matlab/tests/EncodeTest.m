@@ -6,14 +6,14 @@ classdef EncodeTest < matlab.unittest.TestCase
             % byte off changes every link-service time that depends on it).
             % 332 plain values: int/str/bytes length thresholds, frame
             % commits at 64 KiB, batches of 1000, and 250 seeded random
-            % nested values. 220 mission-payload values (M1b-2): Guidance
+            % nested values. 221 mission-payload values (M1b-2): Guidance
             % instances, int-keyed and mixed-key dicts, int tuple rows
             % (also across a 64 KiB frame commit), 150 seeded random nested
             % ones and payloads captured from a physical-profile rollout.
             fx = load_fixture('encode');
             cases = as_cell(fx.cases);
-            tc.verifyEqual(numel(cases), 552);
-            tc.verifyEqual(sum(cellfun(@(c) isfield(c, 'mission'), cases)), 220);
+            tc.verifyEqual(numel(cases), 553);
+            tc.verifyEqual(sum(cellfun(@(c) isfield(c, 'mission'), cases)), 221);
             for k = 1:numel(cases)
                 v = py_value(cases{k}.spec);
                 tc.verifyEqual(panama_uav.transport.encode_size(v), cases{k}.size, ...
@@ -38,7 +38,32 @@ classdef EncodeTest < matlab.unittest.TestCase
                 tc.verifyEqual(panama_uav.transport.encode_size(v), cases{k}.size, ...
                     sprintf('rows case %d (%s)', k, cases{k}.spec.t));
             end
-            tc.verifyEqual([checked, lists], [123, 242]);   % cases, tuple-row lists in them
+            tc.verifyEqual([checked, lists], [124, 243]);   % cases, tuple-row lists in them
+        end
+        function testTupleRowsMatchCellLists(tc)
+            % Shapes the fixtures never put in a tuple_rows spec (0 or 1
+            % rows, 0 to 4 items, batch edges at 1000, int widths, lists
+            % crossing several frame commits from varying offsets): the size
+            % must equal the one of the same list as a cell row of PyTuple,
+            % which testSizesMatchPython pins to Python.
+            widths = [0, 255, 256, 65535, 65536, 2147483647, 2147483648, -1, -2147483648, -2147483649];
+            checked = 0;
+            for n = [0, 1, 2, 3, 999, 1000, 1001, 2000]
+                for k = 0:4
+                    m = int64(widths(1 + mod((1:n)' * 7 + (1:k) * 3, numel(widths))));
+                    m = reshape(m, n, k);
+                    check_rows(tc, m, '', sprintf('%d x %d', n, k));
+                    checked = checked + 1;
+                end
+            end
+            for pad = [0, 7, 65530, 65536, 70000]
+                for n = [6000, 12000]
+                    m = int64(mod((1:n)' * [7919, 104729], 70001));
+                    check_rows(tc, m, repmat('a', 1, pad), sprintf('%d rows after %d bytes', n, pad));
+                    checked = checked + 1;
+                end
+            end
+            tc.verifyEqual(checked, 50);
         end
         function testUnsignedIntsMatchPython(tc)
             % A uint64 stands for the same Python int as an int64 of equal
@@ -118,4 +143,16 @@ function [v, n] = rows_as_matrix(spec)
         otherwise
             v = py_value(spec);
     end
+end
+
+function check_rows(tc, m, pad, label)
+% Size of [pad, rows, pad] with the rows as PyTupleRows and as PyTuple cells.
+    cells = cell(1, size(m, 1));
+    for r = 1:size(m, 1)
+        items = num2cell(m(r, :));
+        cells{r} = panama_uav.transport.PyTuple(items{:});
+    end
+    want = panama_uav.transport.encode_size({pad, cells, pad});
+    got = panama_uav.transport.encode_size({pad, panama_uav.transport.PyTupleRows(m), pad});
+    tc.verifyEqual(got, want, label);
 end

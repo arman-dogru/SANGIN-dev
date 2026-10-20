@@ -1,5 +1,5 @@
 classdef ImportTraceTest < matlab.unittest.TestCase
-    % Parity: transport.import_trace vs Python's import_trace on 45 edge
+    % Parity: transport.import_trace vs Python's import_trace on 53 edge
     % cases and 80 seeded random trace files (make_fixtures.py:group_import_trace;
     % matlab/tools/trace_corpus.py runs the same comparison on thousands).
     % An error must have Python's message (panama_uav:trace; invalid UTF-8
@@ -11,12 +11,12 @@ classdef ImportTraceTest < matlab.unittest.TestCase
         function testImportMatchesPython(tc)
             fx = load_fixture('import_trace');
             cases = as_cell(fx.cases);
-            tc.verifyEqual(numel(cases), 125);
+            tc.verifyEqual(numel(cases), 133);
             ok = 0;
             for k = 1:numel(cases)
                 ok = ok + check_case(tc, cases{k}, sprintf('import case %d', k));
             end
-            tc.verifyEqual(ok, 62);
+            tc.verifyEqual(ok, 67);
         end
         function testOutputLoadsAsDelayTrace(tc)
             % The stored (not deflated) archive reads back through the same
@@ -71,19 +71,37 @@ function ok = check_case(tc, c, label)
         end
         return;
     end
-    m = panama_uav.transport.import_trace(args{:});
+    try
+        m = panama_uav.transport.import_trace(args{:});
+    catch err
+        % Python accepted the file: an error here is a parity failure, not a
+        % crash of the test.
+        tc.verifyTrue(false, sprintf('%s: Python accepted it, the port raised %s: %s', ...
+            label, err.identifier, err.message));
+        return;
+    end
     written = fullfile(folder, c.written);
-    tc.verifyTrue(exist(written, 'file') == 2, [label, ' written as ', c.written]);
+    if ~(exist(written, 'file') == 2)
+        tc.verifyTrue(false, [label, ' not written as ', c.written]);
+        return;
+    end
+    % CRC-32 first: unzip refuses a member whose CRC is wrong.
+    crc = stored_crc32(written);
+    good = true;
+    for name = {'timestamps', 'delays', 'sequence', 'source_timestamps'}
+        same = isfield(crc, name{1}) && isequal(crc.(name{1}), c.members_crc32.(name{1}));
+        tc.verifyTrue(same, [label, ' ', name{1}, '.npy CRC-32']);
+        good = good && same;
+    end
+    if ~good
+        return;
+    end
     unpacked = fullfile(folder, 'unpacked');
     mkdir(unpacked);
     unzip(written, unpacked);
     for name = {'timestamps', 'delays', 'sequence', 'source_timestamps'}
         tc.verifyEqual(panama_uav.records.sha256(fullfile(unpacked, [name{1}, '.npy'])), ...
             c.members_sha256.(name{1}), [label, ' ', name{1}, '.npy']);
-    end
-    crc = stored_crc32(written);
-    for name = {'timestamps', 'delays', 'sequence', 'source_timestamps'}
-        tc.verifyEqual(crc.(name{1}), c.members_crc32.(name{1}), [label, ' ', name{1}, '.npy CRC-32']);
     end
     data = panama_uav.util.read_npz(written, {'metadata'});
     quoted = ['"', m.source, '"'];

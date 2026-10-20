@@ -327,8 +327,6 @@ MUTANTS = [
     ("trace_import", "float repr: exponent from 1e16", REPR, swap("if e >= -4 && e < 16", "if e >= -4 && e < 17")),
     ("trace_import", "float repr: exponent below 1e-4", REPR, swap("if e >= -4 && e < 16", "if e >= -5 && e < 16")),
     ("trace_import", "float repr: shortest round trip", REPR, swap("    for p = 1:17\n", "    for p = 17:17\n")),
-    ("trace_import", "npy: room to grow the first axis", NPY_W,
-     swap("growth = 21 - numel(sprintf('%d', numel(x)));", "growth = 20 - numel(sprintf('%d', numel(x)));")),
     ("trace_import", "npy: header padded to 64 bytes", NPY_W,
      swap("    pad = 64 - mod(10 + hlen, 64);", "    pad = 16 - mod(10 + hlen, 16);")),
     ("trace_import", "npy: UTF-32 little-endian", NPY_W,
@@ -337,7 +335,10 @@ MUTANTS = [
     ("trace_import", "zip: CRC-32 of each member", NPZ_W,
      swap("    c = bitxor(c, 4294967295);", "    c = bitxor(c, 4294967294);")),
     # records: SHA-256 (RecordsTest)
-    ("records", "sha256: length padding", SHA, swap("    pad = mod(55 - n, 64);", "    pad = mod(56 - n, 64);")),
+    ("records", "sha256: padding starts with 0x80", SHA,
+     swap("    m = [m, 128, zeros(1, pad), len];", "    m = [m, 1, zeros(1, pad), len];")),
+    ("records", "sha256: zero padding to 56 mod 64", SHA,
+     swap("    pad = mod(55 - n, 64);", "    pad = mod(55 - n, 64) + 64 * (mod(n, 64) == 55);")),
     ("records", "sha256: message schedule sigma0", SHA,
      swap("s0 = bitxor(bitxor(rotr(x, 7), rotr(x, 18)), floor(x / 8));",
           "s0 = bitxor(bitxor(rotr(x, 7), rotr(x, 18)), floor(x / 4));")),
@@ -450,6 +451,11 @@ MUTANTS = [
 # in finish_transmission has no mutant either: without it the test does
 # what Python does, loop forever, which the sweep could only report as
 # TIMEOUT; TransportTest checks the guard's error on the two cases.
+# In npy_bytes, the 21 - len(repr(shape[0])) spaces of room for growing
+# the first axis have no mutant: spaces padding the header to a multiple of
+# 64 bytes follow them, and the header text before padding stays under 100
+# bytes (padded to 128) for any shape and string width import_trace can
+# write, so one growth space more or less gives the same bytes.
 
 TESTS = {"config": ["Config"], "toml": ["Toml"], "env": ["Rng"], "encode": ["Encode"],
          "trace": ["Trace"], "npy": ["Npy"], "transport": ["Transport"],

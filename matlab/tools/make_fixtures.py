@@ -773,6 +773,9 @@ def _mission_edge_values():
         [bytes(65530), [(1, 2), (3, 4)]], [bytes(65526), [(1, 2), (3, 4)]],
         ["x" * 65000, {0: [(7, 7)] * 600}], [bytes(65520), Guidance([(1, 1)] * 50, 49.0)],
         [bytes(65523), Guidance([(1, 1)], 0.0)], [bytes(65490), Guidance([(1, 1)], 0.0)],
+        # The frame commit falls between the two ints of a tuple: a commit
+        # checked only at tuple boundaries gives a different frame count.
+        ["", [(100000, 200000)] * 5957],
     ]
 
 
@@ -989,6 +992,13 @@ IMPORT_TRACE_EDGE = [
     (b"1 1700000000123456789 25000000\n2 1700000000203456789 26000001\n", {"unit": "ns"}),
     (b"1 2 3\n", {"direction": "downlink"}), (b"1 +INF 3\n", {}), (b"1 2 1e400\n", {}),
     (b"1 2 3\n", {"unit": "ns", "origin": -0.0}), ("1 2 \u00e9\n".encode(), {}),
+    # float() details on comma fields: underscores only between digits,
+    # non-ASCII spaces stripped, ASCII whitespace only (not \x1c-\x1f).
+    (b"1,1__0,3\n", {}), (b"1,10_,3\n", {}), ("1,\xa02\u3000,3\n".encode(), {}),
+    (b"1,\t2\x0b,3\n", {}), (b"1,2\x1f,3\n", {}),
+    # Float repr thresholds in the metadata: 1e+16 and 5e-05.
+    (b"1 1e16 3\n2 2e16 3\n", {"unit": "s"}), (b"1 0 3\n2 0.00005 3\n", {"unit": "s"}),
+    (b"1 0 3\n2 0.0001 3\n3 1e15 3\n", {"unit": "s"}),
 ]
 
 
