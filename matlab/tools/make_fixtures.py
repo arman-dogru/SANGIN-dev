@@ -22,6 +22,8 @@ from __future__ import annotations
 import gzip
 import json
 import math
+import pickle
+import platform
 import sys
 import tomllib
 from dataclasses import replace
@@ -640,8 +642,17 @@ def _random_value(rng, depth=0):
     return {f"k{i}_{int(rng.integers(100))}": v for i, v in enumerate(items)}
 
 
+_SHARED = "shared " * 10    # one str object, used twice in group_encode
+
+
 def group_encode():
-    """len(transport.encode(value)) for plain value types (encode_size.m)."""
+    """len(transport.encode(value)) for plain value types (encode_size.m).
+
+    The reference is transport.encode, not pickle.dumps: encode pickles with
+    fast mode on, so there is no memo. pickle.dumps memoizes, and a value
+    seen twice is written once and then fetched with BINGET, which is
+    shorter. The last edge case below ([s, s] with one shared str) shows the
+    difference."""
     from panama_uav.transport import encode
     edge = [None, True, False, 0, 1, 255, 256, 65535, 65536, -1, -255, 2**31 - 1, 2**31,
             -2**31, -2**31 - 1, 2**32, 2**39, -2**39, -2**39 - 1, -2**40, 2**47, -2**47,
@@ -653,7 +664,7 @@ def group_encode():
             {"agent": -1, "kind": "model_relay", "timestamp": 12.5, "version": 70000},
             ("x" * 65535,), ("x" * 65536,), [bytes(65000), bytes(600)],
             [bytes(65530), 1, 2], [bytes(65531), 1], [bytes(65532)],
-            {"w": bytes(70000), "s": 3, "v": [1.0, 2.0]}]
+            {"w": bytes(70000), "s": 3, "v": [1.0, 2.0]}, [_SHARED, _SHARED]]
     repeats = [Repeat("list", 1, 999), Repeat("list", 1, 1000), Repeat("list", 1, 1001),
                Repeat("list", 1, 2000), Repeat("list", 1, 2001), Repeat("list", "y" * 100, 700),
                Repeat("list", "y" * 300, 300), Repeat("list", (1, 2.0), 7000),
@@ -749,6 +760,80 @@ def group_trace():
                      "delays": [hexfloat(v) for v in trace.delays],
                      "metadata": tagged(trace.metadata), "queries": results}
     return out
+
+
+NPY_CLASSES = {"f8": "double", "f4": "single", "i8": "int64", "i4": "int32", "i2": "int16",
+               "i1": "int8", "u8": "uint64", "u4": "uint32", "u2": "uint16", "u1": "uint8",
+               "b1": "logical"}
+
+
+def _npy_case(name, array, version=None, truncate=0, refused_by_port=None):
+    """An .npy file written by NumPy (hex), and what np.load and read_npy give."""
+    import io
+    buf = io.BytesIO()
+    np.lib.format.write_array(buf, array, version=version, allow_pickle=False)
+    raw = buf.getvalue()
+    if truncate:
+        raw = raw[:-truncate]
+    case = {"name": name, "hex": raw.hex()}
+    try:
+        loaded = np.lib.format.read_array(io.BytesIO(raw), allow_pickle=False)
+    except ValueError as exc:
+        return {**case, "error": str(exc)}
+    if refused_by_port:
+        # NumPy loads it; the port refuses it on purpose (read_npy.m docstring).
+        return {**case, "port_error": refused_by_port, "numpy_loaded": True}
+    if loaded.dtype.kind == "U":
+        values = [str(v) for v in loaded.flatten(order="F")]
+        # A 0-d string comes back as a char row, an array of strings as a cellstr.
+        return {**case, "class": "char" if loaded.ndim == 0 else "cell",
+                "size": _matlab_size(loaded.shape),
+                "strings_hex": [v.encode("utf-8").hex() for v in values]}
+    code = loaded.dtype.str[1:]
+    as_le = loaded.astype(loaded.dtype.newbyteorder("<"))
+    return {**case, "class": NPY_CLASSES[code], "size": _matlab_size(loaded.shape),
+            "le": as_le.flatten(order="F").tobytes().hex()}
+
+
+def _matlab_size(shape):
+    if len(shape) == 0:
+        return [1, 1]
+    if len(shape) == 1:
+        return [shape[0], 1]
+    return list(shape)
+
+
+def group_npy():
+    """read_npy paths: header versions 1.0-3.0, dtypes, shapes, refusals, truncation."""
+    f = np.array([0.1, -2.5, 1e300, -0.0, np.inf])
+    cases = [
+        _npy_case("v1 float64", f, version=(1, 0)),
+        _npy_case("v2 float64", f, version=(2, 0)),
+        _npy_case("v3 float64", f, version=(3, 0)),
+        _npy_case("v2 strings", np.array(["a", "bc\u00e9"]), version=(2, 0)),
+        _npy_case("float32", np.array([0.1, -3.25, 1e30, 16777217.0], dtype="<f4")),
+        _npy_case("float32 0-d", np.array(np.float32(0.3))),
+        _npy_case("bool", np.array([True, False, True, True])),
+        _npy_case("bool 2-d", np.array([[True, False, False], [False, True, True]])),
+        _npy_case("int64 extremes", np.array([-2**63, 2**63 - 1, 0, -1], dtype="<i8")),
+        _npy_case("uint64 extremes", np.array([0, 2**64 - 1], dtype="<u8")),
+        _npy_case("int8 2-d", np.array([[-128, 127]], dtype="<i1")),
+        _npy_case("uint16", np.array([65535, 1], dtype="<u2")),
+        _npy_case("float64 2-d C", np.arange(6.0).reshape(2, 3)),
+        _npy_case("float64 2-d F", np.asfortranarray(np.arange(6.0).reshape(2, 3))),
+        _npy_case("float64 3-d", np.arange(24.0).reshape(2, 3, 4)),
+        _npy_case("0-d string", np.array("metadata \u20ac")),
+        _npy_case("big-endian float64", np.array([1.5, 2.0], dtype=">f8"),
+                  refused_by_port="Big-endian arrays (>f8) are not supported"),
+        _npy_case("big-endian int32", np.array([7], dtype=">i4"),
+                  refused_by_port="Big-endian arrays (>i4) are not supported"),
+        _npy_case("truncated float64", f, truncate=8),
+        _npy_case("truncated float32", np.array([1.0, 2.0, 3.0], dtype="<f4"), truncate=2),
+        _npy_case("truncated bool", np.array([True, False, True]), truncate=1),
+        _npy_case("truncated strings", np.array(["ab", "c"]), truncate=4),
+        _npy_case("truncated v2", f, version=(2, 0), truncate=1),
+    ]
+    return {"cases": cases}
 
 
 def _physical_config(**changes):
@@ -886,6 +971,9 @@ PHYSICAL_SCENARIOS = {
     "trace_direction": ({"profile": "physical", "uplink_trace": "trace_downlink.npz"}, []),
     "trace_direction_perfect": ({"profile": "perfect", "downlink_trace": "trace_uplink.npz"}, []),
     "reverse": ({"profile": "physical"}, [_adv(2.0), _adv(1.0)]),
+    # advance() also handles events up to 1e-12 s past UNTIL, then sets now = UNTIL
+    "advance_tolerance": ({"profile": "physical", "contention_enabled": False},
+                          [_send(0, "x", None, ["process:1.0000000000005"]), _adv(1.0)]),
 }
 
 
@@ -1037,8 +1125,11 @@ def main(argv):
     selected = argv or list(GROUPS)
     for name in selected:
         data = GROUPS[name]()
+        # encode_size copies CPython's C pickler (Modules/_pickle.c), so the
+        # Python version and the pickler class that ran are recorded too.
         data["_generator"] = {"script": "matlab/tools/make_fixtures.py", "group": name,
-                              "numpy": np.__version__}
+                              "numpy": np.__version__, "python": platform.python_version(),
+                              "pickler": f"{pickle.Pickler.__module__}.{pickle.Pickler.__qualname__}"}
         text = json.dumps(data, allow_nan=False, separators=(",", ":")).encode("utf-8")
         if name in COMPRESSED:
             # Deterministic gzip (mtime 0) keeps large fixtures small in git.

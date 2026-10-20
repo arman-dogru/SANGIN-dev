@@ -4,7 +4,9 @@ function n = encode_size(value)
 %   src/panama_uav/transport.py:encode, i.e. a pickle protocol-5 dump by
 %   CPython's C pickler with fast mode on (no memo, so no PUT/MEMOIZE
 %   opcodes and repeated values are written out each time). Only the size
-%   is computed; no bytes are produced.
+%   is computed; no bytes are produced. The reference is transport.encode,
+%   not pickle.dumps: dumps memoizes, so a value that occurs twice is
+%   written once and then fetched by BINGET, and its pickle is shorter.
 %
 %   MATLAB values stand for Python values as follows (anything else raises
 %   panama_uav:notImplemented, because its Python type would be a guess):

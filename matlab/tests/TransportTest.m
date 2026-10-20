@@ -12,7 +12,7 @@ classdef TransportTest < matlab.unittest.TestCase
         function testScenariosMatchPython(tc)
             fx = load_fixture('physical');
             names = fieldnames(fx.scenarios);
-            tc.verifyEqual(numel(names), 29);
+            tc.verifyEqual(numel(names), 30);
             for k = 1:numel(names)
                 replay(tc, names{k}, fx.scenarios.(names{k}));
             end

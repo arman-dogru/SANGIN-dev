@@ -233,7 +233,7 @@ in [README_MATLAB.md](../README_MATLAB.md).
       `_finish_transmission` as `finish_transmission`, round robin,
       fragmentation, handover pauses and `handover_windows`), `encode_size`
       for plain value types, `DelayTrace` with the `.npz` reader and trace
-      replay, byte counters, `occupancy` (`EncodeTest`, `TraceTest`, `TransportTest`)
+      replay, byte counters, `occupancy` (`EncodeTest`, `NpyTest`, `TraceTest`, `TransportTest`)
 
 **Next, in order:**
 1. [ ] Run `run_tests` on licensed MATLAB R2021b+ and fix any MATLAB/Octave differences
