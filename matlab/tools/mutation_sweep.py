@@ -18,13 +18,21 @@ one verify/assert caught the mutant (the summary shows both counts).
 Groups: config (the 20 load_config / validate_transport / overlay rules,
 run against ConfigTest), toml (toml_decode's rejection and location rules,
 TomlTest), env (start/goal pop order, RngTest), encode (pickle size rules,
-EncodeTest), npy (.npy files written by NumPy, NpyTest), trace (.npz
-reader and DelayTrace, TraceTest) and transport
-(physical link service, handovers, trace replay, byte counters and
-occupancy, TransportTest). The summary is printed
+including the mission-payload types PyDict, PyInstance and PyTupleRows,
+EncodeTest), mission (the Python shapes of the mission payloads in
+mission_wire, InformationTest), rollout (MissionCommunication sending
+those sizes, two physical-profile rollouts of EnvironmentParityTest),
+npy (.npy files written by NumPy, NpyTest), trace (.npz reader and
+DelayTrace, TraceTest), trace_import (import_trace parsing and checks,
+the .npy/.npz writers and Python's float repr, ImportTraceTest), records
+(portable SHA-256, RecordsTest) and transport (physical link service,
+handovers, trace replay, byte counters and occupancy, TransportTest).
+Groups with several test patterns run them in one Octave session and add
+up their counts. The summary is printed
 and written to matlab/output/mutation_sweep.txt, which is gitignored.
 Exit status is 0 only when the unmutated baseline passes and every mutant
-is killed by an assertion (ERRORED, TIMEOUT and SURVIVED all fail it). Needs octave-cli (override with $OCTAVE).
+is killed by an assertion (ERRORED, TIMEOUT and SURVIVED all fail it).
+Needs octave-cli (override with $OCTAVE).
 """
 
 from __future__ import annotations
@@ -53,6 +61,13 @@ ENCODE = "matlab/+panama_uav/+transport/encode_size.m"
 TRANSPORT_M = "matlab/+panama_uav/+transport/Transport.m"
 TRACE = "matlab/+panama_uav/+transport/DelayTrace.m"
 NPY = "matlab/+panama_uav/+util/read_npy.m"
+WIRE = "matlab/+panama_uav/+information/mission_wire.m"
+MISSION = "matlab/+panama_uav/+information/MissionCommunication.m"
+IMPORT = "matlab/+panama_uav/+transport/import_trace.m"
+NPY_W = "matlab/+panama_uav/+util/npy_bytes.m"
+NPZ_W = "matlab/+panama_uav/+util/write_npz.m"
+REPR = "matlab/+panama_uav/+util/py_float_repr.m"
+SHA = "matlab/+panama_uav/+util/sha256_bytes.m"
 
 
 def drop(marker):
@@ -159,16 +174,18 @@ MUTANTS = [
      swap("m = numel(c);                            % Octave char holds UTF-8 bytes",
           "m = panama_uav.util.text_length(v);")),
     ("encode", "SHORT_BINBYTES up to 255 bytes", ENCODE, swap("if v.n <= 255", "if v.n < 255")),
-    ("encode", "TUPLE1/2/3 for short tuples", ENCODE, swap("elseif k <= 3", "elseif k <= 4")),
+    ("encode", "TUPLE1/2/3 for short tuples", ENCODE, swap("        elseif k <= 3\n            for j = 1:k", "        elseif k <= 4\n            for j = 1:k")),
+    ("encode", "tuple rows: TUPLE1/2/3 up to 3 items", ENCODE,
+     swap("    elseif k <= 3\n        tuple_extra = 1;", "    elseif k <= 4\n        tuple_extra = 1;")),
     ("encode", "list of one: APPEND", ENCODE,
      swap("        if k == 1\n            s = save(s, v{1});", "        if false\n            s = save(s, v{1});")),
     ("encode", "list batches of 1000", ENCODE,
      swap("s = save(s, v{total});\n                    batch = batch + 1;\n                    if batch == 1000",
           "s = save(s, v{total});\n                    batch = batch + 1;\n                    if batch == 2000")),
     ("encode", "dict of one: SETITEM", ENCODE,
-     swap("        if k == 1\n            s = save(s, keys{1});", "        if false\n            s = save(s, keys{1});")),
+     swap("    if k == 1\n        s = save(s, keys{1});", "    if false\n        s = save(s, keys{1});")),
     ("encode", "dict extra empty batch after a full one", ENCODE,
-     swap("            while batch == 1000\n", "            while pos < k\n")),
+     swap("        while batch == 1000\n", "        while pos < k\n")),
     ("encode", "FRAME header is 9 bytes", ENCODE,
      swap("s.len = s.len + 9;                       % FRAME header, reserved",
           "s.len = s.len + 8;                       % FRAME header, reserved")),
@@ -182,6 +199,151 @@ MUTANTS = [
      swap("        s.framing = false;\n        s = write(s, header);", "        s = write(s, header);")),
     ("encode", "uint64 up to 2**31 - 1 is a BININT", ENCODE,
      swap("small = v <= uint64(2147483647);", "small = false;")),
+    # encode, M1b-2: mission-payload types (EncodeTest)
+    ("encode", "PyDict keys saved as their own type", ENCODE,
+     swap("        s = save_dict(s, v.keys, v.values);",
+          "        s = save_dict(s, cellfun(@(k) 0.5, v.keys, 'UniformOutput', false), v.values);")),
+    ("encode", "instance: class as module and qualname", ENCODE,
+     swap("        s = save(s, v.module);\n", "")),
+    ("encode", "instance: STACK_GLOBAL", ENCODE,
+     swap("        s = write(s, 1);                         % STACK_GLOBAL", "")),
+    ("encode", "instance: empty argument tuple", ENCODE,
+     swap("        s = write(s, 1);                         % EMPTY_TUPLE", "")),
+    ("encode", "instance: NEWOBJ", ENCODE,
+     swap("        s = write(s, 1);                         % NEWOBJ", "")),
+    ("encode", "instance: BUILD after the state", ENCODE,
+     swap("        s = write(s, 1);                         % BUILD", "")),
+    ("encode", "tuple rows: BININT1 up to 255", ENCODE,
+     swap("sizes(x >= 0 & x <= 255) = 2;", "sizes(x >= 0 & x <= 256) = 2;")),
+    ("encode", "tuple rows: BININT2 up to 65535", ENCODE,
+     swap("sizes(x >= 0 & x <= 65535) = 3;", "sizes(x >= 0 & x <= 65536) = 3;")),
+    ("encode", "tuple rows: LONG1 beyond signed 32-bit", ENCODE,
+     swap("wide = find(int64(m) < int64(-2147483648) | int64(m) > int64(2147483647));",
+          "wide = find(int64(m) < int64(-2147483649) | int64(m) > int64(2147483647));")),
+    ("encode", "tuple rows: MARK ... TUPLE past 3 items", ENCODE,
+     swap("        tuple_extra = 2;                         % MARK ... TUPLE", "        tuple_extra = 1;")),
+    ("encode", "tuple rows: EMPTY_TUPLE for 0 items", ENCODE,
+     swap("        tuple_extra = 1;                         % EMPTY_TUPLE", "        tuple_extra = 0;")),
+    ("encode", "tuple rows: one row is EMPTY_LIST, APPEND", ENCODE,
+     swap("        list_extra = 2;                          % EMPTY_LIST, APPEND",
+          "        list_extra = 3;")),
+    ("encode", "tuple rows: batches of 1000", ENCODE,
+     swap("list_extra = 1 + 2 * ceil(n / 1000);", "list_extra = 1 + 2 * ceil(n / 2000);")),
+    ("encode", "tuple rows: whole-list size only inside one frame", ENCODE,
+     swap("    if ~s.framing || held + total <= 65536", "    if true")),
+    ("encode", "tuple rows: frame boundary before each int", ENCODE,
+     swap("            s = boundary(s);                     % save(int)\n", "")),
+    ("encode", "tuple rows: MARK per batch across frames", ENCODE,
+     swap("if n > 1 && mod(j - 1, 1000) == 0", "if n > 1 && j == 1")),
+    # mission: wire shapes of the mission payloads (InformationTest)
+    ("mission", "report position is a tuple of ints", WIRE,
+     swap("    t = panama_uav.transport.PyTuple(int64(p(1)), int64(p(2)));",
+          "    t = panama_uav.transport.PyTuple(double(p(1)), double(p(2)));")),
+    ("mission", "report distance is a float", WIRE,
+     swap("'distance', double(r.distance)", "'distance', int64(r.distance)")),
+    ("mission", "report completed is a bool", WIRE,
+     swap("'completed', logical(r.completed));\nend", "'completed', double(r.completed));\nend")),
+    ("mission", "path is a list of tuples", WIRE,
+     swap("        'path', panama_uav.transport.PyTupleRows(reshape(r.path, [], 2)), ...",
+          "        'path', panama_uav.transport.PyTupleRows(reshape(r.path, [], 1)), ...")),
+    ("mission", "reports keyed by int agent id", WIRE,
+     swap("            ids = num2cell(int64(0:n - 1));", "            ids = num2cell(double(0:n - 1));")),
+    ("mission", "sources map agent to float time", WIRE,
+     swap("    d = panama_uav.transport.PyDict(num2cell(int64(ids)), num2cell(double(values)));",
+          "    d = panama_uav.transport.PyDict(num2cell(int64(ids)), num2cell(int64(values)));")),
+    ("mission", "information keyed by field", WIRE,
+     swap("            w = struct(payload.field, item);", "            w = item;")),
+    ("mission", "Guidance pickled by its module path", WIRE,
+     swap("PyInstance('panama_uav.information', 'Guidance'", "PyInstance('information', 'Guidance'")),
+    ("mission", "Guidance state: route and reported_distance", WIRE,
+     swap("                'reported_distance', double(v.reported_distance)));",
+          "                'distance', double(v.reported_distance)));")),
+    ("mission", "intentions: path and completed per peer", WIRE,
+     swap("                'completed', logical(x.completed)), v, 'UniformOutput', false);",
+          "                'done', logical(x.completed)), v, 'UniformOutput', false);")),
+    # rollout: MissionCommunication on the physical profile (EnvironmentParityTest, 2 cases)
+    ("rollout", "messages carry Python's wire size", MISSION,
+     swap("obj.transport.send(agent, kind, payload, varargin{:}, 'wire_bytes', bytes);",
+          "obj.transport.send(agent, kind, payload, varargin{:}, 'wire_bytes', bytes + 1);")),
+    ("rollout", "task information sourced from its agent only", MISSION,
+     swap("                        ids = packet.agent;\n                        times = packet.generated_at;",
+          "                        ids = 0:numel(payload.sources) - 1;\n                        times = payload.sources;")),
+    # trace_import: import_trace, npy/npz writers, float repr (ImportTraceTest)
+    ("trace_import", "direction required", IMPORT, drop("Direction is required")),
+    ("trace_import", "explicit units", IMPORT, drop("Explicit supported units required")),
+    ("trace_import", "empty file has no first line", IMPORT,
+     swap("    if isempty(text)\n        error(", "    if false\n        error(")),
+    ("trace_import", "delimiter from the first line only", IMPORT,
+     swap("    comma = any(first == 44);", "    comma = any(text == 44);")),
+    ("trace_import", "first line ends at splitlines boundaries", IMPORT,
+     swap("    breaks = [10 13 11 12 28 29 30 133 8232 8233];", "    breaks = [10 13];")),
+    ("trace_import", "'#' starts a comment", IMPORT,
+     swap("        hash = find(line == 35, 1);", "        hash = [];")),
+    ("trace_import", "comma mode skips only empty rows", IMPORT,
+     swap("            if isempty(line)\n                continue;", "            if all(is_space(line))\n                continue;")),
+    ("trace_import", "whitespace is str.isspace", IMPORT,
+     swap("(cp >= 28 & cp <= 32) | cp == 133 | cp == 160", "cp == 32 | cp == 133 | cp == 160")),
+    ("trace_import", "consistent column count", IMPORT, drop("the number of columns changed")),
+    ("trace_import", "three columns", IMPORT, drop("Expected sequence, transmit timestamp")),
+    ("trace_import", "str width over the whole file", IMPORT,
+     swap("    width = max([1, cellfun(@numel, raw(:))']);", "    width = max([1, cellfun(@numel, raw(:, 1))']);")),
+    ("trace_import", "trailing NULs dropped on read-back", IMPORT,
+     swap("    k = find(cp ~= 0, 1, 'last');", "    k = numel(cp);")),
+    ("trace_import", "header row detected", IMPORT,
+     swap("    if size(value, 1) >= 1 && is_text(value{1, 1}, 'seq_nr')", "    if false && is_text(value{1, 1}, 'seq_nr')")),
+    ("trace_import", "dl_t0 header accepted", IMPORT,
+     swap(" || is_text(value{1, 2}, 'dl_t0')", "")),
+    ("trace_import", "header-only file is empty", IMPORT, drop("Empty trace file")),
+    ("trace_import", "float: single underscores between digits", IMPORT,
+     swap("['^[+-]?(?:inf|infinity|nan|(?:\\d(?:_?\\d)*", "['^[+-]?(?:inf|infinity|nan|(?:\\d[\\d_]*")),
+    ("trace_import", "float: non-ASCII spaces stripped", IMPORT,
+     swap("    t(t > 127 & is_space(t)) = 32;", "")),
+    ("trace_import", "float: Unicode decimal digits", IMPORT,
+     swap("    for z = zeros_(2:end)", "    for z = []")),
+    ("trace_import", "float: only ASCII whitespace stripped", IMPORT,
+     swap("    ascii_space = t == 32 | (t >= 9 & t <= 13);", "    ascii_space = t == 32 | (t >= 9 & t <= 13) | (t >= 28 & t <= 31);")),
+    ("trace_import", "float: error repr", IMPORT,
+     swap("        elseif c >= 32 && c < 127\n            parts{k} = char(c);",
+          "        elseif c >= 0 && c < 127\n            parts{k} = char(c);")),
+    ("trace_import", "values finite, delays nonnegative", IMPORT,
+     swap(" || any(delays < 0)\n", "\n")),
+    ("trace_import", "timestamps ordered", IMPORT, drop("Trace timestamps must be ordered")),
+    ("trace_import", "start bound inclusive", IMPORT,
+     swap("mask = mask & timestamps >= start_s;", "mask = mask & timestamps > start_s;")),
+    ("trace_import", "end bound inclusive", IMPORT,
+     swap("mask = mask & timestamps <= end_s;", "mask = mask & timestamps < end_s;")),
+    ("trace_import", "empty segment", IMPORT, drop("Empty trace segment")),
+    ("trace_import", "origin not after the first sample", IMPORT, drop("Trace origin must not be later")),
+    ("trace_import", "default origin is the first kept sample", IMPORT,
+     swap("        origin = chosen(1);", "        origin = timestamps(1);")),
+    ("trace_import", "unit scale applied by one multiplication", IMPORT,
+     swap("    timestamps = timestamps * scale;", "    timestamps = timestamps / (1 / scale);")),
+    ("trace_import", ".npz appended to the output name", IMPORT,
+     swap("        out = [out, '.npz'];", "        out = out;")),
+    ("trace_import", "source sha256 in metadata", IMPORT,
+     swap("panama_uav.util.sha256_bytes(bytes), ...", "panama_uav.util.sha256_bytes(uint8([])), ...")),
+    ("trace_import", "metadata JSON escapes non-ASCII", IMPORT,
+     swap("                if c < 32 || (c > 126 && c < 65536)", "                if c < 32")),
+    ("trace_import", "float repr: exponent from 1e16", REPR, swap("if e >= -4 && e < 16", "if e >= -4 && e < 17")),
+    ("trace_import", "float repr: exponent below 1e-4", REPR, swap("if e >= -4 && e < 16", "if e >= -5 && e < 16")),
+    ("trace_import", "float repr: shortest round trip", REPR, swap("    for p = 1:17\n", "    for p = 17:17\n")),
+    ("trace_import", "npy: room to grow the first axis", NPY_W,
+     swap("growth = 21 - numel(sprintf('%d', numel(x)));", "growth = 20 - numel(sprintf('%d', numel(x)));")),
+    ("trace_import", "npy: header padded to 64 bytes", NPY_W,
+     swap("    pad = 64 - mod(10 + hlen, 64);", "    pad = 16 - mod(10 + hlen, 16);")),
+    ("trace_import", "npy: UTF-32 little-endian", NPY_W,
+     swap("body = uint8(reshape([mod(w, 256); mod(floor(w / 256), 256); ...\n                mod(floor(w / 65536), 256); floor(w / 16777216)], 1, []));",
+          "body = uint8(reshape([floor(w / 16777216); mod(floor(w / 65536), 256); ...\n                mod(floor(w / 256), 256); mod(w, 256)], 1, []));")),
+    ("trace_import", "zip: CRC-32 of each member", NPZ_W,
+     swap("    c = bitxor(c, 4294967295);", "    c = bitxor(c, 4294967294);")),
+    # records: SHA-256 (RecordsTest)
+    ("records", "sha256: length padding", SHA, swap("    pad = mod(55 - n, 64);", "    pad = mod(56 - n, 64);")),
+    ("records", "sha256: message schedule sigma0", SHA,
+     swap("s0 = bitxor(bitxor(rotr(x, 7), rotr(x, 18)), floor(x / 8));",
+          "s0 = bitxor(bitxor(rotr(x, 7), rotr(x, 18)), floor(x / 4));")),
+    ("records", "sha256: rotation", SHA, swap("    y = (x - lo) / p + lo * 2^(32 - n);", "    y = (x - lo) / p + lo * 2^(31 - n);")),
+    ("records", "sha256: round constant", SHA, swap("'c67178f2'", "'c67178f3'")),
+    ("records", "sha256: big-endian length", SHA, swap("    for k = 8:-1:1", "    for k = 1:8")),
     # npy: .npy files written by NumPy (NpyTest)
     ("npy", "v2/v3 header length is 4 bytes", NPY,
      swap("header_length = fread(fid, 1, 'uint32');", "header_length = fread(fid, 1, 'uint16');")),
@@ -289,8 +451,13 @@ MUTANTS = [
 # what Python does, loop forever, which the sweep could only report as
 # TIMEOUT; TransportTest checks the guard's error on the two cases.
 
-TESTS = {"config": "Config", "toml": "Toml", "env": "Rng", "encode": "Encode", "trace": "Trace",
-         "npy": "Npy", "transport": "Transport"}
+TESTS = {"config": ["Config"], "toml": ["Toml"], "env": ["Rng"], "encode": ["Encode"],
+         "trace": ["Trace"], "npy": ["Npy"], "transport": ["Transport"],
+         "mission": ["Information"],
+         # Two physical rollouts (stale fields, short cap): about a minute per mutant.
+         "rollout": ["EnvironmentParityTest/testPhysicalStaleAllUav",
+                     "EnvironmentParityTest/testPhysicalTruncation"],
+         "trace_import": ["ImportTrace"], "records": ["Records"]}
 
 
 def apply(text, mutation):
@@ -314,8 +481,8 @@ def copy_tree(dest):
     shutil.copytree(ROOT, dest, ignore=ignore, symlinks=True)
 
 
-def run_tests(tree, pattern):
-    """Run one test file pattern; return (verdict, summary).
+def run_tests(tree, patterns):
+    """Run the test patterns (run_tests.m) in one Octave; return (verdict, summary).
 
     verdict is "pass" (every test passed), "assert" (at least one test
     FAILed on a verify/assert, even if other tests ERRORed), "error" (no
@@ -323,19 +490,22 @@ def run_tests(tree, pattern):
     ERRORed with an unexpected exception or the run printed no summary) or
     "timeout".
     """
-    cmd = [OCTAVE, "--no-gui", "--eval", f"cd matlab; ok = run_tests('{pattern}'); exit(~ok)"]
+    calls = " ".join(f"ok = run_tests('{p}') && ok;" for p in patterns)
+    cmd = [OCTAVE, "--no-gui", "--eval", f"cd matlab; ok = true; {calls} exit(~ok)"]
     try:
         res = subprocess.run(cmd, cwd=tree, capture_output=True, text=True, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
         return "timeout", f"no result after {TIMEOUT} s"
     out = res.stdout + res.stderr
-    m = re.search(r"(\d+) passed, (\d+) failed", out)
+    found = re.findall(r"(\d+) passed, (\d+) failed", out)
     fails = len(re.findall(r"^  FAIL ", out, re.M))
     errors = len(re.findall(r"^  ERROR ", out, re.M))
-    if not m:
-        return "error", "no summary (run errored)"
-    summary = f"{m.group(1)} passed, {m.group(2)} failed ({fails} FAIL, {errors} ERROR)"
-    if res.returncode == 0 and m.group(2) == "0":
+    if len(found) != len(patterns):
+        return "error", f"{len(found)} of {len(patterns)} summaries (run errored)"
+    passed = sum(int(a) for a, _ in found)
+    failed = sum(int(b) for _, b in found)
+    summary = f"{passed} passed, {failed} failed ({fails} FAIL, {errors} ERROR)"
+    if res.returncode == 0 and failed == 0:
         return "pass", summary
     return ("assert" if fails else "error"), summary
 
@@ -348,7 +518,7 @@ def main(argv):
     chosen = [m for m in MUTANTS if m[0] in groups]
     if "--list" in argv:
         for g, name, path, _ in chosen:
-            print(f"{g:7} {name:45} {path}")
+            print(f"{g:12} {name:48} {path}")
         return 0
     lines = []
     ok = True
@@ -358,7 +528,7 @@ def main(argv):
         copy_tree(tree)
         for group in groups:
             status, summary = run_tests(tree, TESTS[group])
-            lines.append(f"baseline {group:7} {TESTS[group]}Test: {summary}")
+            lines.append(f"baseline {group:12} {'+'.join(TESTS[group])}: {summary}")
             print(lines[-1], flush=True)
             if status != "pass":
                 ok = False
@@ -374,7 +544,7 @@ def main(argv):
             # Only assertion kills count as covered: a crash or a hang shows
             # the mutant broke something, not that a test checks the rule.
             ok = ok and verdict == "killed"
-            lines.append(f"{verdict:8} {group:7} {name:45} {summary} ({time.time() - t0:.0f} s)")
+            lines.append(f"{verdict:8} {group:12} {name:48} {summary} ({time.time() - t0:.0f} s)")
             print(lines[-1], flush=True)
     for group in groups:
         c = counts[group]

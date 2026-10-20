@@ -968,6 +968,109 @@ def group_trace():
     return out
 
 
+IMPORT_TRACE_EDGE = [
+    # (text bytes, params): params are direction, unit, start, end, origin, output name
+    (b"", {}), (b"\n", {}), (b"seq_nr ul_t0 owd_t0_t1\n", {}), (b"# a,b\n1 2 3\n", {}),
+    (b"1 2 3\x0c4,5,6\n", {}), (b"5\x00 2 3\n6 3 4\x00\x00\n", {}), (b"1,2,3\n  \n4,5,6\n", {}),
+    (b"1,2,3\n\n# c\n4,5,6\n", {}), (b"seq_nr dl_t0 owd_t0_t1\n1 2 3\n", {}),
+    (b"seq_nr ul_t0 owd\n1 2 3\n", {}), (b"1 2 3\n2 x 4\n", {}), (b"1 2 3\n2 3 y\n", {}),
+    ("1 \u0663 3\n".encode(), {}), ("1\xa02\u20033\n2\u30003\x854\n".encode(), {}),
+    (b"1 2 -3\n", {}), (b"1 inf 3\n", {}), (b"1 2 nan\n", {}), (b"1 2 3\n2 1 3\n", {}),
+    (b"1 2 3\n2 2 3\n", {}), (b"1 10 3\n2 20 3\n", {"unit": "s", "start": 11.0, "end": 19.0}),
+    (b"1 10 3\n2 20 3\n", {"unit": "s", "start": 10.0, "end": 20.0}),
+    (b"1 10 3\n2 20 3\n", {"unit": "s", "origin": 10.5}),
+    (b"1 10 3\n2 20 3\n", {"unit": "s", "origin": 4.0}),
+    (b"1 10 3\n2 20 3\n", {"unit": "s", "start": 15.0, "origin": 12.0}),
+    (b"1 2 3\n", {"output": "plain.bin"}), (b"1 2 \xff\n", {}), (b"1 2 \xc3", {}),
+    (b"1 2 3\r4 5 6\r", {}), (b"1 2 3\r\n4 5 6", {}), (b"1 1_000 2.5e3\n2 1_0_0_1 .5\n", {"unit": "us"}),
+    (b" 1 , 2 , 3 \n4,5 ,6\n", {"unit": "ms"}), (b"1,2,3,\n", {}), (b"1,,3\n", {}),
+    (b"1 2 3\n", {"direction": "up"}), (b"1 2 3\n", {"unit": "min"}), (b"1 2 3 # x, y\n4 5 6\n", {}),
+    (b"1\x002 2 3\n", {}), (b"1 2\x003 3\n", {}), (b"\xef\xbb\xbf1 2 3\n", {}),
+    (b"1 1700000000123456789 25000000\n2 1700000000203456789 26000001\n", {"unit": "ns"}),
+    (b"1 2 3\n", {"direction": "downlink"}), (b"1 +INF 3\n", {}), (b"1 2 1e400\n", {}),
+    (b"1 2 3\n", {"unit": "ns", "origin": -0.0}), ("1 2 \u00e9\n".encode(), {}),
+]
+
+
+def _import_trace_case(raw, params):
+    """Run Python's import_trace on RAW and record its verdict for TraceTest."""
+    import hashlib
+    import tempfile
+    import zipfile
+    import zlib
+    from panama_uav.transport import import_trace
+    p = {"direction": "uplink", "unit": "ns", "start": None, "end": None, "origin": None,
+         "output": "out.npz", **params}
+    case = {"hex": raw.hex(), "direction": p["direction"], "unit": p["unit"],
+            "output": p["output"]}
+    for key in ("start", "end", "origin"):
+        case[key] = None if p[key] is None else hexfloat(p[key])
+    case["stop"] = case.pop("end")      # 'end' is a keyword in MATLAB
+    with tempfile.TemporaryDirectory() as tmp:
+        source = Path(tmp) / "trace.txt"
+        source.write_bytes(raw)
+        output = Path(tmp) / p["output"]
+        try:
+            meta = import_trace(source, output, p["direction"], p["unit"], start=p["start"],
+                                end=p["end"], origin_seconds=p["origin"])
+        except Exception as exc:  # noqa: BLE001 - IndexError and UnicodeDecodeError are verdicts too
+            case["error"] = str(exc)
+            case["error_type"] = type(exc).__name__
+            return case
+        written = output if output.suffix == ".npz" else output.with_name(output.name + ".npz")
+        case["written"] = written.name
+        with zipfile.ZipFile(written) as z:
+            data = {n: z.read(n + ".npy") for n in ("timestamps", "delays", "sequence",
+                                                    "source_timestamps", "metadata")}
+        quoted = json.dumps(str(source.resolve()))
+        text = json.loads(np.load(written)["metadata"].item()) and np.load(written)["metadata"].item()
+        assert text.count(quoted) == 1
+        case["members_sha256"] = {n: hashlib.sha256(b).hexdigest() for n, b in data.items()
+                                  if n != "metadata"}
+        case["members_crc32"] = {n: zlib.crc32(b) for n, b in data.items() if n != "metadata"}
+        # The source path differs between machines: it is replaced by @SOURCE@.
+        case["metadata_json_hex"] = text.replace(quoted, "@SOURCE@").encode("utf-8").hex()
+        meta.pop("source")
+        case["metadata"] = tagged(meta)
+    return case
+
+
+def group_import_trace():
+    """import_trace verdicts on edge-case texts and 80 random files from
+    trace_corpus.random_trace (seed 2026): errors with Python's messages, or
+    the .npy members' sha256 and the metadata JSON (source path elided)."""
+    import random
+    import warnings
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from trace_corpus import random_trace
+    rng = random.Random(2026)
+    cases = []
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")        # loadtxt: "input contained no data"
+        for raw, params in IMPORT_TRACE_EDGE:
+            cases.append(_import_trace_case(raw, params))
+        for _ in range(80):
+            raw, params = random_trace(rng)
+            params = {"direction": params["direction"], "unit": params["unit"],
+                      "start": params["start"], "end": params["stop"], "origin": params["origin"]}
+            cases.append(_import_trace_case(raw, params))
+    return {"cases": cases}
+
+
+def group_records():
+    """records.sha256 (hashlib) of repository files and of byte patterns
+    bytes((7 * i + 3) % 256 for i in range(n)) around the 55/56/64-byte
+    padding boundaries of SHA-256."""
+    import hashlib
+    from panama_uav.records import sha256
+    files = ["configs/base.toml", "maps/random-32-32-10.map", f"{TRACE_DIR}/trace_uplink.npz"]
+    lengths = [0, 1, 3, 55, 56, 57, 63, 64, 65, 119, 120, 128, 1000, 4097]
+    return {"files": [{"path": f, "sha256": sha256(ROOT / f)} for f in files],
+            "patterns": [{"n": n, "sha256": hashlib.sha256(bytes((7 * i + 3) % 256
+                                                               for i in range(n))).hexdigest()}
+                         for n in lengths]}
+
+
 NPY_CLASSES = {"f8": "double", "f4": "single", "i8": "int64", "i4": "int32", "i2": "int16",
                "i1": "int8", "u8": "uint64", "u4": "uint32", "u2": "uint16", "u1": "uint8",
                "b1": "logical"}
