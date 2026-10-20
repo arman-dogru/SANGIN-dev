@@ -265,8 +265,8 @@ in [README_MATLAB.md](../README_MATLAB.md).
        SGP4 propagator, `p618PropagationLosses`) can replace the hand ports;
        keep parity fixtures against `sgp4` 2.27 and ITU-Rpy 0.4.0 either way
 7. [ ] M6/M7: reporting, HTML replay, CLI, CI workflow, side-by-side figures.
-       Give the CI job a `timeout-minutes` (the suite takes about @MINUTES@ min on
-       Octave, so @CI@ is ample): `astar_path` has no closed set, and the
+       Give the CI job a `timeout-minutes` (the suite takes about 11 min on
+       Octave, so 30 is ample): `astar_path` has no closed set, and the
        mutation `>=` → `>` at `astar_path.m:58` makes `MapsTest` loop forever
        instead of failing
 
