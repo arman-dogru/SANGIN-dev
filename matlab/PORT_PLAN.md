@@ -33,9 +33,11 @@ Coverage is measured, not assumed: `python matlab/tools/mutation_sweep.py`
 disables each rule in turn in a temporary copy of the tree and runs the
 relevant test file. It reports each mutant as killed (an assertion failed),
 ERRORED (a crash), TIMEOUT or SURVIVED, and counts only assertion kills.
-Measured on a fresh clone of commit 84dba21: config 20/20, toml 29/29,
-env 2/2, encode 18/18, trace 6/6 and transport 29/29 killed by assertions,
-with 0 errored, 0 timed out and 0 survived. Mutants that cannot change a
+Measured on fresh clones of matlab-m1b-fixes (67c6b0c for every group;
+npy rerun at 4348c03 after its test stopped erroring on a rejected valid
+file): config 20/20, toml 29/29, env 2/2, encode 19/19, npy 6/6, trace 6/6
+and transport 30/30 killed by assertions, with 0 errored, 0 timed out and
+0 survived. Mutants that cannot change a
 result, or whose only effect is an endless loop, are listed (with the
 reason) at the end of the sweep's MUTANTS table.
 `python matlab/tools/toml_corpus.py` compares toml_decode with tomllib on
@@ -233,7 +235,7 @@ in [README_MATLAB.md](../README_MATLAB.md).
       `_finish_transmission` as `finish_transmission`, round robin,
       fragmentation, handover pauses and `handover_windows`), `encode_size`
       for plain value types, `DelayTrace` with the `.npz` reader and trace
-      replay, byte counters, `occupancy` (`EncodeTest`, `TraceTest`, `TransportTest`)
+      replay, byte counters, `occupancy` (`EncodeTest`, `NpyTest`, `TraceTest`, `TransportTest`)
 
 **Next, in order:**
 1. [ ] Run `run_tests` on licensed MATLAB R2021b+ and fix any MATLAB/Octave differences

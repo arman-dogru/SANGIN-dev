@@ -18,7 +18,8 @@ one verify/assert caught the mutant (the summary shows both counts).
 Groups: config (the 20 load_config / validate_transport / overlay rules,
 run against ConfigTest), toml (toml_decode's rejection and location rules,
 TomlTest), env (start/goal pop order, RngTest), encode (pickle size rules,
-EncodeTest), trace (.npz reader and DelayTrace, TraceTest) and transport
+EncodeTest), npy (.npy files written by NumPy, NpyTest), trace (.npz
+reader and DelayTrace, TraceTest) and transport
 (physical link service, handovers, trace replay, byte counters and
 occupancy, TransportTest). The summary is printed
 and written to matlab/output/mutation_sweep.txt, which is gitignored.
@@ -179,6 +180,18 @@ MUTANTS = [
      swap("    if k >= 65536\n        s = commit(s);", "    if k > 65536\n        s = commit(s);")),
     ("encode", "no frame around a bypassed payload", ENCODE,
      swap("        s.framing = false;\n        s = write(s, header);", "        s = write(s, header);")),
+    ("encode", "uint64 up to 2**31 - 1 is a BININT", ENCODE,
+     swap("small = v <= uint64(2147483647);", "small = false;")),
+    # npy: .npy files written by NumPy (NpyTest)
+    ("npy", "v2/v3 header length is 4 bytes", NPY,
+     swap("header_length = fread(fid, 1, 'uint32');", "header_length = fread(fid, 1, 'uint16');")),
+    ("npy", "big-endian refused", NPY, drop("Big-endian arrays")),
+    ("npy", "float32 read as single", NPY, swap("'f4', 'single'", "'f4', 'double'")),
+    ("npy", "truncated numeric data", NPY,
+     swap("    if numel(values) ~= count\n", "    if false\n")),
+    ("npy", "truncated string data", NPY,
+     swap("        if numel(units) ~= width * count\n", "        if false\n")),
+    ("npy", "bool becomes logical", NPY, swap("values = values ~= 0;", "values = values;")),
     # trace: .npz reader and DelayTrace.delay (TraceTest)
     ("trace", "delay outside the segment", TRACE, drop("Simulation exceeds imported trace segment")),
     ("trace", "searchsorted side='right'", TRACE,
@@ -250,6 +263,8 @@ MUTANTS = [
           "                            total = total + q.message.size_bytes + queues{j}{e}{2};")),
     ("transport", "occupancy: transmitting remainder", TRANSPORT_M,
      swap("transmitting = transmitting + value{2}.remaining_bytes;", "transmitting = transmitting + 0;")),
+    ("transport", "advance ends at now = until", TRANSPORT_M,
+     swap("obj.now = double(until_time);", "obj.now = obj.now;")),
     ("transport", "handover windows overlap the start", TRANSPORT_M,
      swap("if i * interval + pause >= start", "if true")),
     ("transport", "handover windows from k = 1", TRANSPORT_M,
@@ -275,7 +290,7 @@ MUTANTS = [
 # TIMEOUT; TransportTest checks the guard's error on the two cases.
 
 TESTS = {"config": "Config", "toml": "Toml", "env": "Rng", "encode": "Encode", "trace": "Trace",
-         "transport": "Transport"}
+         "npy": "Npy", "transport": "Transport"}
 
 
 def apply(text, mutation):
