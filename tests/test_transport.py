@@ -1,5 +1,10 @@
 import copy
+import json
+import os
+import subprocess
+import sys
 from itertools import pairwise
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -128,3 +133,36 @@ def test_reservation_blocks_newer_updates_in_same_flow():
     assert [p.payload["version"] for p in received] == list(range(1, 21))
     assert received[0].generated_at == 1
     assert t.counters["exposed_messages"] == 2
+
+
+HANDOVER_HANG_REPRO = """
+import json, sys
+from dataclasses import replace
+from panama_uav.config import TransportConfig
+from panama_uav.transport import Transport
+
+config = replace(TransportConfig(), profile="physical", contention_enabled=False,
+                 handover_interval_seconds=0.7, handover_interruption_seconds=float(sys.argv[1]))
+transport = Transport(config)
+transport.advance(8.0)
+transport.send(0, "data", bytes(600_000), route=("satellite_up",))
+transport.advance(9.0)
+finish = Transport(config)._finish_transmission(8.35072, 0.48, True)
+print(json.dumps({"delivered": transport.counters["messages_delivered"], "finish": finish}))
+"""
+
+
+@pytest.mark.parametrize("pause", [0.0, 1e-17])
+def test_zero_handover_interruption_terminates(pause):
+    # Issue #9: with a zero (or sub-ulp) pause, time / interval could round down
+    # onto the window that just ended and _finish_transmission never returned.
+    # Run in a child so a regression fails on the timeout instead of hanging.
+    result = subprocess.run(
+        [sys.executable, "-c", HANDOVER_HANG_REPRO, repr(pause)],
+        capture_output=True, text=True, timeout=60,
+        env={**os.environ, "PYTHONPATH": str(Path(__file__).resolve().parents[1] / "src")},
+    )
+    assert result.returncode == 0, result.stderr
+    out = json.loads(result.stdout)
+    assert out["delivered"] == 1
+    assert out["finish"] == pytest.approx(8.35072 + 0.48, abs=1e-12)
