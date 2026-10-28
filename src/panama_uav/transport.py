@@ -378,6 +378,9 @@ class Transport:
             if index > 0 and time < window + pause:
                 time = window + pause
             next_window = (math.floor(time / interval) + 1) * interval
+            if next_window + pause == time:
+                # time / interval rounded down onto the window that just ended
+                next_window += interval
             available = next_window - time
             if remaining <= available:
                 return time + remaining
